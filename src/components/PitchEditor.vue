@@ -1,0 +1,77 @@
+<template>
+ <div>
+    <NumericEditor v-model="pitchEdit" 
+        :decimals="pitchType == PitchType.Metric ? 2 : 0" 
+        :min-value="pitchType == PitchType.Metric ? .3 : 6"    
+        :max-value="pitchType == PitchType.Metric ? 4 : 64" label="Pitch" 
+        @validated="isValid = $event" />
+
+    <div class="field">
+      <div class="control">
+        <label class="radio">
+            <input type="radio" name="dpt" :value="PitchType.Metric" :checked="pitchType == PitchType.Metric" @change="updateType"/>
+            Metric (mm/rev)
+        </label>
+        <label class="radio">
+            <input type="radio" name="dpt" :value="PitchType.Imperial" :checked="pitchType == PitchType.Imperial" @change="updateType"/>
+            Imperial (TPI)
+        </label>
+      </div>
+    </div>
+    </div>
+</template>
+<script lang="ts">
+import { INCH, PitchType } from '@/bll/pitch';
+import NumericEditor from './NumericEditor.vue';
+
+export default {
+    setup() {
+        return {
+            isValid: true,
+            PitchType: PitchType,
+        };
+    },
+    props: {
+        pitch: { type: Number, default: 1 },
+        pitchType: { type: Number, default: PitchType.Metric }
+    },
+    methods: {
+        updateValue(event: any) {
+            const val = Number(event.target.value);
+            this.updateValueImpl(val);
+        },
+        updateValueImpl(val: number) {
+            if (this.pitch != val) {
+                this.$emit("update:pitch", val);
+            }
+        },
+        updateType(event: any) {
+            const val = Number(event.target.value);
+            this.updateTypeImpl(val);
+        },
+        updateTypeImpl(val: number) {
+            if (this.pitchType != val) {
+                this.updateValueImpl(INCH / this.pitch);
+                this.$emit("update:pitchType", val);
+            }
+        }
+    },
+    computed: {
+        pitchEdit: {
+            get() {return this.pitch;},
+            set(val: number) {this.updateValueImpl(val);}
+        },
+    },
+    watch: {
+        isValid(n: boolean) {
+            this.$emit("validated", n);
+        }
+    },
+    emits: [
+        "validated",
+        "update:pitch",
+        "update:pitchType"    
+    ],
+    components: { NumericEditor }
+}
+</script>
