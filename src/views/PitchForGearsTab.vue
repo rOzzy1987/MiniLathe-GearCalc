@@ -1,6 +1,6 @@
 <template>
     <div class="box">
-        <div class="block">{{ pfgDescription }}</div>
+        <div class="block">{{ i18n.pfgDescription }}</div>
       <div class="columns">
         <div class="column is-half">
             <GearCombinationEditor v-model:gearA="ga" v-model:gearB="gb" v-model:gearC="gc" v-model:gearD="gd" :check-required="false"/>
