@@ -101,10 +101,10 @@
                 <!-- gears -->
                 <GearImg class="gear" :cx="spindlePos.x" :cy="spindlePos.y" :size="ga" :sizeText="true" :textRotation="180"/>
                 <ellipse class="axle" :cx="spindlePos.x " :cy="spindlePos.y " :rx="4 " :ry="4 "/>
-                <GearImg class="gear" :cx="midAxlePos.x" :cy="midAxlePos.y" :size="gb" :sizeText="true"/>
-                <GearImg class="gear" :cx="midAxlePos.x" :cy="midAxlePos.y" :size="gc" :class="{trans: gc > gb}" :sizeText="true"/>
+                <GearImg class="gear" :cx="midAxlePos.x" :cy="midAxlePos.y" :size="gb" :sizeText="true"  :textRotation="90"/>
+                <GearImg class="gear" :cx="midAxlePos.x" :cy="midAxlePos.y" :size="gc" :class="{trans: gc > gb}" :sizeText="true"  :textRotation="90"/>
                 <ellipse class="axle" :cx="midAxlePos.x " :cy="midAxlePos.y " :rx="4 " :ry="4 "/>
-                <GearImg class="gear" :cx="leadscrewPos.x" :cy="leadscrewPos.y" :size="gd" :sizeText="true" :textRotation="-90"/>
+                <GearImg class="gear" :cx="leadscrewPos.x" :cy="leadscrewPos.y" :size="gd" :class="{trans: gb > gc}" :sizeText="true" :textRotation="-90"/>
                 <ellipse class="axle" :cx="leadscrewPos.x " :cy="leadscrewPos.y " :rx="4 " :ry="4 "/> 
             </g>
 

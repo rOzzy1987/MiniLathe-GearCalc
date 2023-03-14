@@ -4,8 +4,8 @@
         
         <g v-if="sizeText && size >= 30" :transform="'rotate(' + textRotation + ')'" >
         <path :id="'curve'+id" stroke="none" fill="none" :d="'M '+(-(r - 3))+' 0 A '+(r - 3)+' '+(r - 3)+' 0 0 0 '+(r - 3)+' 0'" />
-        <text width="100" style="font-size: 8px; letter-spacing: 2px;" stroke="none" fill="#888">
-            <textPath alignment-baseline="baseline" :xlink:href="'#curve'+id">
+        <text width="100" alignment-baseline="baseline" style="font-size: 8px; letter-spacing: 2px;" stroke="none" fill="#888">
+            <textPath :xlink:href="'#curve'+id">
             M1 Z{{ size }}
             </textPath>
         </text>

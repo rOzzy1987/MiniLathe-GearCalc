@@ -30,7 +30,7 @@
       <PitchTableTab v-model="combos"/>
     </section>
     <section v-if="activeTab == ActiveTabs.PitchForGears" class="section" >
-      <PitchForGearsTab v-model="combos" v-model:gearA="gearA" v-model:gearB="gearB" v-model:gearC="gearC" v-model:gearD="gearD"/>
+      <PitchForGearsTab v-model="combos" v-model:gearA="gearA" v-model:gearB="gearB" v-model:gearC="gearC" v-model:gearD="gearD" :leadscrew="config?.leadscrew"/>
     </section>
     <section v-if="activeTab == ActiveTabs.GearsForPitch" class="section" >
       <GearsForPitchTab v-model="combos" v-model:desiredPitch="pitch"/>
@@ -45,7 +45,6 @@
           Translation:<br/>
           &copy; {{i18n.credits}}
         </p>
-
         <p>
           <a href="https://github.com/rOzzy1987/MiniLathe-GearCalc" class="button is-small">
           <figure clas="image is-16x16">

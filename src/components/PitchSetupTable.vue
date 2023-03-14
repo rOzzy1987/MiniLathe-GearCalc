@@ -4,12 +4,12 @@
             <table class="table is-narrow is-fullwidth is-striped is-hoverable">
                 <thead>
                     <tr>
-                        <th @click="setOrder(OrderBy.A)">A</th>
-                        <th @click="setOrder(OrderBy.B)">B</th>
-                        <th @click="setOrder(OrderBy.C)">C</th>
-                        <th @click="setOrder(OrderBy.D)">D</th>
-                        <th @click="setOrder(OrderBy.P)" :title="i18n.genericPitch+'('+i18n.genericMetric+')'">Pm</th>
-                        <th @click="setOrder(OrderBy.P, false)" :title="i18n.genericPitch+'('+i18n.genericImperial+')'">Pi</th>
+                        <th @click="setOrder(OrderBy.A)" style="width: 10%">A</th>
+                        <th @click="setOrder(OrderBy.B)" style="width: 10%">B</th>
+                        <th @click="setOrder(OrderBy.C)" style="width: 10%">C</th>
+                        <th @click="setOrder(OrderBy.D)" style="width: 10%">D</th>
+                        <th @click="setOrder(OrderBy.P)" style="width: 30%" :title="i18n.genericPitch+'('+i18n.genericMetric+')'">Pm</th>
+                        <th @click="setOrder(OrderBy.P, false)" style="width: 30%" :title="i18n.genericPitch+'('+i18n.genericImperial+')'">Pi</th>
                     </tr>
                 </thead>
                 <tbody>

@@ -17,6 +17,10 @@ export class Pitch {
                 : PitchType.Metric);
     }
 
+    public toMetric(): Pitch {
+        return this.type == PitchType.Metric ? this : this.convert();
+    }
+
     public withRatio(ratio: number): Pitch{
         return new Pitch(this.type == PitchType.Metric ? this.value / ratio : this.value * ratio, this.type);
     }

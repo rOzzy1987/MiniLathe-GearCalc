@@ -20,11 +20,6 @@ export class PitchSetup {
             this.pitch = pitch as Pitch;
     }
 
-    public fitness(): number {
-        const a = (this.gearA + (Number.isNaN(this.gearB)?60:this.gearB) + (Number.isNaN(this.gearC)?60:this.gearC) + this.gearD);
-        return Math.abs(180 - a);
-    }
-
     public toString() : string{
         return this.gearA + "\t" + (this.gearB ?? "-") + "\t" + (this.gearC ?? "-") + "\t" + this.gearD + "\t >> " + this.pitch.toString(0.0001)
     }

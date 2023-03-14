@@ -32,18 +32,15 @@ export default {
     },
     computed: {
         model() {
-            //return this.modelValue?.sort((a,b) => b.fitness() - a.fitness()) ?? [];
             const result: PitchSetup[] = [];
             const thr = 1.003;
             const t = this;
 
             function f(p: Pitch){
                 p = p.type == PitchType.Metric ? p : p.convert();
-                let n = t.modelValue.filter(s => s.pitch.value == p.value);
-                if (n.length == 0){
-                    n  = t.modelValue.filter(s => s.pitch.value > p.value / thr && s.pitch.value < p.value * thr);
-                }
-                n = n.sort((a,b) => a.fitness() - b.fitness());
+                let n  = t.modelValue.filter(s => s.pitch.value > p.value / thr && s.pitch.value < p.value * thr);
+                
+                n = n.sort((a,b) => Math.abs(p.value - a.pitch.value) - Math.abs(p.value - b.pitch.value));
                 return n.length > 0 ? n[0] : null;  
             }
 
