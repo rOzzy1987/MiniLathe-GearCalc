@@ -7,7 +7,7 @@
         @keydown="handleKey($event)"
         @wheel="handleMouse($event)"/>
       </div>
-      <div v-if="tip?.length > 0" class="help is-info">
+      <div v-if="tip?.length ?? 0 > 0" class="help is-info">
         {{ tip }}
       </div>
       <ul v-if="!isValid" class="help is-danger">
