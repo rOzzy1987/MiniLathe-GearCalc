@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="150" height="100">
+    <rect x="0" y="0" width="150" height="100" fill="#001199" />
+
+    <path d="M 0 0 l 0 8 l 134 92 l 16 0 l 0 -8 l -134 -92 l -16 0" fill="#FFFFFF" />
+    <path d="M 150 0 l 0 8 l -134 92 l -16 0 l 0 -8 l 134 -92 l 16 0" fill="#FFFFFF" />
+    
+    <path d="M 0 0 l 150 100 l 0 -5 l -75 -50 l 0 10 l -75 -50 l 0 -5 " fill="#CC0000" />
+    <path d="M 150 0 l -150 100 l 10 0 l 75 -50 l -20 0 l 75 -50 l 10 0 " fill="#CC0000" />
+
+    <rect x="0" y="33.3" width="150" height="33.3" fill="#FFFFFF"/>
+    <rect x="58.3" y="0" width="33.3" height="100" fill="#FFFFFF"/>
+
+    <rect x="0" y="40" width="150" height="20" fill="#CC0000"/>
+    <rect x="65" y="0" width="20" height="100" fill="#CC0000"/>
+</svg>

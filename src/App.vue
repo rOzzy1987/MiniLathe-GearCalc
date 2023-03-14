@@ -1,21 +1,22 @@
 <template>
   <header>
+    <LanguageSelector />
     <section class="section">
       <div class="container">
         <h1 class="title">
-          Mini lathe gear calculator
+          {{ i18n.appTitle }}
         </h1>
-        <h2 class="subtitle">Know what you can do, and how precisely!</h2>
+        <h2 class="subtitle">{{ i18n.appSubtitle }}</h2>
       </div>
     </section>
   </header>
   <main>
     <div class="tabs">
       <ul>
-        <li :class="{'is-active': activeTab == ActiveTabs.PitchTable}" @click="activeTab = ActiveTabs.PitchTable"><a>Pitch table</a></li>
-        <li :class="{'is-active': activeTab == ActiveTabs.GearsForPitch}" @click="activeTab = ActiveTabs.GearsForPitch"><a>Gears for pitch</a></li>
-        <li :class="{'is-active': activeTab == ActiveTabs.PitchForGears}" @click="activeTab = ActiveTabs.PitchForGears"><a>Pitch for gears</a></li>
-        <li :class="{'is-active': activeTab == ActiveTabs.Configure}" @click="activeTab = ActiveTabs.Configure"><a>Configure</a></li>
+        <li :class="{'is-active': activeTab == ActiveTabs.PitchTable}" @click="activeTab = ActiveTabs.PitchTable"><a>{{ i18n.tabPitchTable }}</a></li>
+        <li :class="{'is-active': activeTab == ActiveTabs.GearsForPitch}" @click="activeTab = ActiveTabs.GearsForPitch"><a>{{ i18n.tabGearsForPitch }}</a></li>
+        <li :class="{'is-active': activeTab == ActiveTabs.PitchForGears}" @click="activeTab = ActiveTabs.PitchForGears"><a>{{ i18n.tabPitchForGears }}</a></li>
+        <li :class="{'is-active': activeTab == ActiveTabs.Configure}" @click="activeTab = ActiveTabs.Configure"><a>{{ i18n.tabSetup }}</a></li>
       </ul>
     </div>
 
@@ -31,6 +32,26 @@
     <section v-if="activeTab == ActiveTabs.GearsForPitch" class="section" >
       <GearsForPitchTab v-model="combos" v-model:desiredPitch="pitch"/>
     </section>
+    <footer class="footer">
+      <div class="content has-text-centered">
+        <p>
+          <strong>Mini lathe change gear claculator</strong><br/> 
+          &copy; 2023 Mihály Rozovits
+        </p>
+        <p>
+          Translation: &copy; {{i18n.credits}}
+        </p>
+
+        <p>
+          <a href="https://github.com/rOzzy1987/MiniLathe-GearCalc" class="button is-small">
+          <figure clas="image is-16x16">
+            <img src="https://github.com/favicon.ico" style="height: 16px;">
+            Contribute on GitHub
+          </figure>
+          </a>
+        </p>
+      </div>
+    </footer>
       
   </main>
 </template>
@@ -40,6 +61,7 @@ import CombinationFinder from './bll/combinationFinder';
 import GlobalConfig from './bll/globalConfig';
 import type LatheConfig from './bll/latheConfig';
 import { Pitch, PitchType } from './bll/pitch';
+import LanguageSelector from './components/LanguageSelector.vue';
 import GearsForPitchTab from './views/GearsForPitchTab.vue';
 import PitchForGearsTab from './views/PitchForGearsTab.vue';
 import PitchTableTab from './views/PitchTableTab.vue';
@@ -50,7 +72,7 @@ export default {
         const config = undefined as LatheConfig | undefined;
         const activeTab = config == undefined
           ?ActiveTabs.Configure
-          :ActiveTabs.GearsForPitch;
+          :ActiveTabs.PitchTable;
         const combinator = new CombinationFinder();
         const combos = config == undefined ? [] : combinator.findAllCombinations(config);
         return {
@@ -64,11 +86,16 @@ export default {
             gearD: NaN,
             pitch: new Pitch(1, PitchType.Metric),
             ActiveTabs: ActiveTabs,
+            i18n: GlobalConfig.i18n,
         };
     },
     mounted() {
+      GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
+      GlobalConfig.loadLanguage();
       this.config = GlobalConfig.loadConfig() ?? undefined;
       this.combos = GlobalConfig.loadCombos();
+
+      GlobalConfig.addLanguageChangeListener(() => GlobalConfig.saveLanguage());
     },
     methods: {
 
@@ -84,7 +111,7 @@ export default {
       }
     },
     computed: {},
-    components: { SetupTab, PitchTableTab, PitchForGearsTab, GearsForPitchTab }
+    components: { SetupTab, PitchTableTab, PitchForGearsTab, GearsForPitchTab, LanguageSelector }
 }
 
 enum ActiveTabs {

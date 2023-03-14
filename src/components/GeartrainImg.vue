@@ -1,5 +1,7 @@
 <template>
-    <svg :width="180 * scale" :height="250 * scale" :style="{'stroke-width': 2/scale}">
+    <!-- <svg :style="{'stroke-width': 1/scale}"> -->
+    <svg width="100%" height="100%" :style="{'stroke-width': 1/scale}">
+    <!-- <svg :width="180 * scale" :height="250 * scale" :style="{'stroke-width': 1/scale}"> -->
         <defs>
             <filter id="dropShadow" x="-.50" y="-.50" width="200%" height="200%">
                 <feOffset result="offOut" in="SourceAlpha" dx="0" dy="0" />
@@ -13,7 +15,7 @@
             <rect class="body" :x="spindlePos.x-90" :y="spindlePos.y +20" width="130" height="100" />
             <rect class="body" :x="spindlePos.x+40" :y="spindlePos.y -90" width="70" height="170" />
 
-            <g class="dirchange" transform="rotate(20)" :transform-origin="(spindlePos.x)+' '+(spindlePos.y)">
+            <g class="dirchange" transform="rotate(20)" :transform-origin="(spindlePos.x)+' '+(spindlePos.y)" filter="url(#dropShadow)">
                 <path :d="'M '+(spindlePos.x-50)+' '+(spindlePos.y)+
                 ' l 50 0'+
                 ' l 12 -40'+
@@ -99,28 +101,27 @@
 
             <g>
                 <!-- gears -->
-                <GearImg class="gear" :cx="spindlePos.x" :cy="spindlePos.y" :size="ga"/>
-                <GearImg class="gear" :cx="midAxlePos.x" :cy="midAxlePos.y" :size="gb"/>
-                <GearImg class="gear" :cx="midAxlePos.x" :cy="midAxlePos.y" :size="gc" :class="{trans: gc > gb}"/>
-                <GearImg class="gear" :cx="leadscrewPos.x" :cy="leadscrewPos.y" :size="gd"/>
-
-                <!-- axles -->
+                <GearImg class="gear" :cx="spindlePos.x" :cy="spindlePos.y" :size="ga" :sizeText="true" :textRotation="180"/>
                 <ellipse class="axle" :cx="spindlePos.x " :cy="spindlePos.y " :rx="4 " :ry="4 "/>
+                <GearImg class="gear" :cx="midAxlePos.x" :cy="midAxlePos.y" :size="gb" :sizeText="true"/>
+                <GearImg class="gear" :cx="midAxlePos.x" :cy="midAxlePos.y" :size="gc" :class="{trans: gc > gb}" :sizeText="true"/>
                 <ellipse class="axle" :cx="midAxlePos.x " :cy="midAxlePos.y " :rx="4 " :ry="4 "/>
+                <GearImg class="gear" :cx="leadscrewPos.x" :cy="leadscrewPos.y" :size="gd" :sizeText="true" :textRotation="-90"/>
                 <ellipse class="axle" :cx="leadscrewPos.x " :cy="leadscrewPos.y " :rx="4 " :ry="4 "/> 
             </g>
 
         </g>
-        
     </svg>
 </template>
 <script lang="ts">import { Vector } from '@/bll/math';
 import GearImg from './GearImg.vue';
 
 export default {
-    setup(props) {
+    data(props) {
         const spindlePos = new Vector(80, 105);
-        const leadscrewPos = spindlePos.add(props.leadscrewOffset);
+        const leadscrewOffsetX = 48;
+        const leadscrewOffsetY = Math.sqrt((props.minTeeth*  props.minTeeth) -(leadscrewOffsetX * leadscrewOffsetX));
+        const leadscrewPos = spindlePos.add(new Vector(leadscrewOffsetX, leadscrewOffsetY));
         return {
             spindlePos,
             leadscrewPos,
@@ -155,7 +156,7 @@ export default {
         gearC: { type: Number, default: 0 },
         gearD: { type: Number, default: 0 },
         scale: { type: Number, default: 2 },
-        leadscrewOffset: { type: Vector, default: new Vector(48, 66) }
+        minTeeth: {type: Number, default: 85}
     },
     components: { GearImg }
 }

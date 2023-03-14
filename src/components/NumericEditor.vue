@@ -1,11 +1,14 @@
 <template>
     <div class="field">
-      <label v-if="label.length > 0" class="label" :placeholder="placeholder">{{ label }}</label>
+      <label v-if="label?.length > 0" class="label" :placeholder="placeholder">{{ label }}</label>
       <div class="control">
-        <input class="input" :class="{'is-danger': !isValid}" type="text" v-model="strVal" :disabled="disabled"
+        <input class="input" :class="{'is-danger': !isValid}" type="text" v-model="strVal" :disabled="disabled"  pattern="[0-9]*" inputmode="numeric"
         @input="updateStrVal(($event.target as any).value)" 
         @keydown="handleKey($event)"
         @wheel="handleMouse($event)"/>
+      </div>
+      <div v-if="tip?.length > 0" class="help is-info">
+        {{ tip }}
       </div>
       <ul v-if="!isValid" class="help is-danger">
         <li v-for="item of allMessages" :key="item"> {{ item }} </li>
@@ -13,6 +16,7 @@
     </div>
 </template>
 <script lang="ts">
+import GlobalConfig from '@/bll/globalConfig';
 
 export default {
     data(props) {
@@ -29,6 +33,7 @@ export default {
             roundingStep: roundingSteps,
             errorMessage: "",
             strVal: this.displayValue(props.modelValue),
+            i18n: GlobalConfig.i18n
         }
     },
     emits: [
@@ -46,7 +51,8 @@ export default {
         minValue: {type: Number, default: Number.NEGATIVE_INFINITY},
         maxValue: {type: Number, default: Number.POSITIVE_INFINITY},
         useMouse: {type: Boolean, default: true},
-        disabled: {type: Boolean, default: false}
+        disabled: {type: Boolean, default: false},
+        tip: {type: String, deafult: ""}
     },
     methods: {
         numValue(str: string) : number{
@@ -87,17 +93,17 @@ export default {
         },
         validate(val: string, nval: number){
             if (val != this.displayValue(nval))
-                this.errorMessage = "Invalid number"
+                this.errorMessage = this.i18n.numericInvalid;
             else if (val === "" && this.required)
-                this.errorMessage = "Numer is required";
+                this.errorMessage = this.i18n.numericRequired;
             else if (!Number.isNaN(nval) && (nval < this.minValue || nval > this.maxValue)){
                 var s = "";
                 if(this.minValue != Number.NEGATIVE_INFINITY && this.maxValue != Number.POSITIVE_INFINITY)
-                    s = "Number should be between "+ this.minValue + " and " + this.maxValue;
+                    s = this.i18n.numericShouldBeBetween(this.minValue, this.maxValue);
                 else if(this.minValue != Number.NEGATIVE_INFINITY)
-                    s = "Number should be larger than "+ this.minValue;
+                    s = this.i18n.numericShouldBeGreaterThan(this.minValue);
                 else if(this.maxValue != Number.POSITIVE_INFINITY)
-                    s = "Number should be less than " + this.maxValue;
+                    s =  this.i18n.numericShouldBeLessThan(this.maxValue);
                 this.errorMessage = s;
             } else {
                 this.errorMessage = "";
@@ -135,6 +141,9 @@ export default {
                 this.updateStrVal(this.displayValue(this.numValue(val) + i*this.roundingStep));
             }
         }
+    },
+    mounted() {
+      GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
     },
     watch: {
         decimals(n: number) {

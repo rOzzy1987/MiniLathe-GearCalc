@@ -1,5 +1,6 @@
 <template>
     <div class="box">
+        <div class="block">{{ i18n.gfpDescription }}</div>
       <div class="columns">
         <div class="column is-half">
             <PitchEditor v-model:pitch="dpv" v-model:pitchType="dpt"/>
@@ -17,6 +18,7 @@ import { PitchSetup } from '@/bll/pitchSetup';
 import GeartrainImg from '@/components/GeartrainImg.vue';
 import PitchEditor from '@/components/PitchEditor.vue';
 import PitchSetupTable, { OrderBy } from '@/components/PitchSetupTable.vue';
+import GlobalConfig from '@/bll/globalConfig';
 
 
 export default {
@@ -26,6 +28,7 @@ export default {
             orderBy: OrderBy.P,
             orderAscending: true,
             threshold: 1.003,
+            i18n: GlobalConfig.i18n
         }
     },
     props: {
@@ -56,6 +59,9 @@ export default {
             get() { return this.desiredPitch.type; },
             set(v: number) { this.$emit("update:desiredPitch", new Pitch(this.dpv, v)); }
         },
+    },
+    mounted() {
+      GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
     },
     components: { GeartrainImg, PitchSetupTable, PitchEditor }
 }

@@ -3,12 +3,10 @@
     <div v-if="selectedPitch == null">
       <div v-if="knowPitch === null">
         <div class="field">
-          <label class="label">Do you know your leadscrew pitch?</label>
+          <label class="label">{{ i18n.leadscrewDoYouKnowPitch }}</label>
           <div class="control buttons">
-            <button class="button is-info" @click.prevent="knowPitch = true">Yes</button>
-            <button class="button is-info" @click.prevent="knowPitch = false">
-              No, help me find out!
-            </button>
+            <button class="button is-info" @click.prevent="knowPitch = true">{{ i18n.leadscrewKnowPitch }}</button>
+            <button class="button is-info" @click.prevent="knowPitch = false">{{ i18n.leadscrewDontKnowPitch }}</button>
           </div>
         </div>
       </div>
@@ -16,10 +14,8 @@
       <div v-if="knowPitch">
         <PitchEditor v-model:pitch="pitch.value" v-model:pitchType="pitch.type" />
         <div class="buttons mt-4">
-          <button class="button" @click.prevent="knowPitch = null">Go back</button>
-          <button class="button is-primary" @click.prevent="selectedPitch = pitch">
-            Save
-          </button>
+          <button class="button" @click.prevent="knowPitch = null">{{ i18n.genericBack }}</button>
+          <button class="button is-primary" @click.prevent="selectedPitch = pitch">{{ i18n. genericSave }}</button>
         </div>
       </div>
 
@@ -28,9 +24,7 @@
           <div class="column">
             <div class="message">
               <article class="message-body">
-                Please provide a sample gear setup for a known pitch. You'll most likely
-                find some printed on the geartrain cover. Any one will do. It can be 4
-                gears, or 2 gears.
+                {{ i18n.leadscrewSampleTip }}
               </article>
             </div>
 
@@ -45,14 +39,12 @@
             />
 
             <div class="buttons mt-4">
-              <button class="button" @click.prevent="knowPitch = null">Go back</button>
+              <button class="button" @click.prevent="knowPitch = null">{{ i18n.genericBack }}</button>
               <button
                 class="button is-info"
                 @click.prevent="estimate"
                 :disabled="!sampleSetupValid"
-              >
-                Find my pitch
-              </button>
+              >{{ i18n.leadscrewFind }}</button>
             </div>
           </div>
 
@@ -92,14 +84,14 @@
             </button>
           </div>
           <div class="buttons">
-            <button class="button" @click.prevent="estimation = null">Go back</button>
+            <button class="button" @click.prevent="estimation = null">{{ i18n.genericBack }}</button>
           </div>
         </div>
       </div>
     </div>
     <div v-else>
         <div class="field">
-            <label class="label">Your selected leadscrew pitch</label>
+            <label class="label">{{ i18n.leadscrewSelectedPitch }}</label>
             <div class="control">
                 <div class="tags">
                     <span class="tag is-link">
@@ -112,7 +104,7 @@
         <div class="field">
             <div class="control buttons">
                 <button class="button is-danger" @click.prevent="selectedPitch = null">
-                Edit leadscrew pitch
+                {{ i18n.genericEdit }}
                 </button>
             </div>
         </div>
@@ -131,6 +123,7 @@ import { PitchSetup } from "@/bll/pitchSetup";
 import GeartrainImg from "./GeartrainImg.vue";
 import PitchEditor from "./PitchEditor.vue";
 import PitchSetupEditor from "./PitchSetupEditor.vue";
+import GlobalConfig from '@/bll/globalConfig';
 
 export default {
   data() {
@@ -143,6 +136,7 @@ export default {
       estimation: null as PitchAssumption | null,
       GcMath,
       PitchAssumptionResult,
+      i18n: GlobalConfig.i18n,
     };
   },
   methods: {
@@ -165,19 +159,20 @@ export default {
     estimationText() {
       if (this.estimation == null) return "";
 
-      let result = "Your leadscrew pitch is likely ";
+      let result:string;
+
       switch (this.estimation.result) {
         case PitchAssumptionResult.LikelyMetric:
-          result += "metric.";
+          result = this.i18n.leadscrewLikelyMetric;
           break;
         case PitchAssumptionResult.LikelyImperial:
-          result += "imperial.";
+          result = this.i18n.leadscrewLikelyImperial;
           break;
         case PitchAssumptionResult.NoIdea:
-          result = "We couldn't determine your leadscrew type confidently.";
+          result = this.i18n.leadscrewNoIdea;
           break;
       }
-      result += " Review the calculated options and click the one you prefer:";
+      result += " " + this.i18n.leadscrewReviewOptions;
       return result;
     },
     selectedPitch: {
@@ -188,6 +183,9 @@ export default {
         this.$emit("update:modelValue", v);
       },
     },
+  },
+  mounted() {
+    GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
   },
   components: { PitchEditor, PitchSetupEditor, GeartrainImg },
 };

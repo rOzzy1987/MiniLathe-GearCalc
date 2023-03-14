@@ -1,11 +1,12 @@
 <template>
     <div>
+        <div class="block">{{ i18n.ptDescription }}</div>
       <div class="box columns column-table">
         <div class="column is-half table-container">
             <PitchSetupTable :model-value="model" v-model:selectedItem="selectedSetup" :order-by="OrderBy.N"/>
         </div>
         <div class="column">
-            <GeartrainImg :gear-a="selectedSetup?.gearA" :gear-b="selectedSetup?.gearB" :gear-c="selectedSetup?.gearC" v-bind:gear-d="selectedSetup?.gearD" :scale="4"/>
+            <GeartrainImg :gear-a="selectedSetup?.gearA" :gear-b="selectedSetup?.gearB" :gear-c="selectedSetup?.gearC" v-bind:gear-d="selectedSetup?.gearD" :scale="2"/>
         </div>
       </div>
     </div>
@@ -15,13 +16,15 @@ import { Pitch, PitchType } from '@/bll/pitch';
 import { PitchSetup } from '@/bll/pitchSetup';
 import GeartrainImg from '@/components/GeartrainImg.vue';
 import PitchSetupTable, {OrderBy} from '@/components/PitchSetupTable.vue';
+import GlobalConfig from '@/bll/globalConfig';
 
 
 export default {
     data(){
         return {
             selectedSetup: new PitchSetup(20, null, null, 80, new Pitch(1, PitchType.Metric)),
-            OrderBy: OrderBy
+            OrderBy: OrderBy,
+            i18n: GlobalConfig.i18n
         }
     },
     props: {
@@ -91,6 +94,9 @@ export default {
 
             return result;
         }
+    },
+    mounted() {
+      GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
     },
     components: { GeartrainImg, PitchSetupTable }
 }

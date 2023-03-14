@@ -1,5 +1,8 @@
 import { PitchSetup } from './pitchSetup';
 import LatheConfig from "./latheConfig";
+import type TranslationsBase from '@/i18n/lang';
+import { EnTranslations } from '@/i18n/lang';
+import HuTranslations from '@/i18n/hu';
 
 export default class GlobalConfig {
     public static loadConfig(): LatheConfig | null {
@@ -30,4 +33,39 @@ export default class GlobalConfig {
     public static saveCombos(c: PitchSetup[] | null) {
         localStorage.setItem("gearCombos", JSON.stringify(c?.map(v => v.toPlainObject())));
     }
+
+
+// I18N
+
+    private static _i18n: TranslationsBase = new EnTranslations();
+
+    public static get i18n(): TranslationsBase {
+        return this._i18n;
+    };
+    public static set i18n(value: TranslationsBase){
+        this._i18n = value;
+        for (let i = 0; i < this.listeners.length; i++) {
+            this.listeners[i]();
+        }
+    }
+
+    public static readonly availableLanguages: TranslationsBase[] = [
+        new EnTranslations(),
+        new HuTranslations(),
+    ]
+
+    public static loadLanguage(){
+        const langCode = localStorage.getItem("language");
+        const x = this.availableLanguages.find(l => l.langCode == langCode);
+        this.i18n = x ?? this.availableLanguages[0];
+    }
+
+    public static saveLanguage(){
+        localStorage.setItem("language", this.i18n.langCode);
+    }
+
+    public static addLanguageChangeListener(f: Function){
+        this.listeners.push(f);
+    }
+    private static listeners: Function[] = [];
 }

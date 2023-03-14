@@ -1,14 +1,30 @@
 <template>
-    <path :transform="'translate('+cx+' '+cy+')'" :d="path" />
+    <g :transform="'translate('+cx+' '+cy+')'">
+        <path :d="path" />
+        
+        <g v-if="sizeText && size >= 30" :transform="'rotate(' + textRotation + ')'" >
+        <path :id="'curve'+id" stroke="none" fill="none" :d="'M '+(-(r - 3))+' 0 A '+(r - 3)+' '+(r - 3)+' 0 0 0 '+(r - 3)+' 0'" />
+        <text width="100" style="font-size: 8px; letter-spacing: 2px;" stroke="none" fill="#888">
+            <textPath alignment-baseline="bottom" :xlink:href="'#curve'+id">
+            M1 Z{{ size }}
+            </textPath>
+        </text>
+        </g>
+    </g>
 </template>
 <script lang="ts">
 import { Vector } from '@/bll/math';
 
 export default {
+    data() {
+        return {id: Math.round(Math.random()*10000)}
+    },
     props: {
         cx: {type: Number, default: 0},
         cy: {type: Number, default: 0},
         size: {type: Number, default: 20},
+        sizeText: {type: Boolean, default: false},
+        textRotation: {type: Number, default: 0}
     },
     methods: {
         getPoint(cog: number, point: number, angleStep: number, rootR: number, outsideR: number){
@@ -31,6 +47,7 @@ export default {
         }
     },
     computed: {
+        r() { return this.size / 2},
         path(){
             const rootR = (this.size / 2) - 1.5;
             const outerR = (this.size / 2) + 1;

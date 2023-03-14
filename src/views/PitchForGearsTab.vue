@@ -1,5 +1,6 @@
 <template>
     <div class="box">
+        <div class="block">{{ pfgDescription }}</div>
       <div class="columns">
         <div class="column is-half">
             <GearCombinationEditor v-model:gearA="ga" v-model:gearB="gb" v-model:gearC="gc" v-model:gearD="gd" :check-required="false"/>
@@ -17,6 +18,7 @@ import { PitchSetup } from '@/bll/pitchSetup';
 import GearCombinationEditor from '@/components/GearCombinationEditor.vue';
 import GeartrainImg from '@/components/GeartrainImg.vue';
 import PitchSetupTable, { OrderBy } from '@/components/PitchSetupTable.vue';
+import GlobalConfig from '@/bll/globalConfig';
 
 
 export default {
@@ -25,6 +27,7 @@ export default {
             selectedSetup: new PitchSetup(20, null, null, 80, new Pitch(1, PitchType.Metric)),
             orderBy: OrderBy.P,
             orderAscending: true,
+            i18n: GlobalConfig.i18n
         }
     },
     props: {
@@ -67,6 +70,9 @@ export default {
             get() { return this.gearD; },
             set(v: number) { this.$emit("update:gearD", v); }
         },
+    },
+    mounted() {
+      GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
     },
     components: { GeartrainImg, PitchSetupTable, GearCombinationEditor }
 }

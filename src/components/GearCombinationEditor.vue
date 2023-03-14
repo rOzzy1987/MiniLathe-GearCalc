@@ -1,21 +1,22 @@
 <template>
     <div class="columns">
         <div class="column">
-            <NumericEditor v-model="ga" label="A" :required="checkRequired" :minValue="18" :maxValue="100" :decimals="0" @validated="isGearAValid = $event"/>
+            <NumericEditor v-model="ga" label="A" :required="checkRequired" :minValue="18" :maxValue="maxSize" :decimals="0" @validated="isGearAValid = $event"/>
         </div>
         <div class="column">
-            <NumericEditor v-model="gb" label="B" :required="false" :minValue="18" :maxValue="100" :decimals="0" @validated="isGearBValid = $event;" :errorMessages="gearBValidationMessage"/>
+            <NumericEditor v-model="gb" label="B" :required="false" :minValue="18" :maxValue="maxSize" :decimals="0" @validated="isGearBValid = $event;" :errorMessages="gearBValidationMessage"/>
         </div>
         <div class="column">
-            <NumericEditor v-model="gc" label="C" :required="false" :minValue="18" :maxValue="100" :decimals="0" @validated="isGearCValid = $event;" :errorMessages="gearCValidationMessage"/>
+            <NumericEditor v-model="gc" label="C" :required="false" :minValue="18" :maxValue="maxSize" :decimals="0" @validated="isGearCValid = $event;" :errorMessages="gearCValidationMessage"/>
         </div>
         <div class="column">
-            <NumericEditor v-model="gd" label="D" :required="checkRequired" :minValue="18" :maxValue="100" :decimals="0" @validated="isGearDValid = $event"/>
+            <NumericEditor v-model="gd" label="D" :required="checkRequired" :minValue="18" :maxValue="maxSize" :decimals="0" @validated="isGearDValid = $event"/>
         </div>
     </div>
 </template>
 <script lang="ts">
 import NumericEditor from './NumericEditor.vue';
+import GlobalConfig from '@/bll/globalConfig';
 
 export default {
     data() {
@@ -24,6 +25,7 @@ export default {
             isGearBValid: true,
             isGearCValid: true,
             isGearDValid: true,
+            i18n: GlobalConfig.i18n
         }
     },
     props: {
@@ -31,7 +33,8 @@ export default {
         gearB: {type: Number, default: NaN},
         gearC: {type: Number, default: NaN},
         gearD: {type: Number, default: 60},
-        checkRequired: {type: Boolean, default: true}
+        checkRequired: {type: Boolean, default: true},
+        maxSize: {type:Number, default: 130},
     },
     computed: {
         ga: {
@@ -62,12 +65,12 @@ export default {
         },
         gearBValidationMessage(){
             if(this.isGearBMissing)
-                return ["Gear B is required if gear C is provided"];
+                return [this.i18n.genericGearBMissing];
             return [];
         },
         gearCValidationMessage(){
             if(this.isGearCMissing)
-                return ["Gear C is required if gear B is provided"];
+                return [this.i18n.genericGearCMissing];
             return [];
         },
         isValid() {
@@ -78,6 +81,9 @@ export default {
                 && !this.isGearBMissing
                 && !this.isGearCMissing;
         }
+    },
+    mounted() {
+      GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
     },
     watch: {
         isValid(n: boolean) {

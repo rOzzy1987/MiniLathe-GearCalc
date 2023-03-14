@@ -3,6 +3,8 @@ import { PitchType, Pitch } from "./pitch";
 export default class LatheConfig {
     public leadscrew: Pitch = new Pitch(1.5, PitchType.Metric);
     public gears: number[] = [];
+    public minTeeth: number = 85;
+    public maxSize: number = 130;
 
     public toString(): string {
         const gears = this.gears.sort();
@@ -18,7 +20,9 @@ export default class LatheConfig {
     public toPlainObject() {
         return {
             gears: this.gears.slice(),
-            leadscrew: this.leadscrew.toPlainObject()
+            leadscrew: this.leadscrew.toPlainObject(),
+            minTeeth: this.minTeeth,
+            maxSize: this.maxSize
         };
     }
 
@@ -26,6 +30,8 @@ export default class LatheConfig {
         const result = new LatheConfig();
         result.gears = o.gears;
         result.leadscrew = Pitch.fromPlainObject(o.leadscrew)!;
+        result.minTeeth = o.minTeeth;
+        result.maxSize = o.maxSize;
         return result;
     }
 }

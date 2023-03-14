@@ -3,18 +3,18 @@
     <NumericEditor v-model="pitchEdit" 
         :decimals="pitchType == PitchType.Metric ? 2 : 0" 
         :min-value="pitchType == PitchType.Metric ? .3 : 6"    
-        :max-value="pitchType == PitchType.Metric ? 4 : 64" label="Pitch" 
+        :max-value="pitchType == PitchType.Metric ? 4 : 64" :label="i18n.genericPitch" 
         @validated="isValid = $event" />
 
     <div class="field">
       <div class="control">
         <label class="radio">
             <input type="radio" name="dpt" :value="PitchType.Metric" :checked="pitchType == PitchType.Metric" @change="updateType"/>
-            Metric (mm/rev)
+            {{i18n.genericMetric}} ({{i18n.genericMetricUnit}})
         </label>
         <label class="radio">
             <input type="radio" name="dpt" :value="PitchType.Imperial" :checked="pitchType == PitchType.Imperial" @change="updateType"/>
-            Imperial (TPI)
+            {{ i18n.genericImperial }} ({{ i18n.genericImperialUnit }})
         </label>
       </div>
     </div>
@@ -23,12 +23,14 @@
 <script lang="ts">
 import { INCH, PitchType } from '@/bll/pitch';
 import NumericEditor from './NumericEditor.vue';
+import GlobalConfig from '@/bll/globalConfig';
 
 export default {
-    setup() {
+    data() {
         return {
             isValid: true,
             PitchType: PitchType,
+            i18n: GlobalConfig.i18n
         };
     },
     props: {
@@ -61,6 +63,9 @@ export default {
             get() {return this.pitch;},
             set(val: number) {this.updateValueImpl(val);}
         },
+    },
+    mounted() {
+      GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
     },
     watch: {
         isValid(n: boolean) {

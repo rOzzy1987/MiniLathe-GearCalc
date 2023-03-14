@@ -8,8 +8,8 @@
                         <th @click="setOrder(OrderBy.B)">B</th>
                         <th @click="setOrder(OrderBy.C)">C</th>
                         <th @click="setOrder(OrderBy.D)">D</th>
-                        <th @click="setOrder(OrderBy.P)" title="Pitch (metric)">Pm</th>
-                        <th @click="setOrder(OrderBy.P, false)" title="Pitch (imperial)">Pi</th>
+                        <th @click="setOrder(OrderBy.P)" :title="i18n.genericPitch+'('+i18n.genericMetric+')'">Pm</th>
+                        <th @click="setOrder(OrderBy.P, false)" :title="i18n.genericPitch+'('+i18n.genericImperial+')'">Pi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -28,6 +28,7 @@
 </template>
 <script lang="ts">
 import { PitchSetup } from '@/bll/pitchSetup';
+import GlobalConfig from '@/bll/globalConfig';
 
 
 export enum OrderBy {
@@ -37,7 +38,8 @@ export enum OrderBy {
 export default {
     data(){
         return {
-            OrderBy : OrderBy
+            OrderBy : OrderBy,
+            i18n: GlobalConfig.i18n
         }
     },
     props: {
@@ -59,6 +61,9 @@ export default {
                 this.ascending = ascending;
             }
         }
+    },
+    mounted() {
+      GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
     },
     computed:{
         filteredModel() {

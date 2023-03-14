@@ -26,6 +26,9 @@ export default class CombinationFinder {
                         if (gb == gc)
                             continue;
 
+                        if (ga + gb + gc + gd <= config.minTeeth * 2)
+                            continue;
+
                         const ratio = (gb / ga) * (gd / gc);
                         const pitch = leadscrew.withRatio(ratio);
                         allCombos.push(new PitchSetup(ga, gb, gc, gd, pitch));
