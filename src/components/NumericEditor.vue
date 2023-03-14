@@ -3,9 +3,9 @@
       <label v-if="label?.length > 0" class="label" :placeholder="placeholder">{{ label }}</label>
       <div class="control has-icons-right">
         <input :id="'input'+id" class="input" :class="{'is-danger': !isValid}" type="text" v-model="strVal" :disabled="disabled"  pattern="[0-9]*" inputmode="decimal"
-        @input="updateStrVal(($event.target as any).value)" 
+        @input="updateStrVal()" 
         @keydown="handleKey($event)"
-        @wheel="handleMouse($event)" @click="handleClick" @touchstart="handleScroll" @touchmove="handleScroll"/>
+        @wheel="handleMouse($event)" @touchstart="handleScroll" @touchmove="handleScroll" @touchend="handleScroll"/>
         <span :id="'updown'+id" v-if="touchSupported" class="icon is-small is-right">
             <i class="fas fa-up-down"></i>
         </span>
@@ -87,9 +87,11 @@ export default {
             }
             return result;
         },
-        updateStrVal(val: string, forced: boolean = false){
+        updateStrVal(str: string | null = null, forced: boolean = false){
             if(this.disabled && !forced)
                 return;
+
+            const val = str ?? this.inputElement.value;
             this.strVal = val;
             const nval = this.numValue(val);
             this.validate(val, nval); 
@@ -128,11 +130,22 @@ export default {
                 i = 1;
             if (event.code == 'ArrowDown')
                 i = -1;
-
             if(i != 0) {
                 event.preventDefault();
                 this.updateStrVal(this.displayValue(this.numValue(val) + i*this.roundingStep));
             }
+
+            if (event.code == 'Comma'){
+                event.preventDefault();
+                const ss = this.inputElement.selectionStart ?? val.length;
+                const se = this.inputElement.selectionEnd ?? ss;
+
+                const sub1 = val.substring(0, ss);
+                const sub2 = val.substring(se);
+
+                this.inputElement.value = sub1 + '.' + sub2;
+            }
+
         },
         handleMouse(event: WheelEvent){
             if (!this.useMouse)
@@ -180,9 +193,6 @@ export default {
             } else if (event.type == "touchend") {
                 this.inTouch = false;
             }
-        },
-        handleClick(event: MouseEvent) {
-            console.log(event)
         }
     },
     mounted() {
