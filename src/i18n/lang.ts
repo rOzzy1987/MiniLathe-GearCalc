@@ -44,7 +44,7 @@ export default abstract class TranslationsBase{
     numericShouldBeLessThan(n: number): string { return this.f(this.numericShouldBeLessThanRaw, [n]); }
     numericShouldBeBetween(lower: number, upper: number): string { return this.f(this.numericShouldBeBetweenRaw, [lower, upper]); }
     
-    abstract setupSaveAll: string;
+    abstract setupCalculate: string;
     
     abstract leadscrewSelectedPitch: string;
     abstract leadscrewDoYouKnowPitch: string;
@@ -117,7 +117,7 @@ export class EnTranslations extends TranslationsBase {
     numericRequired: string = "Number is required";
     numericInvalid: string = "Invalid number";
 
-    setupSaveAll: string = "Save configuration";
+    setupCalculate: string = "Calculate gear ratios";
 
     leadscrewSelectedPitch: string = "Your selected leadscrew pitch";
     leadscrewDoYouKnowPitch: string = "Do you know your leadscrew pitch?";

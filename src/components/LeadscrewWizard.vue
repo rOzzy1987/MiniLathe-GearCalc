@@ -60,7 +60,7 @@
         </div>
 
         <div v-if="estimation != null">
-          <div class="message is-info">
+          <div :id="'estimation'+id" class="message is-info">
             <div class="message-body">{{ estimationText }}</div>
           </div>
           <div class="buttons">
@@ -137,6 +137,7 @@ export default {
       GcMath,
       PitchAssumptionResult,
       i18n: GlobalConfig.i18n,
+      id: Math.round(Math.random() * 1000)
     };
   },
   methods: {
@@ -145,6 +146,7 @@ export default {
     },
     estimate() {
       this.estimation = this.estimator.esitmate(this.sampleSetup);
+      setTimeout(() => document.getElementById('estimation'+this.id)?.scrollIntoView(), 100);
       return false;
     },
   },

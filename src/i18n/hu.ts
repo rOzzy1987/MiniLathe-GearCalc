@@ -34,7 +34,7 @@ export default class HuTranslations extends TranslationsBase{
     numericRequired: string = "Kötelező megadni";
     numericInvalid: string = "Érvénytelen szám";
 
-    setupSaveAll: string = "Beállítások mentése";
+    setupCalculate: string = "Áttételek kiszámítása";
 
     leadscrewSelectedPitch: string = "Kiválasztott menetemelkedés";
     leadscrewDoYouKnowPitch: string = "Ismered a vonóorsód menetemelkedését?";

@@ -11,7 +11,7 @@
       </div>
       <div class="control">
         <div class="buttons">
-            <button class="button is-primary" @click.prevent="saveConfig">{{ i18n.setupSaveAll }}</button>
+            <button class="button is-primary" @click.prevent="saveConfig">{{ i18n.setupCalculate }}</button>
         </div>
       </div>
     </div>

@@ -14,7 +14,7 @@
                 <div class="control">
                     <div class="tags">
                         <span class="tag is-link">
-                            {{ distance.toString() }} mm
+                            {{ distance.toString() }}
                         </span>
                     </div>
                 </div>
@@ -51,7 +51,7 @@ export default {
 
             isDistanceValid: true,
             isMaxSizeValid: true,
-            isEditMode: props.modelValue == null,
+            isEditMode: props.distance == null || props.maxSize == null,
             i18n: GlobalConfig.i18n
         };
     },

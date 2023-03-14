@@ -1,7 +1,5 @@
 <template>
-    <!-- <svg :style="{'stroke-width': 1/scale}"> -->
-    <svg width="100%" height="100%" :style="{'stroke-width': 1/scale}">
-    <!-- <svg :width="180 * scale" :height="250 * scale" :style="{'stroke-width': 1/scale}"> -->
+    <svg width="100%" :height="250 * scale" :style="{'stroke-width': 1/scale}">
         <defs>
             <filter id="dropShadow" x="-.50" y="-.50" width="200%" height="200%">
                 <feOffset result="offOut" in="SourceAlpha" dx="0" dy="0" />

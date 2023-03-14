@@ -4,6 +4,9 @@
     <section class="section">
       <div class="container">
         <h1 class="title">
+          <span class="icon">
+            <i class="fas fa-gears"></i>
+          </span>
           {{ i18n.appTitle }}
         </h1>
         <h2 class="subtitle">{{ i18n.appSubtitle }}</h2>
@@ -39,7 +42,8 @@
           &copy; 2023 Mihály Rozovits
         </p>
         <p>
-          Translation: &copy; {{i18n.credits}}
+          Translation:<br/>
+          &copy; {{i18n.credits}}
         </p>
 
         <p>

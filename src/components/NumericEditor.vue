@@ -1,11 +1,14 @@
 <template>
     <div class="field">
       <label v-if="label?.length > 0" class="label" :placeholder="placeholder">{{ label }}</label>
-      <div class="control">
-        <input class="input" :class="{'is-danger': !isValid}" type="text" v-model="strVal" :disabled="disabled"  pattern="[0-9]*" inputmode="numeric"
+      <div class="control has-icons-right">
+        <input :id="'input'+id" class="input" :class="{'is-danger': !isValid}" type="text" v-model="strVal" :disabled="disabled"  pattern="[0-9]*" inputmode="decimal"
         @input="updateStrVal(($event.target as any).value)" 
         @keydown="handleKey($event)"
-        @wheel="handleMouse($event)"/>
+        @wheel="handleMouse($event)" @click="handleClick" @touchstart="handleScroll" @touchmove="handleScroll"/>
+        <span :id="'updown'+id" v-if="touchSupported" class="icon is-small is-right">
+            <i class="fas fa-up-down"></i>
+        </span>
       </div>
       <div v-if="tip?.length ?? 0 > 0" class="help is-info">
         {{ tip }}
@@ -33,7 +36,12 @@ export default {
             roundingStep: roundingSteps,
             errorMessage: "",
             strVal: this.displayValue(props.modelValue),
-            i18n: GlobalConfig.i18n
+            i18n: GlobalConfig.i18n,
+            id: Math.round(Math.random() * 1000),
+            touchY: 0,
+            touchSensitivity: 5,
+            inTouch: false,
+            touchSupported: (('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || ((navigator as any).msMaxTouchPoints > 0))
         }
     },
     emits: [
@@ -51,6 +59,7 @@ export default {
         minValue: {type: Number, default: Number.NEGATIVE_INFINITY},
         maxValue: {type: Number, default: Number.POSITIVE_INFINITY},
         useMouse: {type: Boolean, default: true},
+        useTouch: {type: Boolean, default: true},
         disabled: {type: Boolean, default: false},
         tip: {type: String, deafult: ""}
     },
@@ -111,7 +120,7 @@ export default {
             this.$emit("validated", this.errorMessage == "");
         },
         handleKey(event: KeyboardEvent){
-            const val = (event.target as any).value;
+            const val = this.inputElement.value;
             if (event.code == 'Enter' || event.code == 'Return')
                 this.$emit("enter");
             let i = 0;
@@ -128,9 +137,9 @@ export default {
         handleMouse(event: WheelEvent){
             if (!this.useMouse)
                 return;
-            const val = (event.target as any).value;
+            const val = this.inputElement.value;
             let i = 0;
-            console.log(event.deltaY);
+            console.log(event)
             if (event.deltaY > 0)
                 i = -1;
             if (event.deltaY < 0)
@@ -140,6 +149,40 @@ export default {
                 event.preventDefault();
                 this.updateStrVal(this.displayValue(this.numValue(val) + i*this.roundingStep));
             }
+        },
+        handleScroll(event: TouchEvent) {
+            if (!this.useTouch || !this.touchSupported)
+                return;
+
+            const touch = event.touches[0];
+            const icon = this.iconElement.getBoundingClientRect();
+
+            const inBounds = touch.clientX > icon.x &&touch.clientX < icon.x + icon.width &&
+                touch.clientY > icon.y && touch.clientY < icon.y + icon.height;
+            if (!inBounds && !this.inTouch)
+                return;
+            
+
+            if(event.type == "touchstart") {
+                this.touchY = touch.clientY;
+                this.inTouch = true;
+            } else if (event.type == "touchmove") {
+                event.preventDefault();
+                const newY = touch.clientY
+                const i = Math.round((this.touchY - newY) / this.touchSensitivity);
+
+                if (i == 0)
+                    return;
+                    
+                const val = this.inputElement.value;
+                this.updateStrVal(this.displayValue(this.numValue(val) + i*this.roundingStep));
+                this.touchY = newY;
+            } else if (event.type == "touchend") {
+                this.inTouch = false;
+            }
+        },
+        handleClick(event: MouseEvent) {
+            console.log(event)
         }
     },
     mounted() {
@@ -169,6 +212,12 @@ export default {
             if(this.errorMessage.length > 0)
                 a.push(this.errorMessage);
             return a;
+        },
+        inputElement(): HTMLInputElement {
+            return document.getElementById('input'+ this.id) as HTMLInputElement;
+        },
+        iconElement(): HTMLElement {
+            return document.getElementById('updown'+ this.id)!;
         }
     }
 }
