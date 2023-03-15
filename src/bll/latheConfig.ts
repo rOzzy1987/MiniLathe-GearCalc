@@ -1,10 +1,10 @@
 import { PitchType, Pitch } from "./pitch";
 
 export default class LatheConfig {
-    public leadscrew: Pitch = new Pitch(1.5, PitchType.Metric);
-    public gears: number[] = [];
-    public minTeeth: number = 85;
-    public maxSize: number = 130;
+    public leadscrew: Pitch = new Pitch(1.6, PitchType.Metric);
+    public gears: number[] = [20,20,30,35,40,40,45,50,55,57,60,65,80,80];
+    public minTeeth: number = 82;
+    public maxSize: number = 90;
 
     public toString(): string {
         const gears = this.gears.sort();

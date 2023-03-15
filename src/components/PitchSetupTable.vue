@@ -4,22 +4,43 @@
             <table class="table is-narrow is-fullwidth is-striped is-hoverable">
                 <thead>
                     <tr>
-                        <th @click="setOrder(OrderBy.A)" style="width: 10%">A</th>
-                        <th @click="setOrder(OrderBy.B)" style="width: 10%">B</th>
-                        <th @click="setOrder(OrderBy.C)" style="width: 10%">C</th>
-                        <th @click="setOrder(OrderBy.D)" style="width: 10%">D</th>
-                        <th @click="setOrder(OrderBy.P)" style="width: 30%" :title="i18n.genericPitch+'('+i18n.genericMetric+')'">Pm</th>
-                        <th @click="setOrder(OrderBy.P, false)" style="width: 30%" :title="i18n.genericPitch+'('+i18n.genericImperial+')'">Pi</th>
+                        <th @click="setOrder(OrderBy.A)" style="width: 10%">
+                            <span v-if="orderBy == OrderBy.A" class="icon is-small"><i class="fas" :class="{'fa-sort-up': orderAscending, 'fa-sort-down': !orderAscending}"></i></span>
+                            A
+                        </th>
+                        <th @click="setOrder(OrderBy.B)" style="width: 10%">
+                            <span v-if="orderBy == OrderBy.B" class="icon is-small"><i class="fas" :class="{'fa-sort-up': orderAscending, 'fa-sort-down': !orderAscending}"></i></span>
+                            B
+                        </th>
+                        <th @click="setOrder(OrderBy.C)" style="width: 10%">
+                            <span v-if="orderBy == OrderBy.C" class="icon is-small"><i class="fas" :class="{'fa-sort-up': orderAscending, 'fa-sort-down': !orderAscending}"></i></span>
+                            C
+                        </th>
+                        <th @click="setOrder(OrderBy.D)" style="width: 10%">
+                            <span v-if="orderBy == OrderBy.D" class="icon is-small"><i class="fas" :class="{'fa-sort-up': orderAscending, 'fa-sort-down': !orderAscending}"></i></span>
+                            D
+                        </th>
+                        <th @click="setOrder(OrderBy.P)" style="width: 30%" :title="i18n.genericPitch+'('+i18n.genericMetric+')'">
+                            <span v-if="orderBy == OrderBy.P" class="icon is-small"><i class="fas" :class="{'fa-sort-up': orderAscending, 'fa-sort-down': !orderAscending}"></i></span>
+                            Pm
+                        </th>
+                        <th @click="setOrder(OrderBy.P, false)" style="width: 30%" :title="i18n.genericPitch+'('+i18n.genericImperial+')'">
+                            <span v-if="orderBy == OrderBy.P" class="icon is-small"><i class="fas" :class="{'fa-sort-up': !orderAscending, 'fa-sort-down': orderAscending}"></i></span>
+                            Pi
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(item, idx) of filteredModel" :key="idx" :class="{'is-active': selectedItem == item}" @click="$emit('update:selectedItem', item)">
+                    <tr v-for="(item, idx) of filteredModel" :key="idx" :class="{'is-selected': selectedItem.toString() == item.toString()}" @click="$emit('update:selectedItem', item)">
                         <td>{{ format(item.gearA) }}</td>
                         <td>{{ format(item.gearB) }}</td>
                         <td>{{ format(item.gearC) }}</td>
                         <td>{{ format(item.gearD) }}</td>
-                        <td>{{ item.pitch.toString() }}</td>
-                        <td>{{ item.pitch.convert().toString() }}</td>
+                        <td>{{ formatPitch(item.pitch) }}</td>
+                        <td>{{ formatPitch(item.pitch.convert()) }}</td>
+                    </tr>
+                    <tr v-if="filteredModel.length == 0">
+                        <td colspan="6">{{ i18n.pitchTableNoResults }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -29,6 +50,8 @@
 <script lang="ts">
 import { PitchSetup } from '@/bll/pitchSetup';
 import GlobalConfig from '@/bll/globalConfig';
+import GcMath from '@/bll/math';
+import { Pitch, PitchType } from '@/bll/pitch';
 
 
 export enum OrderBy {
@@ -52,6 +75,9 @@ export default {
     methods:{
         format(v: number){
             return Number.isNaN(v) ? "-" : v.toString();
+        },
+        formatPitch(v: Pitch){
+            return GcMath.round(v.value, 0.001).toFixed(3) + " " + (v.type == PitchType.Metric ? "mm/rev" : "TPI");
         },
         setOrder(val: OrderBy, ascending: boolean = true){
             if (this.order == val)

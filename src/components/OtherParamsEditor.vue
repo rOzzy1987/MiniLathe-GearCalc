@@ -2,9 +2,9 @@
     <div>
         <div v-if="isEditMode">
             <NumericEditor v-model="distanceValue" :label="i18n.otherAxleDistance" :tip="i18n.otherAxleDistanceTip" :decimals="0" :min-value="50" :max-value="200" :required="true" 
-            @validated="isDistanceValid = $event" @enter="save()"/>
+            v-model:isValid="isDistanceValid" @enter="save()"/>
             <NumericEditor v-model="maxSizeValue" :label="i18n.otherMaxGearSize" :tip="i18n.otherMaxGearSizeTip" :decimals="0" :min-value="50" :max-value="200" :required="true" 
-            @validated="isMaxSizeValid = $event" @enter="save()"/>
+            v-model:isValid="isMaxSizeValid" @enter="save()"/>
         </div>
         
         
@@ -33,7 +33,7 @@
 &nbsp;
         <div class="field">
             <div class="control buttons">
-                <button v-if="isEditMode" class="button is-success" @click.prevent="save()">{{ i18n.genericSave }}</button>
+                <button v-if="isEditMode" class="button is-success" @click.prevent="save()" :disabled="!isMaxSizeValid || !isDistanceValid">{{ i18n.genericSave }}</button>
                 <button v-if="!isEditMode" class="button is-danger" @click.prevent="edit()">{{ i18n.genericEdit }}</button>
             </div>
         </div>
@@ -83,7 +83,7 @@ export default {
       GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
     },
     watch: {
-        modelValue(n) {
+        modelValue() {
             if(this.isEditMode)
                 console.warn("model changed while editing");
         }

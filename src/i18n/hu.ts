@@ -27,6 +27,7 @@ export default class HuTranslations extends TranslationsBase{
 
     genericGearBMissing: string = "A B fogaskerék megadáa kötelező, ha a C kerék meg van adva";
     genericGearCMissing: string = "A C fogaskerék megadáa kötelező, ha a B kerék meg van adva";
+    pitchTableNoResults: string = "Nincs megfelelő kombináció";
 
     numericShouldBeGreaterThanRaw: string = "A szám nagyobb kell hogy legyen, mint {0}";
     numericShouldBeLessThanRaw: string = "A szám kisebb kell hogy legyen mint {0}";
@@ -57,7 +58,13 @@ export default class HuTranslations extends TranslationsBase{
     otherMaxGearSize: string = "Legnagyobb megengedett fogaskerék";
     otherMaxGearSizeTip: string = "A legnagyobb fogaskerék ami még befér a gépedbe";
 
-    gfpDescription: string = "Adj meg egy menetemelkedést, és megkeressük a hozzá taartozó fogaskerék kombinációkat";
-    pfgDescription: string = "Böngéssz a kombinációk között hogy lásd milyen menetemelkedést eredményeznek";
-    ptDescription: string = "Itt a gyakori menetemelkedésekhez találhatsz példákat";
+    gfpTitle: string = "Adj meg egy menetemelkedést, és megkeressük a hozzá taartozó fogaskerék kombinációkat";
+    pfgTitle: string = "Találd meg a kombinációhoz tartozó menetemelkedést";
+    ptTitle: string = "Itt a gyakori menetemelkedésekhez találhatsz példákat";
+    
+    pfgCalculated: string = "Számított érték";
+    pfgSimilar: string = "Hasonló menetemelkedések a te fogakerekeiddel";
+    pfgPartial: string = "Részleges egyezések a te fogakerekeiddel";
+    pfgPartialTip: string = "Az A és C valamint a B és D fogaskerekek felcserélhetőek. Emiatt picit furcsa értékek is kijöhetnek, de hidd el, helyesek. Szintén megjegyzendő, hogy ha egy várt kombináció nem jelenik meg itt, akkor valószínűleg azért, mert nem fér el fizikailag a gépben.";
+    pfgSearchTip: string = "Adj meg egy komplett kombinációt hogy kiszámold a hozzá tartozó menetemelkedést, és találj hasonló kombinációkat amiket a saját fogakerekeiddel be is tudsz állítani. Vagy ha csak részleges egyezéseket szeretnél keresni, megtalálod őket a lap alján.";
 }

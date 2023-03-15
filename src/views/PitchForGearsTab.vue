@@ -1,11 +1,28 @@
 <template>
     <div class="box">
-        <div class="block">{{ i18n.pfgDescription }}</div>
+        <div class="block">
+            <p>{{ i18n.pfgTitle }}</p>
+            <p class="help">{{ i18n.pfgSearchTip }}</p>
+        </div>
       <div class="columns">
         <div class="column is-half">
-            <GearCombinationEditor v-model:gearA="ga" v-model:gearB="gb" v-model:gearC="gc" v-model:gearD="gd" :check-required="false"/>
-            <PitchSetupTable v-model="model" v-model:orderBy="orderBy" v-model:orderAscending="orderAscending" v-model:selectedItem="selectedSetup" :filter="filter"/>
-        </div>
+            <GearCombinationEditor v-model:gearA="ga" v-model:gearB="gb" v-model:gearC="gc" v-model:gearD="gd" v-model:isComboValid="isGearComboValid" :checkRequired="false"/>
+            <div class="block" >
+                <p>{{ i18n.pfgCalculated }}</p>
+                <PitchSetupTable :modelValue="exactMatch" v-model:selectedItem="selectedSetup" :orderBy="OrderBy.N"/>
+            </div>
+
+            <div class="block" >
+                <p>{{ i18n.pfgSimilar }}</p>
+                <PitchSetupTable :modelValue="similarMatches" v-model:orderBy="orderBy" v-model:orderAscending="orderAscending" v-model:selectedItem="selectedSetup"/>
+            </div>
+
+            <div class="block" >
+                <p>{{i18n.pfgPartial}}</p>
+                <p class="help">{{i18n.pfgPartialTip}}</p>
+                <PitchSetupTable v-model="model" v-model:orderBy="orderBy" v-model:orderAscending="orderAscending" v-model:selectedItem="selectedSetup" :filter="filter"/>
+            </div>
+                </div>
         <div class="column">
             <GeartrainImg :gear-a="selectedSetup?.gearA" :gear-b="selectedSetup?.gearB" :gear-c="selectedSetup?.gearC" v-bind:gear-d="selectedSetup?.gearD" :scale="2"/>
         </div>
@@ -19,6 +36,7 @@ import GearCombinationEditor from '@/components/GearCombinationEditor.vue';
 import GeartrainImg from '@/components/GeartrainImg.vue';
 import PitchSetupTable, { OrderBy } from '@/components/PitchSetupTable.vue';
 import GlobalConfig from '@/bll/globalConfig';
+import CombinationFinder from '@/bll/combinationFinder';
 
 
 export default {
@@ -27,15 +45,19 @@ export default {
             selectedSetup: new PitchSetup(20, null, null, 80, new Pitch(1, PitchType.Metric)),
             orderBy: OrderBy.P,
             orderAscending: true,
-            i18n: GlobalConfig.i18n
+            i18n: GlobalConfig.i18n,
+            isGearComboValid: true,
+            comboFinder: new CombinationFinder(),
+            OrderBy: OrderBy
         }
     },
     props: {
         modelValue: { type: Array<PitchSetup>, default: [] },
-        gearA: {type: Number, default: 40},
+        leadscrew: {type: Pitch, required: true},
+        gearA: {type: Number, default: NaN},
         gearB: {type: Number, default: NaN},
         gearC: {type: Number, default: NaN},
-        gearD: {type: Number, default: 60}
+        gearD: {type: Number, default: NaN}
     },
     computed: {
         filter() {
@@ -43,16 +65,31 @@ export default {
             return {
                 filter(v: PitchSetup):boolean {
                     function f(x:number):boolean {return Number.isNaN(x);}
-                    return (f(t.ga) || v.gearA == t.ga)
-                        && (f(t.gb) || v.gearB == t.gb)
-                        && (f(t.gc) || v.gearC == t.gc)
-                        && (f(t.gd) || v.gearD == t.gd);
+                    return (
+                        ((f(t.ga) || v.gearA == t.ga) && (f(t.gc) || v.gearC == t.gc)) ||
+                        ((f(t.ga) || v.gearC == t.ga) && (f(t.gc) || v.gearA == t.gc))
+                     ) && (
+                        ((f(t.gb) || v.gearB == t.gb) && (f(t.gd) || v.gearD == t.gd)) ||
+                        ((f(t.gb) || v.gearD == t.gb) && (f(t.gd) || v.gearB == t.gd))
+                     );
                 }
             }
         },
         model: {
             get(): PitchSetup[] { return this.modelValue; },
             set(v: PitchSetup[]) { this.$emit("update:modelValue", v); }
+        },
+        exactMatch(): PitchSetup[] {
+            return this.isGearComboValid 
+                ? [this.comboFinder.findMetricPitch(this.gearA,this.gearB,this.gearC,this.gearD, this.leadscrew)] 
+                : [];
+        },
+        similarMatches(){
+            const pitch = this.exactMatch[0]?.pitch;
+            const thr = 1.003;
+            return this.isGearComboValid
+                ? this.modelValue.filter(p => p.pitch.value > pitch.value / thr && p.pitch.value < pitch.value * thr)
+                : [];
         },
         ga: {
             get() { return this.gearA; },

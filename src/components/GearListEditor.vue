@@ -2,7 +2,7 @@
     <div>
         <div v-if="isEditMode" class="columns">
             <NumericEditor class="column is-one-quarter" v-model="newGear" :label="i18n.gearsAddNew" :tip="i18n.gearsAddNewTip" :decimals="0" :min-value="18" :max-value="maxSize" :required="true" 
-            @validated="newGearValid = $event" @enter="addGear()"/>
+            v-model:isValid="newGearValid" @enter="addGear()"/>
             <div class="field column is-one-quarter">
                 <label class="label">&nbsp;</label>
                 <div class="control buttons">
@@ -68,7 +68,7 @@ export default {
             type: Array<number>,
             default: []
         },
-        maxSize: { type: Number, default: 130}
+        maxSize: { type: Number }
     },
     mounted() {
       GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);

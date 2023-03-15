@@ -4,7 +4,7 @@
         <LeadscrewWizard v-model="pitch"/>
       </div>
       <div class="box">
-        <GearListEditor v-model="gears" />
+        <GearListEditor v-model="gears" v-model:maxSize="maxSize" />
       </div>
       <div class="box">
         <OtherParamsEditor v-model:distance="distance" v-model:maxSize="maxSize" />
@@ -34,15 +34,15 @@ export default {
         var distance = mv?.minTeeth;
         var maxSize = mv?.maxSize;
         return {
-            gears: gears ?? [20,20,30,35,40,40,45,50,55,57,60,65,80,80],
-            pitch: pitch ?? new Pitch(1.5, PitchType.Metric),
-            distance: distance ?? 85,
-            maxSize: maxSize ?? 130,
+            gears,
+            pitch,
+            distance: distance,
+            maxSize: maxSize,
             i18n: GlobalConfig.i18n
         };
     },
     props: {
-      modelValue: {type: LatheConfig, default: null, required: false }
+      modelValue: {type: LatheConfig, default: null, required: true }
     },
     methods: {
         saveConfig(){

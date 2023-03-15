@@ -1,9 +1,9 @@
 <template>
     <div class="box">
-        <div class="block">{{ i18n.gfpDescription }}</div>
+        <div class="block">{{ i18n.gfpTitle }}</div>
       <div class="columns">
         <div class="column is-half">
-            <PitchEditor v-model:pitch="dpv" v-model:pitchType="dpt"/>
+            <PitchEditor v-model:pitch="dpv" v-model:pitchType="dpt" v-model:isValid="isPitchValid"/>
             <PitchSetupTable v-model="model" v-model:orderBy="orderBy" v-model:orderAscending="orderAscending" v-model:selectedItem="selectedSetup" :filter="filter"/>
         </div>
         <div class="column">
@@ -28,6 +28,7 @@ export default {
             orderBy: OrderBy.P,
             orderAscending: true,
             threshold: 1.003,
+            isPitchValid: true,
             i18n: GlobalConfig.i18n
         }
     },

@@ -1,22 +1,23 @@
 <template>
     <div class="columns">
         <div class="column">
-            <NumericEditor v-model="ga" label="A" :required="checkRequired" :minValue="18" :maxValue="maxSize" :decimals="0" @validated="isGearAValid = $event"/>
+            <NumericEditor v-model="ga" label="A" :required="checkRequired" :minValue="18" :maxValue="maxSize" :decimals="0" v-model:isValid="isGearAValid"/>
         </div>
         <div class="column">
-            <NumericEditor v-model="gb" label="B" :required="false" :minValue="18" :maxValue="maxSize" :decimals="0" @validated="isGearBValid = $event;" :errorMessages="gearBValidationMessage"/>
+            <NumericEditor v-model="gb" label="B" :required="false" :minValue="18" :maxValue="maxSize" :decimals="0" v-model:isValid="isGearBValid" :errorMessages="gearBValidationMessage"/>
         </div>
         <div class="column">
-            <NumericEditor v-model="gc" label="C" :required="false" :minValue="18" :maxValue="maxSize" :decimals="0" @validated="isGearCValid = $event;" :errorMessages="gearCValidationMessage"/>
+            <NumericEditor v-model="gc" label="C" :required="false" :minValue="18" :maxValue="maxSize" :decimals="0" v-model:isValid="isGearCValid" :errorMessages="gearCValidationMessage"/>
         </div>
         <div class="column">
-            <NumericEditor v-model="gd" label="D" :required="checkRequired" :minValue="18" :maxValue="maxSize" :decimals="0" @validated="isGearDValid = $event"/>
+            <NumericEditor v-model="gd" label="D" :required="checkRequired" :minValue="18" :maxValue="maxSize" :decimals="0" v-model:isValid="isGearDValid"/>
         </div>
     </div>
 </template>
 <script lang="ts">
 import NumericEditor from './NumericEditor.vue';
 import GlobalConfig from '@/bll/globalConfig';
+import LatheConfig from '@/bll/latheConfig';
 
 export default {
     data() {
@@ -25,7 +26,7 @@ export default {
             isGearBValid: true,
             isGearCValid: true,
             isGearDValid: true,
-            i18n: GlobalConfig.i18n
+            i18n: GlobalConfig.i18n,
         }
     },
     props: {
@@ -35,6 +36,8 @@ export default {
         gearD: {type: Number, default: 60},
         checkRequired: {type: Boolean, default: true},
         maxSize: {type:Number, default: 130},
+        isValid: {type: Boolean, default: true},
+        isComboValid: {type: Boolean, default: true},
     },
     computed: {
         ga: {
@@ -54,50 +57,74 @@ export default {
             set(v: number) { this.$emit("update:gearD", v); }
         },
         isGearBMissing() {
-            return this.checkRequired 
-                ? Number.isNaN(this.gb) && !Number.isNaN(this.gc)
-                : false;
+            return Number.isNaN(this.gb) && !Number.isNaN(this.gc);
         },
         isGearCMissing() {
-            return this.checkRequired
-                ? Number.isNaN(this.gc) && !Number.isNaN(this.gb)
-                : false;
+            return Number.isNaN(this.gc) && !Number.isNaN(this.gb);
         },
         gearBValidationMessage(){
-            if(this.isGearBMissing)
+            if(this.isGearBMissing && this.checkRequired)
                 return [this.i18n.genericGearBMissing];
             return [];
         },
         gearCValidationMessage(){
-            if(this.isGearCMissing)
+            if(this.isGearCMissing && this.checkRequired)
                 return [this.i18n.genericGearCMissing];
             return [];
-        },
-        isValid() {
-            return this.isGearAValid
-                && this.isGearBValid
-                && this.isGearCValid
-                && this.isGearDValid
-                && !this.isGearBMissing
-                && !this.isGearCMissing;
         }
+    },
+    methods: {
+        validate(){
+            const isValid = this.checkRequired 
+                ? 
+                    this.isGearAValid && 
+                    this.isGearBValid && 
+                    this.isGearCValid && 
+                    this.isGearDValid && 
+                    !this.isGearBMissing && 
+                    !this.isGearCMissing
+                :
+                    this.isGearAValid && 
+                    this.isGearBValid && 
+                    this.isGearCValid && 
+                    this.isGearDValid;
+
+            if (this.isValid != isValid)
+                this.$emit("update:isValid", isValid);
+            const isComboValid = this.checkRequired
+                ? isValid
+                : 
+                    !Number.isNaN(this.ga) &&
+                    !Number.isNaN(this.gd) && 
+                    !this.isGearCMissing &&
+                    !this.isGearBMissing;
+            if (this.isComboValid != isComboValid)
+                this.$emit("update:isComboValid", isComboValid);
+
+            return isValid;
+        }
+    },
+    watch: {
+        isGearAValid() { this.validate(); },
+        isGearBValid() { this.validate(); },
+        isGearCValid() { this.validate(); },
+        isGearDValid() { this.validate(); },
+        ga() { this.validate(); },
+        gb() { this.validate(); },
+        gc() { this.validate(); },
+        gd() { this.validate(); },
     },
     mounted() {
       GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
-    },
-    watch: {
-        isValid(n: boolean) {
-            this.$emit("validated", n);
-        }
+      this.validate();
     },
     emits: [
-        "validated",
+        "update:isValid",
+        "update:isComboValid",
         "update:gearA",
         "update:gearB",
         "update:gearC",
         "update:gearD",
-        "update:pitch",
-        "update:type",
     ],
     components: { NumericEditor }
 }

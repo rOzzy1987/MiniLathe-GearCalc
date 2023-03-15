@@ -3,8 +3,10 @@
     <NumericEditor v-model="pitchEdit" 
         :decimals="pitchType == PitchType.Metric ? 2 : 0" 
         :min-value="pitchType == PitchType.Metric ? .3 : 6"    
-        :max-value="pitchType == PitchType.Metric ? 4 : 64" :label="i18n.genericPitch" 
-        @validated="isValid = $event" />
+        :max-value="pitchType == PitchType.Metric ? 4 : 64" 
+        :label="i18n.genericPitch" 
+        :required="true"
+        v-model:isValid="isPvValid" />
 
     <div class="field">
       <div class="control">
@@ -28,14 +30,15 @@ import GlobalConfig from '@/bll/globalConfig';
 export default {
     data() {
         return {
-            isValid: true,
+            isPvValid: true,
             PitchType: PitchType,
             i18n: GlobalConfig.i18n
         };
     },
     props: {
         pitch: { type: Number, default: 1 },
-        pitchType: { type: Number, default: PitchType.Metric }
+        pitchType: { type: Number, default: PitchType.Metric },
+        isValid: {type: Boolean, deafult: true}
     },
     methods: {
         updateValue(event: any) {
@@ -56,6 +59,10 @@ export default {
                 this.updateValueImpl(INCH / this.pitch);
                 this.$emit("update:pitchType", val);
             }
+        },
+        validate() {
+            if (this.isValid != this.isPvValid)
+                this.$emit("update:isValid", this.isPvValid);
         }
     },
     computed: {
@@ -64,16 +71,15 @@ export default {
             set(val: number) {this.updateValueImpl(val);}
         },
     },
+    watch: {
+        isPvValid() { this.validate(); }
+    },
     mounted() {
       GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
-    },
-    watch: {
-        isValid(n: boolean) {
-            this.$emit("validated", n);
-        }
+      this.validate();
     },
     emits: [
-        "validated",
+        "update:isValid",
         "update:pitch",
         "update:pitchType"    
     ],

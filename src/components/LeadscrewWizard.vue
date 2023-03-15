@@ -12,10 +12,10 @@
       </div>
 
       <div v-if="knowPitch">
-        <PitchEditor v-model:pitch="pitch.value" v-model:pitchType="pitch.type" />
+        <PitchEditor v-model:pitch="pitch.value" v-model:pitchType="pitch.type" v-model:isValid="directPitchValid" />
         <div class="buttons mt-4">
           <button class="button" @click.prevent="knowPitch = null">{{ i18n.genericBack }}</button>
-          <button class="button is-primary" @click.prevent="selectedPitch = pitch">{{ i18n. genericSave }}</button>
+          <button class="button is-primary" @click.prevent="selectedPitch = pitch" :disabled="!directPitchValid">{{ i18n. genericSave }}</button>
         </div>
       </div>
 
@@ -35,7 +35,7 @@
               v-model:gearD="sampleSetup.gearD"
               v-model:pitch="sampleSetup.pitch.value"
               v-model:type="sampleSetup.pitch.type"
-              @validated="sampleSetupValid = $event"
+              v-model:isValid="sampleSetupValid"
             />
 
             <div class="buttons mt-4">
@@ -137,7 +137,8 @@ export default {
       GcMath,
       PitchAssumptionResult,
       i18n: GlobalConfig.i18n,
-      id: Math.round(Math.random() * 1000)
+      id: Math.round(Math.random() * 1000),
+      directPitchValid: true,
     };
   },
   methods: {

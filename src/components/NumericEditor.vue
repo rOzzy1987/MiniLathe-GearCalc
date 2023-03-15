@@ -2,8 +2,7 @@
     <div class="field">
       <label v-if="label?.length > 0" class="label" :placeholder="placeholder">{{ label }}</label>
       <div class="control has-icons-right">
-        <input :id="'input'+id" class="input" :class="{'is-danger': !isValid}" type="text" v-model="strVal" :disabled="disabled"  pattern="[0-9]*" inputmode="decimal"
-        @input="updateStrVal()" 
+        <input :id="'input'+id" class="input" :class="{'is-danger': !isValid}" type="text" v-model="strVal" :disabled="disabled"  pattern="[0-9]*" inputmode="decimal" 
         @keydown="handleKey($event)"
         @wheel="handleMouse($event)" @touchstart="handleScroll" @touchmove="handleScroll" @touchend="handleScroll"/>
         <span :id="'updown'+id" v-if="touchSupported" class="icon is-small is-right">
@@ -32,20 +31,20 @@ export default {
         }
 
         return {
+            id: Math.round(Math.random() * 1000),
             roundingMultiplier,
             roundingStep: roundingSteps,
-            errorMessage: "",
+            validationMessage: "",
             strVal: this.displayValue(props.modelValue),
-            i18n: GlobalConfig.i18n,
-            id: Math.round(Math.random() * 1000),
             touchY: 0,
-            touchSensitivity: 5,
+            touchSensitivity: 10,
             inTouch: false,
-            touchSupported: (('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || ((navigator as any).msMaxTouchPoints > 0))
+            touchSupported: (('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || ((navigator as any).msMaxTouchPoints > 0)),
+            i18n: GlobalConfig.i18n,
         }
     },
     emits: [
-        "validated",
+        "update:isValid",
         "enter",
         "update:modelValue"
     ],
@@ -61,7 +60,8 @@ export default {
         useMouse: {type: Boolean, default: true},
         useTouch: {type: Boolean, default: true},
         disabled: {type: Boolean, default: false},
-        tip: {type: String, deafult: ""}
+        tip: {type: String, deafult: ""},
+        isValid: {type: Boolean, deafult: true},
     },
     methods: {
         numValue(str: string) : number{
@@ -69,6 +69,7 @@ export default {
                 return NaN;
             return Math.round(Number(str) * this.roundingMultiplier) * this.roundingStep;
         },
+
         displayValue(num: number): string{
             if(Number.isNaN(num))
                 return "";
@@ -87,42 +88,40 @@ export default {
             }
             return result;
         },
-        updateStrVal(str: string | null = null, forced: boolean = false){
-            if(this.disabled && !forced)
-                return;
-
-            const val = str ?? this.inputElement.value;
-            this.strVal = val;
+        
+        validate(): boolean {
+            const val = this.strVal;
             const nval = this.numValue(val);
-            this.validate(val, nval); 
-            if((nval != this.modelValue || 
-                (!Number.isNaN(nval) && Number.isNaN(this.modelValue)) || 
-                (Number.isNaN(nval) && !Number.isNaN(this.modelValue))) && 
-                this.errorMessage == "")
-                this.$emit("update:modelValue", nval);
-            
-        },
-        validate(val: string, nval: number){
-            if (val != this.displayValue(nval))
-                this.errorMessage = this.i18n.numericInvalid;
+            const reconv = this.displayValue(nval);
+            if (val != reconv)
+                this.validationMessage = this.i18n.numericInvalid;
             else if (val === "" && this.required)
-                this.errorMessage = this.i18n.numericRequired;
+                this.validationMessage = this.i18n.numericRequired;
             else if (!Number.isNaN(nval) && (nval < this.minValue || nval > this.maxValue)){
-                var s = "";
                 if(this.minValue != Number.NEGATIVE_INFINITY && this.maxValue != Number.POSITIVE_INFINITY)
-                    s = this.i18n.numericShouldBeBetween(this.minValue, this.maxValue);
+                    this.validationMessage = this.i18n.numericShouldBeBetween(this.minValue, this.maxValue);
                 else if(this.minValue != Number.NEGATIVE_INFINITY)
-                    s = this.i18n.numericShouldBeGreaterThan(this.minValue);
+                    this.validationMessage = this.i18n.numericShouldBeGreaterThan(this.minValue);
                 else if(this.maxValue != Number.POSITIVE_INFINITY)
-                    s =  this.i18n.numericShouldBeLessThan(this.maxValue);
-                this.errorMessage = s;
+                    this.validationMessage =  this.i18n.numericShouldBeLessThan(this.maxValue);
             } else {
-                this.errorMessage = "";
+                this.validationMessage = "";
             }
-            this.$emit("validated", this.errorMessage == "");
+            const isValid = this.validationMessage == "";
+            if (this.isValid != isValid)
+                this.$emit("update:isValid", isValid);
+            return isValid;
         },
+
+        setValue(val: number | null) {
+            this.strVal = val == null || Number.isNaN(val) 
+                ? "" 
+                : this.displayValue(val)
+        },
+
         handleKey(event: KeyboardEvent){
-            const val = this.inputElement.value;
+            
+            const val = this.strVal;
             if (event.code == 'Enter' || event.code == 'Return')
                 this.$emit("enter");
             let i = 0;
@@ -132,9 +131,12 @@ export default {
                 i = -1;
             if(i != 0) {
                 event.preventDefault();
-                this.updateStrVal(this.displayValue(this.numValue(val) + i*this.roundingStep));
+                this.setValue(this.numValue(val) + i*this.roundingStep);
             }
 
+
+            // Support for cultures where they use comma as decimal symbol
+            // decimal keyboard on phones sometimes don't include point buttons in thee cases
             if (event.code == 'Comma'){
                 event.preventDefault();
                 const ss = this.inputElement.selectionStart ?? val.length;
@@ -143,14 +145,14 @@ export default {
                 const sub1 = val.substring(0, ss);
                 const sub2 = val.substring(se);
 
-                this.inputElement.value = sub1 + '.' + sub2;
+                this.strVal = sub1 + '.' + sub2;
             }
 
         },
         handleMouse(event: WheelEvent){
             if (!this.useMouse)
                 return;
-            const val = this.inputElement.value;
+            const val = this.strVal;
             let i = 0;
             console.log(event)
             if (event.deltaY > 0)
@@ -160,7 +162,7 @@ export default {
 
             if(i != 0) {
                 event.preventDefault();
-                this.updateStrVal(this.displayValue(this.numValue(val) + i*this.roundingStep));
+                this.setValue(this.numValue(val) + i*this.roundingStep);
             }
         },
         handleScroll(event: TouchEvent) {
@@ -187,8 +189,8 @@ export default {
                 if (i == 0)
                     return;
                     
-                const val = this.inputElement.value;
-                this.updateStrVal(this.displayValue(this.numValue(val) + i*this.roundingStep));
+                const val = this.strVal;
+                this.setValue(this.numValue(val) + i*this.roundingStep);
                 this.touchY = newY;
             } else if (event.type == "touchend") {
                 this.inTouch = false;
@@ -197,6 +199,7 @@ export default {
     },
     mounted() {
       GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
+      this.validate();
     },
     watch: {
         decimals(n: number) {
@@ -206,21 +209,30 @@ export default {
                 this.roundingStep /= 10;
             }
         },
+        strVal() {
+            const isValid = this.validate();
+            let val = this.numValue(this.strVal);
+            if (!isValid)
+                return;
+            if (this.inTouch)
+                return;
+            if (this.modelValue != val || 
+                (Number.isNaN(this.modelValue) && !Number.isNaN(val)) ||
+                (!Number.isNaN(this.modelValue) && Number.isNaN(val)))
+                this.$emit("update:modelValue", val ?? NaN);
+        },
         modelValue(n: number) {
-            this.updateStrVal(this.displayValue(n), true);
+            this.setValue(n);
         }
     },
     computed: {
-        isValid() {
-            return this.allMessages.length == 0;
-        },
         allMessages() {
             let a: string[] = [];
             for(let i in this.errorMessages){
                 a.push(this.errorMessages[i]);
             }
-            if(this.errorMessage.length > 0)
-                a.push(this.errorMessage);
+            if(this.validationMessage.length > 0)
+                a.push(this.validationMessage);
             return a;
         },
         inputElement(): HTMLInputElement {

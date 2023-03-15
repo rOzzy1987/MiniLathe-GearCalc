@@ -5,14 +5,14 @@ import { EnTranslations } from '@/i18n/lang';
 import HuTranslations from '@/i18n/hu';
 
 export default class GlobalConfig {
-    public static loadConfig(): LatheConfig | null {
+    public static loadConfig(): LatheConfig {
         try {
             const a = localStorage.getItem("latheConfig");
             const b = JSON.parse(a!);
             return LatheConfig.fromPlainObject(b);
         }
         catch{
-            return null;
+            return new LatheConfig();
         }
     }
 

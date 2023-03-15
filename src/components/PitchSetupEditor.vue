@@ -1,13 +1,13 @@
 <template>
     <div>
-        <PitchEditor v-model:pitch="pv" v-model:pitchType="pt" @validated="isPitchValid = $event" />
+        <PitchEditor v-model:pitch="pv" v-model:pitchType="pt" v-model:isValid="isPitchValid" />
 
         <GearCombinationEditor 
             v-model:gearA="ga"
             v-model:gearB="gb"
             v-model:gearC="gc"
             v-model:gearD="gd"
-            @validated="isGearsValid = $event" />
+            v-model:isValid="isGearsValid" />
     </div>
 </template>
 <script lang="ts">
@@ -16,7 +16,7 @@ import GearCombinationEditor from './GearCombinationEditor.vue';
 import PitchEditor from './PitchEditor.vue';
 
 export default {
-    setup() {
+    data() {
         return {
             isPitchValid: true,
             isGearsValid: true,
@@ -29,6 +29,7 @@ export default {
         gearD: {type: Number, default: 60},
         pitch: {type: Number, default: 1.5},
         type: {type: Number, default: PitchType.Metric},
+        isValid: {type: Boolean, default: true}
     },
     computed: {
         ga: {
@@ -55,18 +56,25 @@ export default {
             get() { return this.type; },
             set(v: number) { this.$emit("update:type", v); }
         },
-        isValid() {
-            return this.isPitchValid 
+    },
+    methods: {
+        validate() {
+            const isValid =  this.isPitchValid 
                 && this.isGearsValid;
+            if(this.isValid != isValid)
+                this.$emit("update:isValid", isValid);
         }
+
+    },
+    mounted(){
+        this.validate();
     },
     watch: {
-        isValid(n: boolean) {
-            this.$emit("validated", n);
-        }
+        isPitchValid() { this.validate(); },
+        isGearsValid() { this.validate(); }
     },
     emits: [
-        "validated",
+        "update:isValid",
         "update:gearA",
         "update:gearB",
         "update:gearC",

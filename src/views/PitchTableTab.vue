@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="block">{{ i18n.ptDescription }}</div>
+        <div class="block">{{ i18n.ptTitle }}</div>
       <div class="box columns column-table">
         <div class="column is-half table-container">
             <PitchSetupTable :model-value="model" v-model:selectedItem="selectedSetup" :order-by="OrderBy.N"/>

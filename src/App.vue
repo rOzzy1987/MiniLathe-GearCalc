@@ -30,7 +30,7 @@
       <PitchTableTab v-model="combos"/>
     </section>
     <section v-if="activeTab == ActiveTabs.PitchForGears" class="section" >
-      <PitchForGearsTab v-model="combos" v-model:gearA="gearA" v-model:gearB="gearB" v-model:gearC="gearC" v-model:gearD="gearD" :leadscrew="config?.leadscrew"/>
+      <PitchForGearsTab v-model="combos" v-model:gearA="gearA" v-model:gearB="gearB" v-model:gearC="gearC" v-model:gearD="gearD" v-model:leadscrew="config.leadscrew"/>
     </section>
     <section v-if="activeTab == ActiveTabs.GearsForPitch" class="section" >
       <GearsForPitchTab v-model="combos" v-model:desiredPitch="pitch"/>
@@ -62,7 +62,7 @@
 <script lang="ts">
 import CombinationFinder from './bll/combinationFinder';
 import GlobalConfig from './bll/globalConfig';
-import type LatheConfig from './bll/latheConfig';
+import LatheConfig from './bll/latheConfig';
 import { Pitch, PitchType } from './bll/pitch';
 import LanguageSelector from './components/LanguageSelector.vue';
 import GearsForPitchTab from './views/GearsForPitchTab.vue';
@@ -72,7 +72,7 @@ import SetupTab from './views/SetupTab.vue';
 
 export default {
     data() {
-        const config = undefined as LatheConfig | undefined;
+        const config = new LatheConfig();
         const activeTab = config == undefined
           ?ActiveTabs.Configure
           :ActiveTabs.PitchTable;
@@ -89,13 +89,13 @@ export default {
             gearD: NaN,
             pitch: new Pitch(1, PitchType.Metric),
             ActiveTabs: ActiveTabs,
-            i18n: GlobalConfig.i18n,
+            i18n: GlobalConfig.i18n
         };
     },
     mounted() {
       GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
       GlobalConfig.loadLanguage();
-      this.config = GlobalConfig.loadConfig() ?? undefined;
+      this.config = GlobalConfig.loadConfig();
       this.combos = GlobalConfig.loadCombos();
 
       GlobalConfig.addLanguageChangeListener(() => GlobalConfig.saveLanguage());

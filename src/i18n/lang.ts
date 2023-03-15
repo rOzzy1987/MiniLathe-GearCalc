@@ -33,6 +33,8 @@ export default abstract class TranslationsBase{
     
     abstract genericGearBMissing: string;
     abstract genericGearCMissing: string;
+
+    abstract pitchTableNoResults: string;
     
     abstract numericShouldBeGreaterThanRaw: string;
     abstract numericShouldBeLessThanRaw: string;
@@ -67,9 +69,15 @@ export default abstract class TranslationsBase{
     abstract otherMaxGearSize: string;
     abstract otherMaxGearSizeTip: string;
 
-    abstract gfpDescription: string;
-    abstract pfgDescription: string;
-    abstract ptDescription: string;
+    abstract gfpTitle: string;
+    abstract pfgTitle: string;
+    abstract ptTitle: string;
+
+    abstract pfgCalculated: string;
+    abstract pfgSimilar: string;
+    abstract pfgPartial: string;
+    abstract pfgPartialTip: string;
+    abstract pfgSearchTip: string;
 
     f(str: string, params: Array<any>): string{
         let result = str;
@@ -110,6 +118,7 @@ export class EnTranslations extends TranslationsBase {
 
     genericGearBMissing: string = "Gear B is required if gear C is provided";
     genericGearCMissing: string = "Gear C is required if gear B is provided";
+    pitchTableNoResults: string = "No gear combinations found";
 
     numericShouldBeGreaterThanRaw: string = "Number should be greater than {0}";
     numericShouldBeLessThanRaw: string = "Number should be less than {0}";
@@ -141,7 +150,13 @@ export class EnTranslations extends TranslationsBase {
     otherMaxGearSizeTip: string = "The maximum gear size that will fit the machine";
 
     
-    gfpDescription: string = "Select a pitch and see which gear combination gets you there";
-    pfgDescription: string = "Search gear combinations and see what pitch you get with them";
-    ptDescription: string = "Example combinations for common thread pitches";
+    gfpTitle: string = "Select a pitch and see which gear combination gets you there";
+    pfgTitle: string = "Find the pitch for a gear combination";
+    ptTitle: string = "Example combinations for common thread pitches";
+
+    pfgCalculated: string = "Calculated value";
+    pfgSimilar: string = "Similar pitches using your gears";
+    pfgPartial: string = "Partial matches using your gears";
+    pfgPartialTip: string = "Note that gears A and C are interchangeable a well as B and D. This means you may have unexpected results, but trust us, it's correct. Also note that if a gear combination you expect doesn't show up here, it is likely that it wouldn't physically fit on the machine.";
+    pfgSearchTip: string = "Enter a complete gear combination to calculate the resulting pitch and find similar pitch combinations you can actually use with your own gear collection. Alternatively you can find partial matches from the precalculated combinations at the bottom of the page.";
 }
