@@ -73,6 +73,15 @@ export default abstract class TranslationsBase{
     abstract pfgTitle: string;
     abstract ptTitle: string;
 
+    abstract ptName: string;
+
+    abstract ptMetricCoarse: string;
+    abstract ptMetricFine: string;
+    abstract ptMetricSuperfine: string;
+    abstract ptImperialCoarse: string;
+    abstract ptImperialFine: string;
+    abstract ptBritishPipe: string;
+
     abstract pfgCalculated: string;
     abstract pfgSimilar: string;
     abstract pfgPartial: string;
@@ -153,6 +162,15 @@ export class EnTranslations extends TranslationsBase {
     gfpTitle: string = "Select a pitch and see which gear combination gets you there";
     pfgTitle: string = "Find the pitch for a gear combination";
     ptTitle: string = "Example combinations for common thread pitches";
+
+    ptName: string = "Name";
+
+    ptMetricCoarse: string = "Metric coarse threads";
+    ptMetricFine: string = "Metric fine threads";
+    ptMetricSuperfine: string = "Metric super fine threads";
+    ptImperialCoarse: string = "UNC threads";
+    ptImperialFine: string = "UNF threads";
+    ptBritishPipe: string = "British pipe threads";
 
     pfgCalculated: string = "Calculated value";
     pfgSimilar: string = "Similar pitches using your gears";

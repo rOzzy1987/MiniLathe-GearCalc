@@ -61,7 +61,16 @@ export default class HuTranslations extends TranslationsBase{
     gfpTitle: string = "Adj meg egy menetemelkedést, és megkeressük a hozzá taartozó fogaskerék kombinációkat";
     pfgTitle: string = "Találd meg a kombinációhoz tartozó menetemelkedést";
     ptTitle: string = "Itt a gyakori menetemelkedésekhez találhatsz példákat";
-    
+
+    ptName: string = "Név";
+
+    ptMetricCoarse: string = "Metrikus menetek";
+    ptMetricFine: string = "Metrikus finom menetek";
+    ptMetricSuperfine: string = "Metrikus extra finom menetek";
+    ptImperialCoarse: string = "Angolszász menetek";
+    ptImperialFine: string = "Angolszász finom menetek";
+    ptBritishPipe: string = "Angolszász csőmenetek";
+
     pfgCalculated: string = "Számított érték";
     pfgSimilar: string = "Hasonló menetemelkedések a te fogakerekeiddel";
     pfgPartial: string = "Részleges egyezések a te fogakerekeiddel";
