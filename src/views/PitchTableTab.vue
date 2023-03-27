@@ -3,7 +3,7 @@
         <div class="block">{{ i18n.ptTitle }}</div>
       <div class="box columns column-table">
         <div class="column is-half table-container">
-            <PitchSetupTable :model-value="model" v-model:selectedItem="selectedSetup" :order-by="OrderBy.N"/>
+            <PitchSetupTable :model-value="model" v-model:selectedItem="selectedSetup" :isSortable="false"/>
         </div>
         <div class="column">
             <GeartrainImg :gear-a="selectedSetup?.gearA" :gear-b="selectedSetup?.gearB" :gear-c="selectedSetup?.gearC" v-bind:gear-d="selectedSetup?.gearD" :scale="2"/>
@@ -15,7 +15,7 @@
 import { Pitch, PitchType } from '@/bll/pitch';
 import { PitchSetup } from '@/bll/pitchSetup';
 import GeartrainImg from '@/components/GeartrainImg.vue';
-import PitchSetupTable, {OrderBy} from '@/components/PitchSetupTable.vue';
+import PitchSetupTable from '@/components/PitchSetupTable.vue';
 import GlobalConfig from '@/bll/globalConfig';
 
 
@@ -23,7 +23,6 @@ export default {
     data(){
         return {
             selectedSetup: new PitchSetup(20, null, null, 80, new Pitch(1, PitchType.Metric)),
-            OrderBy: OrderBy,
             i18n: GlobalConfig.i18n
         }
     },

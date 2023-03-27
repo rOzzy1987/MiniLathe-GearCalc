@@ -19,7 +19,6 @@
 <script lang="ts">
 
 import LatheConfig from '@/bll/latheConfig';
-import { Pitch, PitchType } from '@/bll/pitch';
 import GearListEditor from '../components/GearListEditor.vue';
 import LeadscrewWizard from '../components/LeadscrewWizard.vue';
 import OtherParamsEditor from '@/components/OtherParamsEditor.vue';

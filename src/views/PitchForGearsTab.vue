@@ -9,7 +9,7 @@
             <GearCombinationEditor v-model:gearA="ga" v-model:gearB="gb" v-model:gearC="gc" v-model:gearD="gd" v-model:isComboValid="isGearComboValid" :checkRequired="false"/>
             <div class="block" >
                 <p>{{ i18n.pfgCalculated }}</p>
-                <PitchSetupTable :modelValue="exactMatch" v-model:selectedItem="selectedSetup" :orderBy="OrderBy.N"/>
+                <PitchSetupTable :modelValue="exactMatch" v-model:selectedItem="selectedSetup" :isSortable="false"/>
             </div>
 
             <div class="block" >
@@ -34,7 +34,7 @@ import { Pitch, PitchType } from '@/bll/pitch';
 import { PitchSetup } from '@/bll/pitchSetup';
 import GearCombinationEditor from '@/components/GearCombinationEditor.vue';
 import GeartrainImg from '@/components/GeartrainImg.vue';
-import PitchSetupTable, { OrderBy } from '@/components/PitchSetupTable.vue';
+import PitchSetupTable from '@/components/PitchSetupTable.vue';
 import GlobalConfig from '@/bll/globalConfig';
 import CombinationFinder from '@/bll/combinationFinder';
 
@@ -43,12 +43,11 @@ export default {
     data(){
         return {
             selectedSetup: new PitchSetup(20, null, null, 80, new Pitch(1, PitchType.Metric)),
-            orderBy: OrderBy.P,
+            orderBy: 4,
             orderAscending: true,
             i18n: GlobalConfig.i18n,
             isGearComboValid: true,
-            comboFinder: new CombinationFinder(),
-            OrderBy: OrderBy
+            comboFinder: new CombinationFinder()
         }
     },
     props: {

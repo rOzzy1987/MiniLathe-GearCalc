@@ -1,6 +1,6 @@
 <template>
     <div>
-        <PitchEditor v-model:pitch="pv" v-model:pitchType="pt" v-model:isValid="isPitchValid" />
+        <PitchEditor v-model="pv" v-model:isValid="isPitchValid" />
 
         <GearCombinationEditor 
             v-model:gearA="ga"
@@ -11,7 +11,7 @@
     </div>
 </template>
 <script lang="ts">
-import { PitchType } from '@/bll/pitch';
+import { Pitch, PitchType } from '@/bll/pitch';
 import GearCombinationEditor from './GearCombinationEditor.vue';
 import PitchEditor from './PitchEditor.vue';
 
@@ -27,8 +27,7 @@ export default {
         gearB: {type: Number, default: NaN},
         gearC: {type: Number, default: NaN},
         gearD: {type: Number, default: 60},
-        pitch: {type: Number, default: 1.5},
-        type: {type: Number, default: PitchType.Metric},
+        pitch: {type: Pitch, default: new Pitch(1.5, PitchType.Metric)},
         isValid: {type: Boolean, default: true}
     },
     computed: {
@@ -51,10 +50,6 @@ export default {
         pv: {
             get() { return this.pitch; },
             set(v: number) { this.$emit("update:pitch", v); }
-        },
-        pt: {
-            get() { return this.type; },
-            set(v: number) { this.$emit("update:type", v); }
         },
     },
     methods: {
@@ -80,7 +75,6 @@ export default {
         "update:gearC",
         "update:gearD",
         "update:pitch",
-        "update:type",
     ],
     components: { PitchEditor, GearCombinationEditor }
 }

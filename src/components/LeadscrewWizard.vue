@@ -12,7 +12,7 @@
       </div>
 
       <div v-if="knowPitch">
-        <PitchEditor v-model:pitch="pitch.value" v-model:pitchType="pitch.type" v-model:isValid="directPitchValid" />
+        <PitchEditor v-model="pitch" v-model:isValid="directPitchValid" />
         <div class="buttons mt-4">
           <button class="button" @click.prevent="knowPitch = null">{{ i18n.genericBack }}</button>
           <button class="button is-primary" @click.prevent="selectedPitch = pitch" :disabled="!directPitchValid">{{ i18n. genericSave }}</button>
@@ -33,8 +33,7 @@
               v-model:gearB="sampleSetup.gearB"
               v-model:gearC="sampleSetup.gearC"
               v-model:gearD="sampleSetup.gearD"
-              v-model:pitch="sampleSetup.pitch.value"
-              v-model:type="sampleSetup.pitch.type"
+              v-model:pitch="sampleSetup.pitch"
               v-model:isValid="sampleSetupValid"
             />
 

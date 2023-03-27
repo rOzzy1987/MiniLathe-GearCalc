@@ -1,6 +1,6 @@
 <template>
  <div>
-    <NumericEditor v-model="pitchEdit" 
+    <NumericEditor v-model="pitchVal" 
         :decimals="pitchType == PitchType.Metric ? 2 : 0" 
         :min-value="pitchType == PitchType.Metric ? .3 : 6"    
         :max-value="pitchType == PitchType.Metric ? 4 : 64" 
@@ -23,7 +23,7 @@
     </div>
 </template>
 <script lang="ts">
-import { INCH, PitchType } from '@/bll/pitch';
+import { Pitch, PitchType } from '@/bll/pitch';
 import NumericEditor from './NumericEditor.vue';
 import GlobalConfig from '@/bll/globalConfig';
 
@@ -31,44 +31,34 @@ export default {
     data() {
         return {
             isPvValid: true,
-            PitchType: PitchType,
-            i18n: GlobalConfig.i18n
+            i18n: GlobalConfig.i18n,
+            PitchType: PitchType
         };
     },
     props: {
-        pitch: { type: Number, default: 1 },
-        pitchType: { type: Number, default: PitchType.Metric },
+        modelValue: { type: Pitch, required: true },
         isValid: {type: Boolean, deafult: true}
     },
     methods: {
-        updateValue(event: any) {
-            const val = Number(event.target.value);
-            this.updateValueImpl(val);
-        },
-        updateValueImpl(val: number) {
-            if (this.pitch != val) {
-                this.$emit("update:pitch", val);
-            }
-        },
-        updateType(event: any) {
-            const val = Number(event.target.value);
-            this.updateTypeImpl(val);
-        },
-        updateTypeImpl(val: number) {
-            if (this.pitchType != val) {
-                this.updateValueImpl(INCH / this.pitch);
-                this.$emit("update:pitchType", val);
-            }
-        },
         validate() {
             if (this.isValid != this.isPvValid)
                 this.$emit("update:isValid", this.isPvValid);
+        },
+        updateType(ev: any){
+            const val = ev.target.value;
+            if (this.pitchType != val){
+                this.pitchType = val;
+            }
         }
     },
     computed: {
-        pitchEdit: {
-            get() {return this.pitch;},
-            set(val: number) {this.updateValueImpl(val);}
+        pitchVal: {
+            get() {return this.modelValue?.value;},
+            set(val: number) {this.$emit("update:modelValue", new Pitch(val, this.modelValue?.type));}
+        },
+        pitchType: {
+            get() {return this.modelValue?.type;},
+            set(val: PitchType) {this.$emit("update:modelValue", val != this.modelValue?.type ? this.modelValue?.convert() : this.modelValue);}
         },
     },
     watch: {
@@ -80,8 +70,7 @@ export default {
     },
     emits: [
         "update:isValid",
-        "update:pitch",
-        "update:pitchType"    
+        "update:modelValue"    
     ],
     components: { NumericEditor }
 }
