@@ -30,7 +30,19 @@
 
 <script lang="ts">
 
-export class GridColumnDefinition {
+export interface IGridColumnDefinition {
+    readonly title: string;
+    readonly tooltip: string | null;
+    readonly valueFn: (item: any) => any;
+    readonly formatFn: (value: any) => string;
+    readonly sortFn: ((val1:any, val2:any) => number) | null;
+    readonly cssClasses: Array<string>;
+    readonly style: string | undefined;
+    readonly headerCssClasses: Array<string>;
+    readonly headerStyle: string | undefined;
+}
+
+export class GridColumnDefinition implements IGridColumnDefinition {
 
     private _title: string;
     private _tooltip: string | null = null;
@@ -167,7 +179,7 @@ export default {
     },
     props: {
         title: { type: String, default: null },
-        columns: { type: Array<GridColumnDefinition>, required: true },
+        columns: { type: Array<IGridColumnDefinition>, required: true },
         selectionMode: { type: Number, default: GridSelectionMode.None },
         selectedItems: { type: Array<any>, default: [] },
         modelValue: { type: Array<any>, required: true },
