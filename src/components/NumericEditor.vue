@@ -4,7 +4,8 @@
       <div class="control has-icons-right">
         <input :id="'input'+id" class="input" :class="{'is-danger': !isValid}" type="text" v-model="strVal" :disabled="disabled"  pattern="[0-9]*" inputmode="decimal" 
         @keydown="handleKey($event)"
-        @wheel="handleMouse($event)" @touchstart="handleScroll" @touchmove="handleScroll" @touchend="handleScroll"/>
+        @wheel="handleMouse($event)" 
+        @touchstart="handleTouch" @touchmove="handleTouch" @touchend="handleTouch"/>
         <span :id="'updown'+id" v-if="touchSupported" class="icon is-small is-right">
             <i class="fas fa-up-down"></i>
         </span>
@@ -23,25 +24,21 @@ import GlobalConfig from '@/bll/globalConfig';
 export default {
     data(props) {
         
-        let roundingMultiplier = 1;
-        let roundingSteps = 1;
-        for (let i = 0; i < props.decimals; i++){
-            roundingMultiplier *= 10;
-            roundingSteps /= 10;
-        }
 
         return {
             id: Math.round(Math.random() * 1000),
-            roundingMultiplier,
-            roundingStep: roundingSteps,
             validationMessage: "",
-            strVal: this.displayValue(props.modelValue),
+            strValField: this.displayValue(props.modelValue),
             touchY: 0,
             touchSensitivity: 10,
             inTouch: false,
             touchSupported: (('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || ((navigator as any).msMaxTouchPoints > 0)),
             i18n: GlobalConfig.i18n,
         }
+    },
+    mounted() {
+      GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
+      this.validate();
     },
     emits: [
         "update:isValid",
@@ -69,7 +66,6 @@ export default {
                 return NaN;
             return Math.round(Number(str) * this.roundingMultiplier) * this.roundingStep;
         },
-
         displayValue(num: number): string{
             if(Number.isNaN(num))
                 return "";
@@ -88,7 +84,6 @@ export default {
             }
             return result;
         },
-        
         validate(): boolean {
             const val = this.strVal;
             const nval = this.numValue(val);
@@ -112,13 +107,25 @@ export default {
                 this.$emit("update:isValid", isValid);
             return isValid;
         },
-
         setValue(val: number | null) {
             this.strVal = val == null || Number.isNaN(val) 
                 ? "" 
                 : this.displayValue(val)
         },
+        updateModelValue(){
+            let val = this.numValue(this.strVal);
 
+            if (!this.isValid)
+                return;
+
+            if (this.inTouch)
+                return;
+
+            if (this.modelValue != val || 
+                (Number.isNaN(this.modelValue) && !Number.isNaN(val)) ||
+                (!Number.isNaN(this.modelValue) && Number.isNaN(val)))
+                this.$emit("update:modelValue", val ?? NaN);
+        },
         handleKey(event: KeyboardEvent){
             
             const val = this.strVal;
@@ -154,7 +161,6 @@ export default {
                 return;
             const val = this.strVal;
             let i = 0;
-            console.log(event)
             if (event.deltaY > 0)
                 i = -1;
             if (event.deltaY < 0)
@@ -165,14 +171,14 @@ export default {
                 this.setValue(this.numValue(val) + i*this.roundingStep);
             }
         },
-        handleScroll(event: TouchEvent) {
+        handleTouch(event: TouchEvent) {
             if (!this.useTouch || !this.touchSupported)
                 return;
 
             const touch = event.touches[0];
             const icon = this.iconElement.getBoundingClientRect();
-
-            const inBounds = touch.clientX > icon.x &&touch.clientX < icon.x + icon.width &&
+            const inBounds = event.type == "touchend" ? false : 
+                touch.clientX > icon.x &&touch.clientX < icon.x + icon.width &&
                 touch.clientY > icon.y && touch.clientY < icon.y + icon.height;
             if (!inBounds && !this.inTouch)
                 return;
@@ -190,39 +196,17 @@ export default {
                     return;
                     
                 const val = this.strVal;
-                this.setValue(this.numValue(val) + i*this.roundingStep);
                 this.touchY = newY;
+                this.setValue(this.numValue(val) + i * this.roundingStep);
             } else if (event.type == "touchend") {
                 this.inTouch = false;
+                this.updateModelValue();
             }
         }
     },
-    mounted() {
-      GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
-      this.validate();
-    },
     watch: {
-        decimals(n: number) {
-            this.roundingMultiplier = this.roundingStep = 1;
-            for (let i = 0; i < n; i++){
-                this.roundingMultiplier *= 10;
-                this.roundingStep /= 10;
-            }
-        },
-        strVal() {
-            const isValid = this.validate();
-            let val = this.numValue(this.strVal);
-            if (!isValid)
-                return;
-            if (this.inTouch)
-                return;
-            if (this.modelValue != val || 
-                (Number.isNaN(this.modelValue) && !Number.isNaN(val)) ||
-                (!Number.isNaN(this.modelValue) && Number.isNaN(val)))
-                this.$emit("update:modelValue", val ?? NaN);
-        },
-        modelValue(n: number) {
-            this.setValue(n);
+        modelValue(v){
+            this.strVal = v; 
         }
     },
     computed: {
@@ -240,6 +224,26 @@ export default {
         },
         iconElement(): HTMLElement {
             return document.getElementById('updown'+ this.id)!;
+        },
+        roundingMultiplier() {
+            let a = 1;
+            for(let i = 0; i < this.decimals; i++)
+                a*=10;
+            return a;
+        },
+        roundingStep() {
+            let a = 1;
+            for(let i = 0; i < this.decimals; i++)
+                a/=10;
+            return a;
+        },
+        strVal: {
+            get(): string { return this.strValField; },
+            set(v: string) { 
+                this.strValField = v; 
+                this.validate();
+                this.updateModelValue();
+            }
         }
     }
 }
