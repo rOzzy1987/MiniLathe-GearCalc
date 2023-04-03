@@ -14,7 +14,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(item, j) of _modelValue" :key="j" :class="{'is-selected': _selectedItems.indexOf(item) >= 0}" @click="itemClicked($event, j)">
+                    <tr v-for="(item, j) of _pagedModelValue" :key="j" :class="{'is-selected': _selectedItems.indexOf(item) >= 0}" @click="itemClicked($event, j)">
                         <td v-for="(col, i) of columns" :key="i" :style="col.style" :class="col.cssClasses">
                             {{ col.formatFn(col.valueFn(item)) }}
                         </td>
@@ -23,6 +23,29 @@
                         <td :colspan="columns?.length">{{ emptyText }}</td>
                     </tr>
                 </tbody>
+                <tfoot>
+                    <tr v-if="isFooterEnabled">
+                        <th v-for="(col, i) of columns" :key="i" :title="col.tooltip ?? undefined" @click="setOrder(i)" :style="col.headerStyle" :class="col.headerCssClasses">
+                            <span v-if="isSortable && _sortByColumn == i" class="icon is-small"><i class="fas" :class="{'fa-sort-up': _sortAscending, 'fa-sort-down': !_sortAscending}"></i></span>
+                            {{ col.title }}
+                        </th>
+                    </tr>
+                    <tr v-if="itemsPerPage != Number.POSITIVE_INFINITY">
+                        <th :colspan="columns?.length">
+                            <button class="button is-small has-icon"><i class="fas fa-angles-left" :disabled="_page == 0" @click="_page = 0"></i></button>
+                            &nbsp;
+                            <button class="button is-small has-icon"><i class="fas fa-angle-left" :disabled="_page == 0" @click="_page = 0"></i></button>
+                            &nbsp;
+                            <span v-for="i in lastPage + 1" :key="i">
+                                <button class="button is-small" :class="{'is-primary': i - 1 == _page}" @click="_page = i - 1">{{ i }}</button>
+                                &nbsp;
+                            </span>
+                            <button class="button is-small has-icon"><i class="fas fa-angle-right" :disabled="_page == lastPage" @click="_page = lastPage"></i></button>
+                            &nbsp;
+                            <button class="button is-small has-icon"><i class="fas fa-angles-right" :disabled="_page == lastPage" @click="_page = lastPage"></i></button>
+                        </th>
+                    </tr>
+                </tfoot>
             </table>
         </div>
     </div>
@@ -174,7 +197,8 @@ export default {
             sortAscendingField: props.sortAscending,
             selectedItemsField: props.selectedItems,
             modelValueField: props.modelValue,
-            lastItemClicked: 0
+            lastItemClicked: 0,
+            pageField: props.page
         }
     },
     props: {
@@ -186,7 +210,10 @@ export default {
         isSortable: { type: Boolean, default: false },
         sortByColumn: { type: Number, default: null },
         sortAscending: { type: Boolean, default: true },
-        emptyText: {type: String, default: "No data"}
+        emptyText: { type: String, default: "No data" },
+        isFooterEnabled: { type: Boolean, default: false },
+        itemsPerPage: { type: Number, default: Number.POSITIVE_INFINITY },
+        page: { type: Number, default: 0 }
     },
     methods: {
         setOrder(colIdx: number) {
@@ -297,6 +324,20 @@ export default {
                 }
              }
         },
+        _pagedModelValue() {
+            if (this.itemsPerPage == Number.POSITIVE_INFINITY){
+                return this._modelValue;
+            }
+            const s = this._page * this.itemsPerPage;
+            return this._modelValue.slice(s, s + this.itemsPerPage);
+        },
+        _page: {
+            get(): number { return this.pageField; },
+            set(v: number) { this.pageField = v; this.$emit("update:page", v); }
+        },
+        lastPage() {
+            return Math.ceil(this._modelValue.length / this.itemsPerPage) - 1;
+        }
     },
     watch: {
         modelValue: {
@@ -311,6 +352,9 @@ export default {
         },
         selectedItems(newVal) {
             this.selectedItemsField = newVal;            
+        },
+        page(newVal) {
+            this._page = newVal;
         }
     }
 }
