@@ -19,7 +19,7 @@
                             {{ col.formatFn(col.valueFn(item)) }}
                         </td>
                         <td v-if="rowCommands.length > 0">
-                            <CommandButton v-for="(cmd, i) in rowCommandsForItem(item)" :key="i" :css-class="cmd.cssClass" :icon-class="cmd.iconClass" :label="cmd.label" @click="cmd.command(item)"/>
+                            <CommandButton class="is-small" v-for="(cmd, i) in rowCommandsForItem(item)" :key="i" :css-class="cmd.cssClass" :icon-class="cmd.iconClass" :label="cmd.label" @click="cmd.command(item)"/>
                         </td>
                     </tr>
                     <tr v-if="_modelValue.length == 0">
@@ -35,22 +35,24 @@
                     </tr>
                     <tr v-if="itemsPerPage != Number.POSITIVE_INFINITY">
                         <th :colspan="columnCount">
-                            <button class="button is-small has-icon"><i class="fas fa-angles-left" :disabled="_page == 0" @click="_page = 0"></i></button>
+                            <button class="button is-small has-icon" :disabled="_page == 0" @click.prevent="_page = 0"><i class="fas fa-angles-left"></i></button>
                             &nbsp;
-                            <button class="button is-small has-icon"><i class="fas fa-angle-left" :disabled="_page == 0" @click="_page = 0"></i></button>
+                            <button class="button is-small has-icon" :disabled="_page == 0" @click.prevent="_page--"><i class="fas fa-angle-left"></i></button>
                             &nbsp;
-                            <span v-for="i in lastPage + 1" :key="i">
-                                <button class="button is-small" :class="{'is-primary': i - 1 == _page}" @click="_page = i - 1">{{ i }}</button>
+                            <span v-for="i in pageButtons" :key="i">
+                                <button class="button is-small" :class="{'is-primary': i == _page}" @click.prevent="_page = i">{{ i + 1 }}</button>
                                 &nbsp;
                             </span>
-                            <button class="button is-small has-icon"><i class="fas fa-angle-right" :disabled="_page == lastPage" @click="_page = lastPage"></i></button>
+                            <button class="button is-small has-icon" :disabled="_page == lastPage" @click.prevent="_page++"><i class="fas fa-angle-right"></i></button>
                             &nbsp;
-                            <button class="button is-small has-icon"><i class="fas fa-angles-right" :disabled="_page == lastPage" @click="_page = lastPage"></i></button>
+                            <button class="button is-small has-icon" :disabled="_page == lastPage" @click.prevent="_page = lastPage"><i class="fas fa-angles-right"></i></button>
+
+                            <div class="is-pulled-right has-text-small">{{ _page + 1 }} / {{ lastPage + 1 }}</div>
                         </th>
                     </tr>
                     <tr v-if="commandsForSelectedItems(selectedItems)">
                         <th :colspan="columnCount">
-                            <CommandButton v-for="(cmd, i) in commandsForSelectedItems(selectedItems)" :key="i" :css-class="cmd.cssClass" :icon-class="cmd.iconClass" :label="cmd.label" @click="cmd.command(selectedItems)"/>
+                            <CommandButton class="is-small" v-for="(cmd, i) in commandsForSelectedItems(selectedItems)" :key="i" :css-class="cmd.cssClass" :icon-class="cmd.iconClass" :label="cmd.label" @click="cmd.command(selectedItems)"/>
                         </th>
                     </tr>
                 </tfoot>
@@ -61,7 +63,6 @@
 
 <script lang="ts">
 import CommandButton from './CommandButton.vue';
-
 
 export interface IGridColumnDefinition {
     readonly title: string;
@@ -448,9 +449,13 @@ export default {
 
             this.download(csv, "export.csv");
         },
-        download(content: string, filename: string){
+        download(content: string | Blob, filename: string){
             var element = document.createElement('a');
-            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
+            
+            var uri = content.constructor.name == 'Blob'
+                ? window.URL.createObjectURL(content as Blob)
+                : 'data:text/plain;charset=utf-8,' + encodeURIComponent(content as string);
+            element.setAttribute('href', uri);
             element.setAttribute('download', filename);
 
             element.style.display = 'none';
@@ -512,7 +517,8 @@ export default {
                 if(this.isExportEnabled) {
                     const csvCmd = 
                         new GridCommandDefinition((i) => this.exportCsv())
-                        .withIcon("fas fa-file-csv");
+                        .withIcon("fas fa-file-csv")
+                        .withLabel("Export");
                     r.push(csvCmd);
                 }
                 return r;
@@ -520,6 +526,13 @@ export default {
         },
         lastPage() {
             return Math.ceil(this._modelValue.length / this.itemsPerPage) - 1;
+        },
+        pageButtons(){
+            const r = [];
+            for (let i = Math.max(0, this._page-5); i <= Math.min(this._page + 5, this.lastPage); i++) {
+                r.push(i);
+            }
+            return r;
         },
         columnCount() {
             return this.rowCommands.length > 0 
