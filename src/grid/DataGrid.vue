@@ -18,9 +18,12 @@
                         <td v-for="(col, i) of columns" :key="i" :style="col.style" :class="col.cssClasses">
                             {{ col.formatFn(col.valueFn(item)) }}
                         </td>
+                        <td v-if="rowCommands.length > 0">
+                            <CommandButton v-for="(cmd, i) in rowCommandsForItem(item)" :key="i" :css-class="cmd.cssClass" :icon-class="cmd.iconClass" :label="cmd.label" @click="cmd.command(item)"/>
+                        </td>
                     </tr>
                     <tr v-if="_modelValue.length == 0">
-                        <td :colspan="columns?.length">{{ emptyText }}</td>
+                        <td :colspan="columnCount">{{ emptyText }}</td>
                     </tr>
                 </tbody>
                 <tfoot>
@@ -31,7 +34,7 @@
                         </th>
                     </tr>
                     <tr v-if="itemsPerPage != Number.POSITIVE_INFINITY">
-                        <th :colspan="columns?.length">
+                        <th :colspan="columnCount">
                             <button class="button is-small has-icon"><i class="fas fa-angles-left" :disabled="_page == 0" @click="_page = 0"></i></button>
                             &nbsp;
                             <button class="button is-small has-icon"><i class="fas fa-angle-left" :disabled="_page == 0" @click="_page = 0"></i></button>
@@ -45,6 +48,11 @@
                             <button class="button is-small has-icon"><i class="fas fa-angles-right" :disabled="_page == lastPage" @click="_page = lastPage"></i></button>
                         </th>
                     </tr>
+                    <tr v-if="commandsForSelectedItems(selectedItems)">
+                        <th :colspan="columnCount">
+                            <CommandButton v-for="(cmd, i) in commandsForSelectedItems(selectedItems)" :key="i" :css-class="cmd.cssClass" :icon-class="cmd.iconClass" :label="cmd.label" @click="cmd.command(selectedItems)"/>
+                        </th>
+                    </tr>
                 </tfoot>
             </table>
         </div>
@@ -52,6 +60,8 @@
 </template>
 
 <script lang="ts">
+import CommandButton from './CommandButton.vue';
+
 
 export interface IGridColumnDefinition {
     readonly title: string;
@@ -63,6 +73,84 @@ export interface IGridColumnDefinition {
     readonly style: string | undefined;
     readonly headerCssClasses: Array<string>;
     readonly headerStyle: string | undefined;
+    readonly exportFn: (value: any) => any;
+}
+export interface IGridCommandDefinition {
+    label: string | undefined;
+    iconClass: string | undefined;
+    cssClass: string | undefined;
+    command: (selectedItems: any[]) => any;
+    filter: (selectedItems: any[]) => boolean;
+}
+export interface IGridRowCommandDefinition {
+    label: string | undefined;
+    iconClass: string | undefined;
+    cssClass: string | undefined;
+    command: (item: any) => any;
+    filter: (item: any) => boolean;
+}
+
+
+class __BaseCommandDefinition {
+    protected _label: string | undefined = undefined;
+    protected _iconClass: string | undefined = undefined;
+    protected _cssClass: string | undefined = undefined;
+
+    public get label() { return this._label; }
+    public get iconClass() { return this._iconClass; }
+    public get cssClass() { return this._cssClass; }
+}
+
+class BaseCommandDefinition<TDef extends __BaseCommandDefinition> extends __BaseCommandDefinition {
+    public withLabel(label: string): TDef {
+        this._label = label;
+        return this as unknown as TDef;
+    }
+    
+    public withIcon(iconClass: string): TDef {
+        this._iconClass = iconClass;
+        return this as unknown as TDef;
+    }
+    
+    public withClass(cssClass: string): TDef {
+        this._cssClass = cssClass;
+        return this as unknown as TDef;
+    }
+}
+
+export class GridCommandDefinition extends BaseCommandDefinition<GridCommandDefinition> implements IGridCommandDefinition{
+    private _command: (selectedItems: any[]) => any;
+    private _filter: (selectedItems: any[]) => boolean = _ => _==_;
+    public get command() { return this._command; }
+    public get filter() { return this._filter; }
+
+    public constructor(command: (selectedItems: any[]) => any){
+        super();
+        this._command = command;
+    }
+
+    public withFilter(filterFn: (selectedItems: any[]) => boolean) : GridCommandDefinition {
+        this._filter = filterFn;
+        return this;
+    }
+}
+
+export class GridRowCommandDefinition extends BaseCommandDefinition<GridRowCommandDefinition> implements IGridRowCommandDefinition {
+    private _command: (item: any) => any;
+    private _filter: (item: any) => boolean = _ => _==_;
+
+    public get command() { return this._command; }
+    public get filter() { return this._filter; }
+
+    public constructor(command: (item: any) => any){
+        super();
+        this._command = command;
+    }
+
+    public withFilter(filterFn: (item: any) => boolean) : GridRowCommandDefinition {
+        this._filter = filterFn;
+        return this;
+    }
 }
 
 export class GridColumnDefinition implements IGridColumnDefinition {
@@ -76,6 +164,7 @@ export class GridColumnDefinition implements IGridColumnDefinition {
     private _style: string | undefined = undefined;
     private _headerCssClasses: Array<string> = [];
     private _headerStyle: string | undefined = undefined;
+    private _exportFn: (value: any) => any = this.formatFn;
 
     public get title() {
         return this._title;
@@ -87,6 +176,10 @@ export class GridColumnDefinition implements IGridColumnDefinition {
 
     public get formatFn() {
         return this._formatFn;
+    }
+
+    public get exportFn() {
+        return this._exportFn;
     }
 
     public get cssClasses() {
@@ -120,7 +213,7 @@ export class GridColumnDefinition implements IGridColumnDefinition {
     }
 
     public asNumericColumn(fractionDigits: number | undefined = undefined) {
-        return this.withSortForNumerics().withAlignRight().withFormatAsNumeric(fractionDigits);
+        return this.withSortForNumerics().withAlignRight().withFormatAsNumeric(fractionDigits).withExportAsIs();
     }
 
     public withAlignLeft(){
@@ -145,6 +238,11 @@ export class GridColumnDefinition implements IGridColumnDefinition {
 
     public withFormatAsNumeric(fractionDigits: number | undefined = undefined) {
         this._formatFn = a => Number.isNaN(a) ? '-' : a.toFixed(fractionDigits);
+        return this;
+    }
+
+    public withExportAsIs(){
+        this._exportFn = (a) => a;
         return this;
     }
 
@@ -182,6 +280,11 @@ export class GridColumnDefinition implements IGridColumnDefinition {
         this._headerCssClasses = cssClasses;
         return this;
     }
+
+    public withExportFn(exportFn: (value: any) => any){
+        this._exportFn = exportFn;
+        return this;
+    }
 }
 
 export enum GridSelectionMode {
@@ -199,7 +302,7 @@ export default {
             modelValueField: props.modelValue,
             lastItemClicked: 0,
             pageField: props.page
-        }
+        };
     },
     props: {
         title: { type: String, default: null },
@@ -213,19 +316,22 @@ export default {
         emptyText: { type: String, default: "No data" },
         isFooterEnabled: { type: Boolean, default: false },
         itemsPerPage: { type: Number, default: Number.POSITIVE_INFINITY },
-        page: { type: Number, default: 0 }
+        page: { type: Number, default: 0 },
+        isExportEnabled: { type: Boolean, default: false },
+        rowCommands: { type: Array<IGridRowCommandDefinition>, default: [] },
+        gridCommands: { type: Array<IGridRowCommandDefinition>, default: [] }
     },
     methods: {
         setOrder(colIdx: number) {
             const col = this.columns[colIdx];
-            if(col.sortFn == null){
+            if (col.sortFn == null) {
                 return;
             }
-            
-            if(this._sortByColumn != colIdx ) {
+            if (this._sortByColumn != colIdx) {
                 this._sortByColumn = colIdx;
                 this._sortAscending = true;
-            } else {
+            }
+            else {
                 this._sortAscending = !this._sortAscending;
             }
             this.sort();
@@ -234,25 +340,23 @@ export default {
             if (!this.isSortable || this._sortByColumn === null || this._sortByColumn < 0 || this._sortByColumn >= this.columns.length)
                 return;
             const col = this.columns[this._sortByColumn];
-            if(col.sortFn == null)
+            if (col.sortFn == null)
                 return;
-            
             const sortFn = this._sortAscending
-                ? col.sortFn 
-                : (a:any,b:any) => -col.sortFn!(a,b);
-
+                ? col.sortFn
+                : (a: any, b: any) => -col.sortFn!(a, b);
             this._modelValue = this._modelValue.slice().sort(sortFn);
         },
         // Selection
-        itemClicked(ev: MouseEvent, idx: number){
+        itemClicked(ev: MouseEvent, idx: number) {
             if (this.selectionMode == GridSelectionMode.None) {
                 return;
-            } else if (this.selectionMode == GridSelectionMode.One) {
+            }
+            else if (this.selectionMode == GridSelectionMode.One) {
                 this.deselectAll();
                 this.selectItem(this._modelValue[idx]);
                 return;
             }
-
             if (!ev.ctrlKey) {
                 this.deselectAll();
             }
@@ -264,20 +368,22 @@ export default {
                 for (let i = l; i <= h; i++) {
                     this.selectItem(this._modelValue[i]);
                 }
-            } else {
+            }
+            else {
                 this.toggleItemSelection(this._modelValue[idx]);
                 this.lastItemClicked = idx;
             }
         },
-        toggleItemSelection(item: any){
+        toggleItemSelection(item: any) {
             const selIdx = this._selectedItems.indexOf(item);
             if (selIdx >= 0) {
                 this.deselectItem(item, selIdx);
-            } else {
+            }
+            else {
                 this.selectItem(item);
             }
         },
-        selectItem(item: any){
+        selectItem(item: any) {
             const a = this._selectedItems.slice();
             a.push(item);
             this._selectedItems = a;
@@ -288,7 +394,73 @@ export default {
         },
         deselectAll() {
             this._selectedItems = [];
+        },
+        rowCommandsForItem(item:any): IGridRowCommandDefinition[]{
+            const r = [];
+            for (const i in this.rowCommands) {
+                const cmd = this.rowCommands[i];
+                if (cmd.filter(item))
+                r.push(cmd);
+            }
+            return r;
+        },
+        commandsForSelectedItems(items: any[]): IGridCommandDefinition[]{
+            const r = [];
+            for (const i in this._gridCommands) {
+                const cmd = this._gridCommands[i];
+                if (cmd.filter(items))
+                r.push(cmd);
+            }
+            return r;
+        },
+        export() {
+            const data = [];
+            for (const item of this._modelValue) {
+                const row  = [];
+                for (const col of this.columns) {
+                    row.push(col.exportFn(col.valueFn(item)));
+                }
+                data.push(row);
+            }
+            return data;
+        },
+        exportCsv() {
+            const data = this.export();
+            let csv = "";
+
+            const sep = 1.2.toFixed(1) == "1,2" ? ';' : ','; 
+
+            function format(val: any) {
+                return "\""+((val+"").replace("\"", "\"\""))+"\"";
+            }
+
+            for (const col of this.columns) {
+                csv += format(col.title) + sep;
+            }
+            csv += "\n";
+
+            for (const row of data) {
+                for (const i in row) {
+                    csv += format(row[i]) + sep;
+                }
+                csv += "\n";
+            }
+
+            this.download(csv, "export.csv");
+        },
+        download(content: string, filename: string){
+            var element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
+            element.setAttribute('download', filename);
+
+            element.style.display = 'none';
+            document.body.appendChild(element);
+
+            element.click();
+
+            document.body.removeChild(element);
         }
+
     },
     computed: {
         _sortByColumn: {
@@ -305,27 +477,27 @@ export default {
         },
         _modelValue: {
             get(): Array<any> { return this.modelValueField; },
-            set(v: Array<any>) { 
+            set(v: Array<any>) {
                 let d = false;
                 if (v.length != this.modelValueField.length) {
                     d = true;
-                } else {
-                    for(let i = 0; i < v.length; i++)
-                        if(v[i] != this.modelValueField[i]) {
+                }
+                else {
+                    for (let i = 0; i < v.length; i++)
+                        if (v[i] != this.modelValueField[i]) {
                             d = true;
                             i = v.length;
                         }
                 }
-
-                if(d) {
-                    this.modelValueField = v; 
-                this.sort();
+                if (d) {
+                    this.modelValueField = v;
+                    this.sort();
                     this.$emit("update:modelValue", v);
                 }
-             }
+            }
         },
         _pagedModelValue() {
-            if (this.itemsPerPage == Number.POSITIVE_INFINITY){
+            if (this.itemsPerPage == Number.POSITIVE_INFINITY) {
                 return this._modelValue;
             }
             const s = this._page * this.itemsPerPage;
@@ -335,8 +507,24 @@ export default {
             get(): number { return this.pageField; },
             set(v: number) { this.pageField = v; this.$emit("update:page", v); }
         },
+        _gridCommands(): IGridCommandDefinition[] {
+                const r = this.gridCommands.slice();
+                if(this.isExportEnabled) {
+                    const csvCmd = 
+                        new GridCommandDefinition((i) => this.exportCsv())
+                        .withIcon("fas fa-file-csv");
+                    r.push(csvCmd);
+                }
+                return r;
+            
+        },
         lastPage() {
             return Math.ceil(this._modelValue.length / this.itemsPerPage) - 1;
+        },
+        columnCount() {
+            return this.rowCommands.length > 0 
+                    ? this.columns.length + 1
+                    : this.columns.length;
         }
     },
     watch: {
@@ -351,12 +539,13 @@ export default {
             this._sortAscending = newVal;
         },
         selectedItems(newVal) {
-            this.selectedItemsField = newVal;            
+            this.selectedItemsField = newVal;
         },
         page(newVal) {
             this._page = newVal;
         }
-    }
+    },
+    components: { CommandButton }
 }
 </script>
 
