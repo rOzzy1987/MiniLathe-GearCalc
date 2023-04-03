@@ -7,7 +7,9 @@
         v-model:sortAscending="ascending"
         v-model:selectedItems="selectedItems" 
         :isSortable="isSortable" 
-        :selectionMode="GridSelectionMode.One"/>
+        :selectionMode="GridSelectionMode.One"
+        :isExportEnabled="isExportEnabled"
+        :itemsPerPage="itemsPerPage"/>
     </div>
 </template>
 <script lang="ts">
@@ -41,7 +43,9 @@ export default {
         orderAscending: { type: Boolean, default: true },
         filter: { type: Object, default: null },
         isSortable: {type: Boolean, default: true },
-        selectedItem: {type: PitchSetup}
+        selectedItem: {type: PitchSetup},
+        isExportEnabled: {type: Boolean, default: false},
+        itemsPerPage: {type: Number, default: Number.POSITIVE_INFINITY}
     },
     methods: {
         formatPitch(v: Pitch) {
@@ -68,12 +72,10 @@ export default {
             get(): boolean { return this.orderAscending; },
             set(v: boolean) { this.$emit("update:orderAscending", v); }
         },
-
         selectedItems: {
             get(): Array<any> { return [this.selectedItem]; },
             set(v: Array<any>) { this.$emit("update:selectedItem", v.length > 0 ? v[0] : null); }
         }
-
     },
     components: { DataGrid }
 }

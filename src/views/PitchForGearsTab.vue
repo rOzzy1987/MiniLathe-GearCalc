@@ -14,13 +14,13 @@
 
             <div class="block" >
                 <p>{{ i18n.pfgSimilar }}</p>
-                <PitchSetupTable :modelValue="similarMatches" v-model:orderBy="orderBy" v-model:orderAscending="orderAscending" v-model:selectedItem="selectedSetup"/>
+                <PitchSetupTable :modelValue="similarMatches" v-model:orderBy="orderBy" v-model:orderAscending="orderAscending" v-model:selectedItem="selectedSetup" :isExportEnabled="true"/>
             </div>
 
             <div class="block" >
                 <p>{{i18n.pfgPartial}}</p>
                 <p class="help">{{i18n.pfgPartialTip}}</p>
-                <PitchSetupTable v-model="model" v-model:orderBy="orderBy" v-model:orderAscending="orderAscending" v-model:selectedItem="selectedSetup" :filter="filter"/>
+                <PitchSetupTable v-model="model" v-model:orderBy="orderBy" v-model:orderAscending="orderAscending" v-model:selectedItem="selectedSetup" :filter="filter" :isExportEnabled="true" :itemsPerPage="20"/>
             </div>
                 </div>
         <div class="column">

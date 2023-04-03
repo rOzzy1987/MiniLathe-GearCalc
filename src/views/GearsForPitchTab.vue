@@ -9,7 +9,8 @@
                 v-model:orderBy="orderBy" 
                 v-model:orderAscending="orderAscending" 
                 v-model:selectedItem="selectedSetup" 
-                :filter="filter"/>
+                :filter="filter"
+                :isExportEnabled="true"/>
         </div>
         <div class="column">
             <GeartrainImg :gear-a="selectedSetup?.gearA" :gear-b="selectedSetup?.gearB" :gear-c="selectedSetup?.gearC" v-bind:gear-d="selectedSetup?.gearD" :scale="2"/>

@@ -1,7 +1,7 @@
 <template>
   <button :class="buttonClassComp">
-    <i v-if="iconClass != ''" :class="iconClass"></i>
-    {{ label }}
+    <i v-if="iconClass != ''" :class="iconClass" :title="label"></i>
+    {{ iconClass == '' ? label : "" }}
   </button>
 </template>
 
