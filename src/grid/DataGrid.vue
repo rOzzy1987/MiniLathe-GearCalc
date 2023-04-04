@@ -485,7 +485,7 @@ export default {
             h.appendChild(hh);
             h.appendChild(b);
 
-            let hTxt = "<style>.no-print{display: none !important;}</style><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">";
+            let hTxt = "<style>.no-print{display: none !important;} thead{display: table-header-group !important;} tfoot{display: table-footer-group !important;}</style><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">";
             for (const l of links) {
                 if(l.rel != "stylesheet") continue;
                 hTxt += l.outerHTML;

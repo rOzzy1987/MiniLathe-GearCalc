@@ -100,6 +100,13 @@ export default {
             const thr = 1.003;
             const t = this;
 
+            t.metricModel = [];
+            t.metricFineModel = [];
+            t.metricSFineModel = [];
+            t.imperialModel = [];
+            t.imperialFineModel = [];
+            t.bspModel = [];
+
             function f(p: Pitch, name: string){
                 let type = p.type;
                 p = p.type == PitchType.Metric ? p : p.convert();

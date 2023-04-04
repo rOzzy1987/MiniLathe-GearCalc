@@ -26,7 +26,7 @@ import { PitchSetup } from '@/bll/pitchSetup';
 export class AddToFavoritesRowCommand extends GridRowCommandDefinition {
     public constructor(){
         super((item => GlobalConfig.addFavorite(item)));
-        this.withIcon("far fa-circle")
+        this.withIcon("far fa-square-plus")
             .withClass("is-small")
             .withLabel(GlobalConfig.i18n.genericAddToFavorites)
             .withFilter((item) => !GlobalConfig.isFavorite(item));
@@ -35,7 +35,7 @@ export class AddToFavoritesRowCommand extends GridRowCommandDefinition {
 export class RemoveFavoriteRowCommand extends GridRowCommandDefinition {
     public constructor(){
         super((item => GlobalConfig.removeFavorite(item)));
-        this.withIcon("fas fa-circle")
+        this.withIcon("fas fa-square-minus")
             .withClass("is-small")
             .withLabel(GlobalConfig.i18n.genericRemoveFavorite)
             .withFilter((item) => GlobalConfig.isFavorite(item));
