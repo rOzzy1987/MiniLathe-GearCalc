@@ -477,7 +477,7 @@ export default {
         print() {
             const styles = document.head.getElementsByTagName("style");
             const links = document.head.getElementsByTagName("link");
-            var printWindow = window.open('', '', 'left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0')!;
+            const printWindow = window.open('', '', 'left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0')!;
             
             const h = printWindow.document.createElement("html");
             const hh = printWindow.document.createElement("head");
@@ -496,7 +496,7 @@ export default {
 
             hh.innerHTML = hTxt;
 
-            let table = "<table class=\"table\"><thead><tr>";
+            let table = "<table class=\"table is-fullwidth\"><thead><tr>";
             for (const col of this.columns) {
                 table += "<th class=\"" + col.headerCssClasses.join(" ") + "\" style=\"" + (col.headerStyle ?? "") + "\">"+col.title+"</th>";
             }
@@ -521,14 +521,20 @@ export default {
 
             b.innerHTML = table;
 
-            printWindow.document.write(h.outerHTML);
-            printWindow.document.close();
 
-            printWindow.focus();
-            setTimeout(() => {
+            let isPrinted = false;
+            function printFn() {
+                if(isPrinted) return;
+                isPrinted = true;
+                printWindow.focus();
                 printWindow.print();
                 printWindow.close();
-            }, 500); // leave some time to load stylesheets
+            };
+
+            printWindow.document.write(h.outerHTML);
+            printWindow.document.onload = printFn;
+            setTimeout(printFn, 500); // leave some time to load stylesheets
+            printWindow.document.close();
         }
 
     },
