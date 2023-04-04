@@ -19,6 +19,7 @@
         <li :class="{'is-active': activeTab == ActiveTabs.PitchTable}" @click="activeTab = ActiveTabs.PitchTable"><a>{{ i18n.tabPitchTable }}</a></li>
         <li :class="{'is-active': activeTab == ActiveTabs.GearsForPitch}" @click="activeTab = ActiveTabs.GearsForPitch"><a>{{ i18n.tabGearsForPitch }}</a></li>
         <li :class="{'is-active': activeTab == ActiveTabs.PitchForGears}" @click="activeTab = ActiveTabs.PitchForGears"><a>{{ i18n.tabPitchForGears }}</a></li>
+        <li :class="{'is-active': activeTab == ActiveTabs.Favorites}" @click="activeTab = ActiveTabs.Favorites"><a>{{ i18n.tabFavorites }}</a></li>
         <li :class="{'is-active': activeTab == ActiveTabs.Configure}" @click="activeTab = ActiveTabs.Configure"><a>{{ i18n.tabSetup }}</a></li>
       </ul>
     </div>
@@ -34,6 +35,9 @@
     </section>
     <section v-if="activeTab == ActiveTabs.GearsForPitch" class="section" >
       <GearsForPitchTab v-model="combos" v-model:desiredPitch="pitch"/>
+    </section>
+    <section v-if="activeTab == ActiveTabs.Favorites" class="section" >
+      <FavoritesTab v-model="combos"/>
     </section>
     <footer class="footer">
       <div class="content has-text-centered">
@@ -65,6 +69,7 @@ import GlobalConfig from './bll/globalConfig';
 import LatheConfig from './bll/latheConfig';
 import { Pitch, PitchType } from './bll/pitch';
 import LanguageSelector from './components/LanguageSelector.vue';
+import FavoritesTab from './views/FavoritesTab.vue';
 import GearsForPitchTab from './views/GearsForPitchTab.vue';
 import PitchForGearsTab from './views/PitchForGearsTab.vue';
 import PitchTableTab from './views/PitchTableTab.vue';
@@ -114,14 +119,15 @@ export default {
       }
     },
     computed: {},
-    components: { SetupTab, PitchTableTab, PitchForGearsTab, GearsForPitchTab, LanguageSelector }
+    components: { SetupTab, PitchTableTab, PitchForGearsTab, GearsForPitchTab, LanguageSelector, FavoritesTab }
 }
 
 enum ActiveTabs {
   GearsForPitch,
   PitchForGears,
   Configure,
-  PitchTable
+  PitchTable,
+  Favorites
 }
 </script>
 

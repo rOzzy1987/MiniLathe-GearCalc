@@ -14,13 +14,15 @@
 
             <div class="block" >
                 <p>{{ i18n.pfgSimilar }}</p>
-                <PitchSetupTable :modelValue="similarMatches" v-model:orderBy="orderBy" v-model:orderAscending="orderAscending" v-model:selectedItem="selectedSetup" :isExportEnabled="true"/>
+                <PitchSetupTable :modelValue="similarMatches" v-model:orderBy="orderBy" v-model:orderAscending="orderAscending" v-model:selectedItem="selectedSetup" 
+                :isExportEnabled="true" :isPrintEnabled="true" :row-commands="rowCommands"/>
             </div>
 
             <div class="block" >
                 <p>{{i18n.pfgPartial}}</p>
                 <p class="help">{{i18n.pfgPartialTip}}</p>
-                <PitchSetupTable v-model="model" v-model:orderBy="orderBy" v-model:orderAscending="orderAscending" v-model:selectedItem="selectedSetup" :filter="filter" :isExportEnabled="true" :itemsPerPage="20"/>
+                <PitchSetupTable v-model="model" v-model:orderBy="orderBy" v-model:orderAscending="orderAscending" v-model:selectedItem="selectedSetup" 
+                :filter="filter" :isExportEnabled="true" :isPrintEnabled="true" :itemsPerPage="20" :row-commands="rowCommands"/>
             </div>
                 </div>
         <div class="column">
@@ -34,7 +36,7 @@ import { Pitch, PitchType } from '@/bll/pitch';
 import { PitchSetup } from '@/bll/pitchSetup';
 import GearCombinationEditor from '@/components/GearCombinationEditor.vue';
 import GeartrainImg from '@/components/GeartrainImg.vue';
-import PitchSetupTable from '@/components/PitchSetupTable.vue';
+import PitchSetupTable, { AddToFavoritesRowCommand, RemoveFavoriteRowCommand } from '@/components/PitchSetupTable.vue';
 import GlobalConfig from '@/bll/globalConfig';
 import CombinationFinder from '@/bll/combinationFinder';
 
@@ -45,9 +47,10 @@ export default {
             selectedSetup: new PitchSetup(20, null, null, 80, new Pitch(1, PitchType.Metric)),
             orderBy: 4,
             orderAscending: true,
-            i18n: GlobalConfig.i18n,
             isGearComboValid: true,
-            comboFinder: new CombinationFinder()
+            rowCommands: [new AddToFavoritesRowCommand(), new RemoveFavoriteRowCommand()],
+            comboFinder: new CombinationFinder(),
+            i18n: GlobalConfig.i18n,
         }
     },
     props: {

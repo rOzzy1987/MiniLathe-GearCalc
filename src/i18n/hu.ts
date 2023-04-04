@@ -14,6 +14,7 @@ export default class HuTranslations extends TranslationsBase{
     tabPitchForGears: string = "Menetemelkedés kombinációhoz";
     tabGearsForPitch: string = "Kombináció menetemelkedéshez";
     tabSetup: string = "Beállítás";
+    tabFavorites: string = "Kedvencek";
 
     genericMetric: string = "Metrikus";
     genericImperial: string = "Angolszász";
@@ -24,6 +25,11 @@ export default class HuTranslations extends TranslationsBase{
     genericEdit: string = "Szerkesztés";
     genericSave: string = "Mentés";
     genericBack: string = "Vissza";
+    genericAddToFavorites: string = "Kedvencekhez";
+    genericRemoveFavorite: string = "Törlés a kedvencekből";
+    genericExportCsv: string = "Exportálás CSV-be";
+    genericPrint: string = "Nyomtatás";
+    genericEmpty: string = "Nincs adat";
 
     genericGearBMissing: string = "A B fogaskerék megadáa kötelező, ha a C kerék meg van adva";
     genericGearCMissing: string = "A C fogaskerék megadáa kötelező, ha a B kerék meg van adva";
@@ -61,6 +67,7 @@ export default class HuTranslations extends TranslationsBase{
     gfpTitle: string = "Adj meg egy menetemelkedést, és megkeressük a hozzá taartozó fogaskerék kombinációkat";
     pfgTitle: string = "Találd meg a kombinációhoz tartozó menetemelkedést";
     ptTitle: string = "Itt a gyakori menetemelkedésekhez találhatsz példákat";
+    favTitle: string = "Kedvencek";
 
     ptName: string = "Név";
 
@@ -72,8 +79,8 @@ export default class HuTranslations extends TranslationsBase{
     ptBritishPipe: string = "Angolszász csőmenetek";
 
     pfgCalculated: string = "Számított érték";
-    pfgSimilar: string = "Hasonló menetemelkedések a te fogakerekeiddel";
+    pfgSimilar: string = "Hasonló menetemelkedések a te fogaskerekeiddel";
     pfgPartial: string = "Részleges egyezések a te fogakerekeiddel";
     pfgPartialTip: string = "Az A és C valamint a B és D fogaskerekek felcserélhetőek. Emiatt picit furcsa értékek is kijöhetnek, de hidd el, helyesek. Szintén megjegyzendő, hogy ha egy várt kombináció nem jelenik meg itt, akkor valószínűleg azért, mert nem fér el fizikailag a gépben.";
-    pfgSearchTip: string = "Adj meg egy komplett kombinációt hogy kiszámold a hozzá tartozó menetemelkedést, és találj hasonló kombinációkat amiket a saját fogakerekeiddel be is tudsz állítani. Vagy ha csak részleges egyezéseket szeretnél keresni, megtalálod őket a lap alján.";
+    pfgSearchTip: string = "Adj meg egy komplett kombinációt hogy kiszámold a hozzá tartozó menetemelkedést, és találj hasonló kombinációkat amiket a saját fogaskerekeiddel be is tudsz állítani. Vagy ha csak részleges egyezéseket szeretnél keresni, megtalálod őket a lap alján.";
 }

@@ -36,6 +36,11 @@ export class Pitch {
     public static fromPlainObject(val: any): Pitch | null {
         return val == null ? null : new Pitch(val.value, val.type);
     }
+
+    public equals(p: Pitch) {
+        return this.value == p.value &&
+            this.type == p.type;
+    }
 }
 
 export enum PitchType {

@@ -9,15 +9,38 @@
         :isSortable="isSortable" 
         :selectionMode="GridSelectionMode.One"
         :isExportEnabled="isExportEnabled"
-        :itemsPerPage="itemsPerPage"/>
+        :isPrintEnabled="isPrintEnabled"
+        :itemsPerPage="itemsPerPage"
+        :rowCommands="rowCommands"
+        :emptyText="i18n.genericEmpty"
+        :exportText="i18n.genericExportCsv"/>
     </div>
 </template>
 <script lang="ts">
 import GlobalConfig from '@/bll/globalConfig';
 import GcMath from '@/bll/math';
 import { Pitch, PitchType } from '@/bll/pitch';
-import DataGrid, { GridColumnDefinition, GridSelectionMode } from '@/grid/DataGrid.vue';
+import DataGrid, { GridColumnDefinition, GridRowCommandDefinition, GridSelectionMode, type IGridRowCommandDefinition } from '@/grid/DataGrid.vue';
 import { PitchSetup } from '@/bll/pitchSetup';
+
+export class AddToFavoritesRowCommand extends GridRowCommandDefinition {
+    public constructor(){
+        super((item => GlobalConfig.addFavorite(item)));
+        this.withIcon("far fa-circle")
+            .withClass("is-small")
+            .withLabel(GlobalConfig.i18n.genericAddToFavorites)
+            .withFilter((item) => !GlobalConfig.isFavorite(item));
+    }
+}
+export class RemoveFavoriteRowCommand extends GridRowCommandDefinition {
+    public constructor(){
+        super((item => GlobalConfig.removeFavorite(item)));
+        this.withIcon("fas fa-circle")
+            .withClass("is-small")
+            .withLabel(GlobalConfig.i18n.genericRemoveFavorite)
+            .withFilter((item) => GlobalConfig.isFavorite(item));
+    }
+}
 
 export default {
     data() {
@@ -45,7 +68,10 @@ export default {
         isSortable: {type: Boolean, default: true },
         selectedItem: {type: PitchSetup},
         isExportEnabled: {type: Boolean, default: false},
-        itemsPerPage: {type: Number, default: Number.POSITIVE_INFINITY}
+        isPrintEnabled: {type: Boolean, default: false},
+        itemsPerPage: {type: Number, default: Number.POSITIVE_INFINITY},
+        rowCommands: {type: Array<IGridRowCommandDefinition>, default: [] },
+        favorites: {type: Array<PitchSetup>, default: [] }
     },
     methods: {
         formatPitch(v: Pitch) {

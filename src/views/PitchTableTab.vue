@@ -5,27 +5,27 @@
         <div class="column is-half table-container">
             <div class="block">
                 <div class="title is-3">{{ i18n.ptMetricCoarse }}</div>
-                <DataGrid v-model="metricModel" v-model:columns="cols" :is-sortable="false" :selection-mode="GridSelectionMode.One" v-model:selectedItems="selectedItems" :isExportEnabled="isExportEnabled"/>
+                <DataGrid v-model="metricModel" v-model:columns="cols" :is-sortable="false" :selection-mode="GridSelectionMode.One" v-model:selectedItems="selectedItems" :isExportEnabled="isExportEnabled" :isPrintEnabled="true" :row-commands="rowCommands" :exportText="i18n.genericExportCsv" :emptyText="i18n.genericEmpty"/>
             </div>
             <div class="block">
                 <div class="title is-3">{{ i18n.ptMetricFine }}</div>
-                <DataGrid v-model="metricFineModel" v-model:columns="cols" :is-sortable="false" :selection-mode="GridSelectionMode.One" v-model:selectedItems="selectedItems" :isExportEnabled="isExportEnabled"/>
+                <DataGrid v-model="metricFineModel" v-model:columns="cols" :is-sortable="false" :selection-mode="GridSelectionMode.One" v-model:selectedItems="selectedItems" :isExportEnabled="isExportEnabled" :isPrintEnabled="true" :row-commands="rowCommands" :exportText="i18n.genericExportCsv" :emptyText="i18n.genericEmpty"/>
             </div>
             <div class="block">
                 <div class="title is-3">{{ i18n.ptMetricSuperfine }}</div>
-                <DataGrid v-model="metricSFineModel" v-model:columns="cols" :is-sortable="false" :selection-mode="GridSelectionMode.One" v-model:selectedItems="selectedItems" :isExportEnabled="isExportEnabled"/>
+                <DataGrid v-model="metricSFineModel" v-model:columns="cols" :is-sortable="false" :selection-mode="GridSelectionMode.One" v-model:selectedItems="selectedItems" :isExportEnabled="isExportEnabled" :isPrintEnabled="true" :row-commands="rowCommands" :exportText="i18n.genericExportCsv" :emptyText="i18n.genericEmpty"/>
             </div>
             <div class="block">
                 <div class="title is-3">{{ i18n.ptImperialCoarse }}</div>
-                <DataGrid v-model="imperialModel" v-model:columns="cols" :is-sortable="false" :selection-mode="GridSelectionMode.One" v-model:selectedItems="selectedItems" :isExportEnabled="isExportEnabled"/>
+                <DataGrid v-model="imperialModel" v-model:columns="cols" :is-sortable="false" :selection-mode="GridSelectionMode.One" v-model:selectedItems="selectedItems" :isExportEnabled="isExportEnabled" :isPrintEnabled="true" :row-commands="rowCommands" :exportText="i18n.genericExportCsv" :emptyText="i18n.genericEmpty"/>
             </div>
             <div class="block">
                 <div class="title is-3">{{ i18n.ptImperialFine }}</div>
-                <DataGrid v-model="imperialFineModel" v-model:columns="cols" :is-sortable="false" :selection-mode="GridSelectionMode.One" v-model:selectedItems="selectedItems" :isExportEnabled="isExportEnabled"/>
+                <DataGrid v-model="imperialFineModel" v-model:columns="cols" :is-sortable="false" :selection-mode="GridSelectionMode.One" v-model:selectedItems="selectedItems" :isExportEnabled="isExportEnabled" :isPrintEnabled="true" :row-commands="rowCommands" :exportText="i18n.genericExportCsv" :emptyText="i18n.genericEmpty"/>
             </div>
             <div class="block">
                 <div class="title is-3">{{ i18n.ptBritishPipe }}</div>
-                <DataGrid v-model="bspModel" v-model:columns="cols" :is-sortable="false" :selection-mode="GridSelectionMode.One" v-model:selectedItems="selectedItems" :isExportEnabled="isExportEnabled"/>
+                <DataGrid v-model="bspModel" v-model:columns="cols" :is-sortable="false" :selection-mode="GridSelectionMode.One" v-model:selectedItems="selectedItems" :isExportEnabled="isExportEnabled" :isPrintEnabled="true" :row-commands="rowCommands" :exportText="i18n.genericExportCsv" :emptyText="i18n.genericEmpty"/>
             </div>
         </div>
         <div class="column">
@@ -41,6 +41,7 @@ import GeartrainImg from '@/components/GeartrainImg.vue';
 import GlobalConfig from '@/bll/globalConfig';
 import DataGrid, { GridColumnDefinition, GridSelectionMode } from '@/grid/DataGrid.vue';
 import GcMath from '@/bll/math';
+import { AddToFavoritesRowCommand, RemoveFavoriteRowCommand } from '@/components/PitchSetupTable.vue';
 
 class NamedPitchSetup extends PitchSetup {
     public name: string = null!;
@@ -81,6 +82,7 @@ export default {
             imperialModel: [] as NamedPitchSetup[],
             imperialFineModel: [] as NamedPitchSetup[],
             bspModel: [] as NamedPitchSetup[],
+            rowCommands: [new AddToFavoritesRowCommand(), new RemoveFavoriteRowCommand()],
             isExportEnabled: true,
             i18n,
             GridSelectionMode: GridSelectionMode
@@ -154,7 +156,6 @@ export default {
             a(f(new Pitch(48, PitchType.Imperial), "UNC #3"), this.imperialModel);
             a(f(new Pitch(40, PitchType.Imperial), "UNC #4"), this.imperialModel);
             a(f(new Pitch(40, PitchType.Imperial), "UNC #5"), this.imperialModel);
-            a(f(new Pitch(36, PitchType.Imperial), "UNF #8"), this.imperialModel);
             a(f(new Pitch(32, PitchType.Imperial), "UNC #6"), this.imperialModel);
             a(f(new Pitch(32, PitchType.Imperial), "UNC #8"), this.imperialModel);
             a(f(new Pitch(24, PitchType.Imperial), "UNC #10"), this.imperialModel);

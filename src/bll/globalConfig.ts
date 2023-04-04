@@ -3,6 +3,7 @@ import LatheConfig from "./latheConfig";
 import type TranslationsBase from '@/i18n/lang';
 import { EnTranslations } from '@/i18n/lang';
 import HuTranslations from '@/i18n/hu';
+import { PitchType } from './pitch';
 
 export default class GlobalConfig {
     public static loadConfig(): LatheConfig {
@@ -33,6 +34,60 @@ export default class GlobalConfig {
     public static saveCombos(c: PitchSetup[] | null) {
         localStorage.setItem("gearCombos", JSON.stringify(c?.map(v => v.toPlainObject())));
     }
+
+
+    private static _favorites: PitchSetup[];
+    public static get favorites(): PitchSetup[] {
+        this.ensureFavoritesLoaded();
+        return this._favorites;
+    }
+
+    public static addFavorite(s: PitchSetup) {
+        if(s.pitch.type == PitchType.Imperial)
+            s = s.convert();
+        if(this.indexOfFavorite(s) == -1){
+            this._favorites.push(s);
+            this.saveFavorites();
+        }
+    }
+
+    public static removeFavorite(s: PitchSetup) {
+        const i = this.indexOfFavorite(s);
+        if(i == -1) return;
+
+        this._favorites = this._favorites.slice(0, i).concat(this._favorites.slice(i+1));
+        this.saveFavorites();
+    }
+
+    public static isFavorite(s: PitchSetup) {
+        return this.indexOfFavorite(s) >= 0;
+    }
+
+    private static saveFavorites() {
+        localStorage.setItem("favorites", JSON.stringify(this._favorites))
+    }
+
+    private static ensureFavoritesLoaded(){
+        if (this._favorites ==  null) {
+            this.loadFavorites();
+        }
+    }
+
+    private static loadFavorites() {
+        this._favorites = (JSON.parse(localStorage.getItem("favorites") ?? "null") ?? [])
+            .map((i: any) => PitchSetup.fromPlainObject(i));
+    }
+
+    private static indexOfFavorite(s: PitchSetup): number{
+        this.ensureFavoritesLoaded();
+        for (const i in this._favorites) {
+            const f = this._favorites[i];
+            if(f.equals(s))
+                return Number(i);
+        }
+        return -1;
+    }
+
 
 
 // I18N

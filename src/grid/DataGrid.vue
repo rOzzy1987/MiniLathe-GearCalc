@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div :id="id">
         <div v-if="title != ''" class="control">
             {{ title }}
         </div>
@@ -11,6 +11,8 @@
                             <span v-if="isSortable && _sortByColumn == i" class="icon is-small"><i class="fas" :class="{'fa-sort-up': _sortAscending, 'fa-sort-down': !_sortAscending}"></i></span>
                             {{ col.title }}
                         </th>
+                        <th v-if="rowCommands.length > 0">
+                         </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -18,8 +20,8 @@
                         <td v-for="(col, i) of columns" :key="i" :style="col.style" :class="col.cssClasses">
                             {{ col.formatFn(col.valueFn(item)) }}
                         </td>
-                        <td v-if="rowCommands.length > 0">
-                            <CommandButton class="is-small" v-for="(cmd, i) in rowCommandsForItem(item)" :key="i" :css-class="cmd.cssClass" :icon-class="cmd.iconClass" :label="cmd.label" @click="cmd.command(item)"/>
+                        <td v-if="rowCommands.length > 0" >
+                            <RowCommandButton class="is-small no-print" v-for="(cmd, i) in rowCommandsForItem(item)" :key="i" :css-class="cmd.cssClass" :icon-class="cmd.iconClass" :label="cmd.label" @click="cmd.command(item)"/>
                         </td>
                     </tr>
                     <tr v-if="_modelValue.length == 0">
@@ -32,8 +34,10 @@
                             <span v-if="isSortable && _sortByColumn == i" class="icon is-small"><i class="fas" :class="{'fa-sort-up': _sortAscending, 'fa-sort-down': !_sortAscending}"></i></span>
                             {{ col.title }}
                         </th>
+                        <th v-if="rowCommands.length > 0">
+                         </th>
                     </tr>
-                    <tr v-if="itemsPerPage != Number.POSITIVE_INFINITY">
+                    <tr v-if="itemsPerPage != Number.POSITIVE_INFINITY" class="no-print">
                         <th :colspan="columnCount">
                             <button class="button is-small has-icon" :disabled="_page == 0" @click.prevent="_page = 0"><i class="fas fa-angles-left"></i></button>
                             &nbsp;
@@ -50,7 +54,7 @@
                             <div class="is-pulled-right has-text-small">{{ _page + 1 }} / {{ lastPage + 1 }}</div>
                         </th>
                     </tr>
-                    <tr v-if="commandsForSelectedItems(selectedItems)">
+                    <tr v-if="commandsForSelectedItems(selectedItems)" class="no-print">
                         <th :colspan="columnCount">
                             <CommandButton class="is-small" v-for="(cmd, i) in commandsForSelectedItems(selectedItems)" :key="i" :css-class="cmd.cssClass" :icon-class="cmd.iconClass" :label="cmd.label" @click="cmd.command(selectedItems)"/>
                         </th>
@@ -63,6 +67,7 @@
 
 <script lang="ts">
 import CommandButton from './CommandButton.vue';
+import RowCommandButton from './RowCommandButton.vue';
 
 export interface IGridColumnDefinition {
     readonly title: string;
@@ -302,25 +307,29 @@ export default {
             selectedItemsField: props.selectedItems,
             modelValueField: props.modelValue,
             lastItemClicked: 0,
-            pageField: props.page
+            pageField: props.page,
+            id: "datagrid-"+Math.round(Math.random()*10000)
         };
     },
     props: {
         title: { type: String, default: null },
         columns: { type: Array<IGridColumnDefinition>, required: true },
+        rowCommands: { type: Array<IGridRowCommandDefinition>, default: [] },
+        gridCommands: { type: Array<IGridRowCommandDefinition>, default: [] },
         selectionMode: { type: Number, default: GridSelectionMode.None },
         selectedItems: { type: Array<any>, default: [] },
         modelValue: { type: Array<any>, required: true },
         isSortable: { type: Boolean, default: false },
         sortByColumn: { type: Number, default: null },
         sortAscending: { type: Boolean, default: true },
-        emptyText: { type: String, default: "No data" },
+        emptyText: { type: String, default: "- No data -" },
+        exportText: {type: String, default: "Export to CSV"},
+        printText: { type: String, default: "Print" },
         isFooterEnabled: { type: Boolean, default: false },
+        isExportEnabled: { type: Boolean, default: false },
+        isPrintEnabled: { type: Boolean, default: false },
         itemsPerPage: { type: Number, default: Number.POSITIVE_INFINITY },
         page: { type: Number, default: 0 },
-        isExportEnabled: { type: Boolean, default: false },
-        rowCommands: { type: Array<IGridRowCommandDefinition>, default: [] },
-        gridCommands: { type: Array<IGridRowCommandDefinition>, default: [] }
     },
     methods: {
         setOrder(colIdx: number) {
@@ -464,6 +473,37 @@ export default {
             element.click();
 
             document.body.removeChild(element);
+        },
+        print() {
+            var table = document.getElementById(this.id);
+            const styles = document.head.getElementsByTagName("style");
+            const links = document.head.getElementsByTagName("link");
+            var printWindow = window.open('', '', 'left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0')!;
+            
+            const h = printWindow.document.createElement("html");
+            const hh = printWindow.document.createElement("head");
+            const b = printWindow.document.createElement("body");
+            h.appendChild(hh);
+            h.appendChild(b);
+
+            let hTxt = "<style>.no-print{display: none !important;}</style>";
+            for (const l of links) {
+                if(l.rel != "stylesheet") continue;
+                hTxt += l.outerHTML;
+            }
+            for (const s of styles) {
+                hTxt += s.outerHTML;
+            }
+            
+            hh.innerHTML = hTxt;
+            b.innerHTML = table!.outerHTML;
+
+            printWindow.document.write(h.outerHTML);
+            printWindow.document.close();
+
+            printWindow.focus();
+            printWindow.print();
+            printWindow.close();
         }
 
     },
@@ -516,10 +556,17 @@ export default {
                 const r = this.gridCommands.slice();
                 if(this.isExportEnabled) {
                     const csvCmd = 
-                        new GridCommandDefinition((i) => this.exportCsv())
-                        .withIcon("fas fa-file-csv")
-                        .withLabel("Export");
+                        new GridCommandDefinition(() => this.exportCsv())
+                        .withIcon("fas fa-download")
+                        .withLabel(this.exportText);
                     r.push(csvCmd);
+                }
+                if(this.isPrintEnabled) {
+                    const printCmd = 
+                        new GridCommandDefinition(() => this.print())
+                        .withIcon("fas fa-print")
+                        .withLabel(this.printText);
+                    r.push(printCmd);
                 }
                 return r;
             
@@ -558,7 +605,7 @@ export default {
             this._page = newVal;
         }
     },
-    components: { CommandButton }
+    components: { CommandButton, RowCommandButton }
 }
 </script>
 

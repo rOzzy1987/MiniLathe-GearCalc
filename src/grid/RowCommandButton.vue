@@ -1,8 +1,8 @@
 <template>
-  <button :class="buttonClassComp" :title="iconClass == '' ? '' : label">
+  <span :class="buttonClassComp" :title="iconClass == '' ? '' : label">
     <i v-if="iconClass != ''" :class="iconClass"></i>
     {{ iconClass == '' ? label : "" }}
-  </button>
+  </span>
 </template>
 
 <script lang="ts">
@@ -15,9 +15,11 @@ export default {
     computed: {
         buttonClassComp() {
             let r = this.cssClass ?? "";
-            r += ' button';
             if (this.iconClass){
                 r+= ' has-icon';
+            }
+            else {
+                r+= ' button'
             }
             return r;
         }

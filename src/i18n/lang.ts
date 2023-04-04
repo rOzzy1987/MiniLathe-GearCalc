@@ -20,6 +20,7 @@ export default abstract class TranslationsBase{
     abstract tabPitchForGears: string;
     abstract tabGearsForPitch: string;
     abstract tabSetup: string;
+    abstract tabFavorites: string;
     
     abstract genericMetric: string;
     abstract genericImperial: string;
@@ -30,6 +31,11 @@ export default abstract class TranslationsBase{
     abstract genericEdit: string;
     abstract genericSave: string;
     abstract genericBack: string;
+    abstract genericAddToFavorites: string;
+    abstract genericRemoveFavorite: string;
+    abstract genericExportCsv: string;
+    abstract genericPrint: string;
+    abstract genericEmpty: string;
     
     abstract genericGearBMissing: string;
     abstract genericGearCMissing: string;
@@ -72,6 +78,7 @@ export default abstract class TranslationsBase{
     abstract gfpTitle: string;
     abstract pfgTitle: string;
     abstract ptTitle: string;
+    abstract favTitle: string;
 
     abstract ptName: string;
 
@@ -114,6 +121,7 @@ export class EnTranslations extends TranslationsBase {
     tabPitchForGears: string = "Pitch for gears";
     tabGearsForPitch: string = "Gears for pitch";
     tabSetup: string = "Configure";
+    tabFavorites: string = "Favorites";
 
     genericMetric: string = "Metric";
     genericImperial: string = "Imperial";
@@ -124,6 +132,11 @@ export class EnTranslations extends TranslationsBase {
     genericEdit: string = "Edit";
     genericSave: string = "Save";
     genericBack: string = "Back";
+    genericAddToFavorites: string = "Add to favorites";
+    genericRemoveFavorite: string = "Remove from favorites";
+    genericExportCsv: string = "Export to CSV";
+    genericPrint: string = "Print";
+    genericEmpty: string = "No data";
 
     genericGearBMissing: string = "Gear B is required if gear C is provided";
     genericGearCMissing: string = "Gear C is required if gear B is provided";
@@ -162,6 +175,7 @@ export class EnTranslations extends TranslationsBase {
     gfpTitle: string = "Select a pitch and see which gear combination gets you there";
     pfgTitle: string = "Find the pitch for a gear combination";
     ptTitle: string = "Example combinations for common thread pitches";
+    favTitle: string = "Favorites";
 
     ptName: string = "Name";
 
