@@ -475,7 +475,6 @@ export default {
             document.body.removeChild(element);
         },
         print() {
-            var table = document.getElementById(this.id);
             const styles = document.head.getElementsByTagName("style");
             const links = document.head.getElementsByTagName("link");
             var printWindow = window.open('', '', 'left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0')!;
@@ -486,7 +485,7 @@ export default {
             h.appendChild(hh);
             h.appendChild(b);
 
-            let hTxt = "<style>.no-print{display: none !important;}</style>";
+            let hTxt = "<style>.no-print{display: none !important;}</style><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">";
             for (const l of links) {
                 if(l.rel != "stylesheet") continue;
                 hTxt += l.outerHTML;
@@ -494,16 +493,42 @@ export default {
             for (const s of styles) {
                 hTxt += s.outerHTML;
             }
-            
+
             hh.innerHTML = hTxt;
-            b.innerHTML = table!.outerHTML;
+
+            let table = "<table class=\"table\"><thead><tr>";
+            for (const col of this.columns) {
+                table += "<th class=\"" + col.headerCssClasses.join(" ") + "\" style=\"" + (col.headerStyle ?? "") + "\">"+col.title+"</th>";
+            }
+            table += "</tr></thead><tbody>";
+            for (const row of this._modelValue) {
+                table += "<tr>";
+                for (const col of this.columns) {
+                    table += "<td class=\"" + col.cssClasses.join(" ") + "\" style=\"" + (col.style ?? "") + "\">" +  col.formatFn(col.valueFn(row)).replace("<", "&lt;") + "</td>"
+                }
+                table += "</tr>"
+            }
+            table += "</tbody>";
+            
+            if(this.isFooterEnabled) {
+                table += "<tfoot><tr>";
+                for (const col of this.columns) {
+                    table += "<th>"+col.title+"</th>";
+                }
+                table += "</tr><tfoot>";
+            }
+            table += "</table>";
+
+            b.innerHTML = table;
 
             printWindow.document.write(h.outerHTML);
             printWindow.document.close();
 
             printWindow.focus();
-            printWindow.print();
-            printWindow.close();
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 500); // leave some time to load stylesheets
         }
 
     },
