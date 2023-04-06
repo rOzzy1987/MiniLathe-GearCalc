@@ -22,7 +22,7 @@
                 <p>{{i18n.pfgPartial}}</p>
                 <p class="help">{{i18n.pfgPartialTip}}</p>
                 <PitchSetupTable v-model="model" v-model:orderBy="orderBy" v-model:orderAscending="orderAscending" v-model:selectedItem="selectedSetup" 
-                :filter="filter" :isExportEnabled="true" :isPrintEnabled="true" :itemsPerPage="20" :row-commands="rowCommands"/>
+                :filter="filter" :isExportEnabled="true" :isPrintEnabled="true" :itemsPerPage="20" :row-commands="rowCommands" :is-items-per-page-editable="true"/>
             </div>
                 </div>
         <div class="column">
@@ -45,7 +45,7 @@ export default {
     data(){
         return {
             selectedSetup: new PitchSetup(20, null, null, 80, new Pitch(1, PitchType.Metric)),
-            orderBy: 4,
+            orderBy: "pm",
             orderAscending: true,
             isGearComboValid: true,
             rowCommands: [new AddToFavoritesRowCommand(), new RemoveFavoriteRowCommand()],

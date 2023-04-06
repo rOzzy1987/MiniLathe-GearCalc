@@ -30,7 +30,7 @@ export default {
     data(){
         return {
             selectedSetup: new PitchSetup(20, null, null, 80, new Pitch(1, PitchType.Metric)),
-            orderBy: 4,
+            orderBy: "pm",
             orderAscending: true,
             rowCommands: [new AddToFavoritesRowCommand(), new RemoveFavoriteRowCommand()],
             i18n: GlobalConfig.i18n

@@ -68,12 +68,12 @@ export default {
         return {
             selectedSetup: new NamedPitchSetup(20, null, null, 80, new Pitch(1, PitchType.Metric)),
             cols: [
-                new GridColumnDefinition(i18n.ptName, i => i.name),
-                new GridColumnDefinition("A", i => i.gearA).asNumericColumn().withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
-                new GridColumnDefinition("B", i => i.gearB).asNumericColumn().withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
-                new GridColumnDefinition("C", i => i.gearC).asNumericColumn().withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
-                new GridColumnDefinition("D", i => i.gearD).asNumericColumn().withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
-                new GridColumnDefinition("P", i => i.pitch, i18n.genericPitch)
+                new GridColumnDefinition("name", i18n.ptName, i => i.name),
+                new GridColumnDefinition("a", "A", i => i.gearA).asNumericColumn().withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
+                new GridColumnDefinition("b", "B", i => i.gearB).asNumericColumn().withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
+                new GridColumnDefinition("c", "C", i => i.gearC).asNumericColumn().withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
+                new GridColumnDefinition("d", "D", i => i.gearD).asNumericColumn().withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
+                new GridColumnDefinition("p", "P", i => i.pitch, i18n.genericPitch)
                     .withFormat(p => this.formatPitch(p)).withAlignRight().withHeaderCssClasses(['has-text-right']),
             ],
             metricModel: [] as NamedPitchSetup[],

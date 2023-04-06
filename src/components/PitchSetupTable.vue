@@ -10,10 +10,13 @@
         :selectionMode="GridSelectionMode.One"
         :isExportEnabled="isExportEnabled"
         :isPrintEnabled="isPrintEnabled"
+        :isItemsPerPageEditable="isItemsPerPageEditable"
         :itemsPerPage="itemsPerPage"
         :rowCommands="rowCommands"
         :emptyText="i18n.genericEmpty"
-        :exportText="i18n.genericExportCsv"/>
+        :exportText="i18n.genericExportCsv"
+        :printText="i18n.genericPrint"
+        :pagingFooterText="'{0}/{1}'"/>
     </div>
 </template>
 <script lang="ts">
@@ -47,13 +50,13 @@ export default {
         const i18n = GlobalConfig.i18n;
         return {
             cols: [
-                new GridColumnDefinition("A", i => i.gearA).asNumericColumn().withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
-                new GridColumnDefinition("B", i => i.gearB).asNumericColumn().withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
-                new GridColumnDefinition("C", i => i.gearC).asNumericColumn().withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
-                new GridColumnDefinition("D", i => i.gearD).asNumericColumn().withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
-                new GridColumnDefinition("Pm", i => i.pitch, i18n.genericPitch+' ('+i18n.genericMetric+')').withSort((a,b) => a.pitch.value - b.pitch.value)
+                new GridColumnDefinition("a", "A", i => i.gearA).asNumericColumn().withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
+                new GridColumnDefinition("b", "B", i => i.gearB).asNumericColumn().withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
+                new GridColumnDefinition("c", "C", i => i.gearC).asNumericColumn().withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
+                new GridColumnDefinition("d", "D", i => i.gearD).asNumericColumn().withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
+                new GridColumnDefinition("pm", "Pm", i => i.pitch, i18n.genericPitch+' ('+i18n.genericMetric+')').withSort((a,b) => a.pitch.value - b.pitch.value)
                 .withFormat(p => this.formatPitch(p)).withAlignRight().withStyle("width: 30%").withHeaderCssClasses(['has-text-right']),
-                new GridColumnDefinition("Pi", i => i.pitch.convert(), i18n.genericPitch+' ('+i18n.genericImperial+')').withSort((a,b) => b.pitch.value - a.pitch.value)
+                new GridColumnDefinition("pi", "Pi", i => i.pitch.convert(), i18n.genericPitch+' ('+i18n.genericImperial+')').withSort((a,b) => b.pitch.value - a.pitch.value)
                 .withFormat(p => this.formatPitch(p)).withAlignRight().withStyle("width: 30%").withHeaderCssClasses(['has-text-right']),
             ],
             i18n,
@@ -62,10 +65,11 @@ export default {
     },
     props: {
         modelValue: { type: Array<PitchSetup>, default: [] },
-        orderBy: { type: Number, default: null },
+        orderBy: { type: String, default: undefined },
         orderAscending: { type: Boolean, default: true },
         filter: { type: Object, default: null },
         isSortable: {type: Boolean, default: true },
+        isItemsPerPageEditable: {type: Boolean, default: false},
         selectedItem: {type: PitchSetup},
         isExportEnabled: {type: Boolean, default: false},
         isPrintEnabled: {type: Boolean, default: false},
@@ -91,8 +95,8 @@ export default {
             return src;
         },
         order: {
-            get(): number { return this.orderBy; },
-            set(v: number) { this.$emit("update:orderBy", v); }
+            get(): string | undefined { return this.orderBy; },
+            set(v: string | undefined) { this.$emit("update:orderBy", v); }
         },
         ascending: {
             get(): boolean { return this.orderAscending; },

@@ -33,7 +33,7 @@ export default {
     data(){
         return {
             selectedSetup: new PitchSetup(20, null, null, 80, new Pitch(1, PitchType.Metric)),
-            orderBy: 4,
+            orderBy: "pm",
             orderAscending: true,
             threshold: 1.003,
             isPitchValid: true,
