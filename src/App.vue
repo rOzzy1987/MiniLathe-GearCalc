@@ -14,7 +14,7 @@
     </section>
   </header>
   <main>
-    <div class="tabs">
+    <div class="tabs no-print">
       <ul>
         <li :class="{'is-active': activeTab == ActiveTabs.PitchTable}" @click="activeTab = ActiveTabs.PitchTable"><a>{{ i18n.tabPitchTable }}</a></li>
         <li :class="{'is-active': activeTab == ActiveTabs.GearsForPitch}" @click="activeTab = ActiveTabs.GearsForPitch"><a>{{ i18n.tabGearsForPitch }}</a></li>
@@ -49,7 +49,7 @@
           Translation:<br/>
           &copy; {{i18n.credits}}
         </p>
-        <p>
+        <p class="no-print">
           <a href="https://github.com/rOzzy1987/MiniLathe-GearCalc" class="button is-small">
           <figure clas="image is-16x16">
             <img src="https://github.com/favicon.ico" style="height: 16px;">

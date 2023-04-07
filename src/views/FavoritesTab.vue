@@ -2,7 +2,7 @@
     <div class="box">
         <div class="block">{{ i18n.favTitle }}</div>
       <div class="columns">
-        <div class="column is-half">
+        <div class="column">
             <PitchSetupTable 
                 v-model="model" 
                 v-model:orderBy="orderBy" 
@@ -12,7 +12,7 @@
                 :isPrintEnabled="true"
                 :row-commands="rowCommands"/>
         </div>
-        <div class="column">
+        <div class="column no-print">
             <GeartrainImg :gear-a="selectedSetup?.gearA" :gear-b="selectedSetup?.gearB" :gear-c="selectedSetup?.gearC" v-bind:gear-d="selectedSetup?.gearD" :scale="2"/>
         </div>
       </div>

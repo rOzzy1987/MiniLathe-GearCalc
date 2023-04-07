@@ -5,7 +5,7 @@
             <p class="help">{{ i18n.pfgSearchTip }}</p>
         </div>
       <div class="columns">
-        <div class="column is-half">
+        <div class="column">
             <GearCombinationEditor v-model:gearA="ga" v-model:gearB="gb" v-model:gearC="gc" v-model:gearD="gd" v-model:isComboValid="isGearComboValid" :checkRequired="false"/>
             <div class="block" >
                 <p>{{ i18n.pfgCalculated }}</p>
@@ -25,7 +25,7 @@
                 :filter="filter" :isExportEnabled="true" :isPrintEnabled="true" :itemsPerPage="20" :row-commands="rowCommands" :is-items-per-page-editable="true"/>
             </div>
                 </div>
-        <div class="column">
+        <div class="column no-print">
             <GeartrainImg :gear-a="selectedSetup?.gearA" :gear-b="selectedSetup?.gearB" :gear-c="selectedSetup?.gearC" v-bind:gear-d="selectedSetup?.gearD" :scale="2"/>
         </div>
       </div>

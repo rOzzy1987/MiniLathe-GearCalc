@@ -46,7 +46,7 @@
                 <tbody>
                     <tr v-for="(item, j) of _pagedModelValue" :key="j" :class="{'is-selected': _selectedItems.indexOf(item) >= 0}" @click="itemClicked($event, j)">
                         <td v-for="col of displayedColumns" :key="col.idx" :style="col.column.style" :class="col.column.cssClasses" v-html="col.column.getHtml(item)"></td>
-                        <td v-if="rowCommands.length > 0" >
+                        <td v-if="rowCommands.length > 0" class="no-print" >
                             <RowCommandButton class="is-small no-print" v-for="(cmd, i) in rowCommandsForItem(item)" :key="i" :css-class="cmd.cssClass" :icon-class="cmd.iconClass" :label="cmd.label" @click="cmd.command(item)"/>
                         </td>
                     </tr>

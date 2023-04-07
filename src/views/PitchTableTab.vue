@@ -2,7 +2,7 @@
     <div>
         <div class="block">{{ i18n.ptTitle }}</div>
       <div class="box columns column-table">
-        <div class="column is-half table-container">
+        <div class="column">
             <div class="block">
                 <div class="title is-3">{{ i18n.ptMetricCoarse }}</div>
                 <DataGrid v-model="metricModel" v-model:columns="cols" :is-sortable="false" :selection-mode="GridSelectionMode.One" v-model:selectedItems="selectedItems" :isExportEnabled="isExportEnabled" :isPrintEnabled="true" :row-commands="rowCommands" :exportText="i18n.genericExportCsv" :emptyText="i18n.genericEmpty"/>
@@ -28,7 +28,7 @@
                 <DataGrid v-model="bspModel" v-model:columns="cols" :is-sortable="false" :selection-mode="GridSelectionMode.One" v-model:selectedItems="selectedItems" :isExportEnabled="isExportEnabled" :isPrintEnabled="true" :row-commands="rowCommands" :exportText="i18n.genericExportCsv" :emptyText="i18n.genericEmpty"/>
             </div>
         </div>
-        <div class="column">
+        <div class="column no-print">
             <GeartrainImg :gear-a="selectedSetup?.gearA" :gear-b="selectedSetup?.gearB" :gear-c="selectedSetup?.gearC" v-bind:gear-d="selectedSetup?.gearD" :scale="2"/>
         </div>
       </div>
@@ -233,12 +233,3 @@ export default {
     components: { GeartrainImg, DataGrid }
 }
 </script>
-<style scoped>
-  td, th {
-    text-align: right !important;
-  }
-  .column-table {
-    max-height: 100%;
-    overflow-x: hidden;
-  }
-</style>
