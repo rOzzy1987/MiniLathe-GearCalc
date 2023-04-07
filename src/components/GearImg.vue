@@ -4,9 +4,9 @@
         
         <g v-if="sizeText && size >= 30" :transform="'rotate(' + textRotation + ')'" >
         <path :id="'curve'+id" stroke="none" fill="none" :d="'M '+(-(r - 3))+' 0 A '+(r - 3)+' '+(r - 3)+' 0 0 0 '+(r - 3)+' 0'" />
-        <text width="100" alignment-baseline="baseline" style="font-size: 8px; letter-spacing: 2px;" stroke="none" fill="#888">
+        <text width="100" alignment-baseline="baseline" :style="{'font-size':  (module*8)+'px' }" style="letter-spacing: 2px;" stroke="none" fill="#888">
             <textPath :xlink:href="'#curve'+id">
-            M1 Z{{ size }}
+            M{{ module }} Z{{ size }}
             </textPath>
         </text>
         </g>
@@ -23,13 +23,14 @@ export default {
         cx: {type: Number, default: 0},
         cy: {type: Number, default: 0},
         size: {type: Number, default: 20},
+        module: {type: Number, default: 1},
         sizeText: {type: Boolean, default: false},
         textRotation: {type: Number, default: 0}
     },
     methods: {
         getPoint(cog: number, point: number, angleStep: number, rootR: number, outsideR: number){
 
-            let angle = cog*angleStep;
+            let angle = cog * angleStep;
             switch (point) {
                 case 0:
                     break;
@@ -47,11 +48,13 @@ export default {
         }
     },
     computed: {
-        r() { return this.size / 2},
+        r() { return this.size * this.module / 2},
         path(){
-            const rootR = (this.size / 2) - 1.5;
-            const outerR = (this.size / 2) + 1;
-            const angleStep = Math.PI*2/this.size;
+            const rootR = ((this.size / 2) - 1.5) * this.module;
+            const outerR = ((this.size / 2) + 1) * this.module;
+            const angleStep = Math.PI * 2 / this.size;
+
+            console.log(this.size, rootR, outerR);
 
             var start = this.getPoint(-1, 3, angleStep,rootR, outerR);
             let p = "M "+ start.x +" "+start.y+" ";
