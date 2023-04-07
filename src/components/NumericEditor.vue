@@ -2,10 +2,13 @@
     <div class="field">
       <label v-if="label?.length > 0" class="label" :placeholder="placeholder">{{ label }}</label>
       <div class="control has-icons-right">
-        <input :id="'input'+id" class="input" :class="{'is-danger': !isValid}" type="text" v-model="strVal" :disabled="disabled"  pattern="[0-9]*" inputmode="decimal" 
-        @keydown="handleKey($event)"
-        @wheel="handleMouse($event)" 
-        @touchstart="handleTouch" @touchmove="handleTouch" @touchend="handleTouch"/>
+        <input :id="'input'+id" class="input" :class="{'is-danger': !isValid}" type="text" 
+            :value="strVal" @input="strVal = ($event.target as HTMLInputElement).value" 
+            :disabled="disabled"  pattern="[0-9]*" 
+            inputmode="decimal" 
+            @keydown="handleKey($event)"
+            @wheel="handleMouse($event)" 
+            @touchstart="handleTouch" @touchmove="handleTouch" @touchend="handleTouch"/>
         <span :id="'updown'+id" v-if="touchSupported" class="icon is-small is-right">
             <i class="fas fa-up-down"></i>
         </span>
@@ -23,8 +26,6 @@ import GlobalConfig from '@/bll/globalConfig';
 
 export default {
     data(props) {
-        
-
         return {
             id: Math.round(Math.random() * 1000),
             validationMessage: "",
@@ -88,6 +89,7 @@ export default {
             const val = this.strVal;
             const nval = this.numValue(val);
             const reconv = this.displayValue(nval);
+
             if (val != reconv)
                 this.validationMessage = this.i18n.numericInvalid;
             else if (val === "" && this.required)
@@ -112,10 +114,11 @@ export default {
                 ? "" 
                 : this.displayValue(val)
         },
-        updateModelValue(){
+        updateModelValue(isValid: boolean | null = null){
             let val = this.numValue(this.strVal);
+            isValid = isValid ?? this.isValid;
 
-            if (!this.isValid)
+            if (!isValid)
                 return;
 
             if (this.inTouch)
@@ -241,8 +244,8 @@ export default {
             get(): string { return this.strValField; },
             set(v: string) { 
                 this.strValField = v; 
-                this.validate();
-                this.updateModelValue();
+                let isValid = this.validate();
+                this.updateModelValue(isValid);
             }
         }
     }
