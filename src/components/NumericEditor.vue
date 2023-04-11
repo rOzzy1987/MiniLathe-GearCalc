@@ -109,7 +109,7 @@ export default {
                 this.$emit("update:isValid", isValid);
             return isValid;
         },
-        inputUpdated(event: InputEvent){
+        inputUpdated(event: Event){
             this.strVal = (event.target as HTMLInputElement).value;
         },
         setValue(val: number | null) {
