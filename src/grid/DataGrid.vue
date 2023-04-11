@@ -21,8 +21,8 @@
                                 <i :class="{'far fa-square-plus': col.isOptional && col.isHidden, 'fas fa-square-minus': col.isOptional && !col.isHidden}"></i>
                             </span>
                             <span class="icon is-pulled-right" v-if="isColumnListOrderable"
-                                @mousedown="colOrderGrabItem($event, ($event.target as HTMLElement), {x: $event.clientX, y: $event.clientY})"
-                                @touchstart="colOrderGrabItem($event, ($event.target as HTMLElement), {x: $event.touches[0].clientX, y: $event.touches[0].clientY})">
+                                @mousedown="colOrderGrabItem($event, {x: $event.clientX, y: $event.clientY})"
+                                @touchstart="colOrderGrabItem($event, {x: $event.touches[0].clientX, y: $event.touches[0].clientY})">
                                 <i class="fas fa-bars"></i>
                             </span>
                             <span class="text">{{ col.title }}</span>
@@ -385,7 +385,8 @@ export default {
         itemsPerPageSelectorText: {type: String, default: "Items per page: "},
     },
     methods: {
-        colOrderGrabItem(event: Event, item: HTMLElement, origin: {x:number, y: number}) {
+        colOrderGrabItem(event: Event, origin: {x:number, y: number}) {
+            let item = event.target as HTMLElement  
             if(this._columns.length < 2) return;
             const cc = this.columnCustomization;
             let i = 0;
