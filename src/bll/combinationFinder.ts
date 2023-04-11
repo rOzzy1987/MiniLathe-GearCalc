@@ -5,7 +5,7 @@ import { Gears, type Gear } from './gear';
 
 export default class CombinationFinder {
     public findAllCombinations(config: LatheConfig): PitchSetup[]{
-        const gears = config.gears.sort();
+        const gears = config.gears.slice().sort((a,b) => Gears.compare(a, b));
 
         function key(ka: Gear, kb: Gear, kc: Gear, kd: Gear){
             if (Gears.equal(kb, kc))
@@ -37,7 +37,7 @@ export default class CombinationFinder {
                         const pcD = Gears.pitchRadius(gd)!;
 
                         // the banjo can't stretch long enough
-                        if (pcA + pcB + pcC + pcD <= config.minTeeth * 2)
+                        if (pcA + pcB + pcC + pcD <= config.minTeeth)
                             continue;
 
                         // gear B interferes with the leadscrew axle
@@ -48,8 +48,11 @@ export default class CombinationFinder {
                         if (pcC - pcC > pcA)
                             continue;
 
+                        if (ga == undefined|| gb == undefined || gc == undefined || gd == undefined)
+                            // eslint-disable-next-line no-debugger
+                            debugger;
                         const k = key(ga, gb, gc, gd);
-                        if(comboDict[k] != null) 
+                        if (comboDict[k] != null) 
                             continue;
 
                         comboDict[k] = this.findMetricPitch(ga, gb, gc, gd, config.leadscrew);
@@ -61,7 +64,8 @@ export default class CombinationFinder {
         let allCombos: PitchSetup[] = [];
         for(const i in comboDict)
         {
-            allCombos.push(comboDict[i]);
+            if(comboDict[i].isValid())
+                allCombos.push(comboDict[i]);
         }
         allCombos = allCombos.sort((a,b) => a.pitch.value - b.pitch.value);
 

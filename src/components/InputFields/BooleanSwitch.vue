@@ -1,8 +1,8 @@
 <template>
-  <div ref="container" class="switch-container input" :style="{'width': size + 2 + 'px'}">
+  <div class="switch-container input" :style="{'width': size + 2 + 'px'}" @click="_modelValue = !_modelValue">
     <div class="caret" :style="{'left': modelValue ? 0 : '-'+(size - 30) + 'px', width: size*2+'px'}">
         <div class="value value1" :style="{'width': (size - 15) +'px'}">{{ label1 }}</div>
-        <div class="knob-container"><div class="knob" @click="_modelValue = !_modelValue"><div class="knob-inset"></div></div></div>
+        <div class="knob-container"><div class="knob"><div class="knob-inset"></div></div></div>
         <div class="value value2" :style="{'width': (size - 15) +'px'}">{{ label2 }}</div>
     </div>
   </div>
@@ -10,9 +10,9 @@
 
 <script lang="ts">
 export default {
-    data() {
+    data(props) {
         return {
-            modelValueField: true
+            modelValueField: props.modelValue
         }
     },
     props: {
@@ -24,12 +24,11 @@ export default {
     computed: {
         _modelValue: {
             get(): boolean { return this.modelValueField; },
-            set(v: boolean) { console.log("bool set" ,v); this.modelValueField = v; this.$emit("update:modelValue", v); }
+            set(v: boolean) { this.modelValueField = v; this.$emit("update:modelValue", v); }
         }
     },
     watch: {
         modelValue() {
-            console.log("bool update", this.modelValue);
             this.modelValueField = this.modelValue;
         },
     }
@@ -44,6 +43,7 @@ export default {
     border-radius: 8px;
     transition: left .5s;
     position: relative;
+    margin: 3px;
 
     div {
         float: left;

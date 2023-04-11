@@ -75,10 +75,10 @@ export default {
             selectedSetup: new NamedPitchSetup(Gear.fromString("M1Z20"), undefined, undefined, Gear.fromString("M1Z80"), new Pitch(1, PitchType.Metric)),
             cols: [
                 new GridColumnDefinition("name", i18n.ptName, i => i.name),
-                new GridColumnDefinition("a", "A", i => i.gearA).asNumericColumn().withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
-                new GridColumnDefinition("b", "B", i => i.gearB).asNumericColumn().withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
-                new GridColumnDefinition("c", "C", i => i.gearC).asNumericColumn().withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
-                new GridColumnDefinition("d", "D", i => i.gearD).asNumericColumn().withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
+                new GridColumnDefinition("a", "A", i => i.gearA).asNumericColumn().withFormat(g => this.formatGear(g)).withExportFn(g => this.formatGear(g)).withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
+                new GridColumnDefinition("b", "B", i => i.gearB).asNumericColumn().withFormat(g => this.formatGear(g)).withExportFn(g => this.formatGear(g)).withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
+                new GridColumnDefinition("c", "C", i => i.gearC).asNumericColumn().withFormat(g => this.formatGear(g)).withExportFn(g => this.formatGear(g)).withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
+                new GridColumnDefinition("d", "D", i => i.gearD).asNumericColumn().withFormat(g => this.formatGear(g)).withExportFn(g => this.formatGear(g)).withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
                 new GridColumnDefinition("p", "P", i => i.pitch, i18n.genericPitch)
                     .withFormat(p => this.formatPitch(p)).withAlignRight().withHeaderCssClasses(['has-text-right']),
             ],
@@ -90,6 +90,7 @@ export default {
             bspModel: [] as NamedPitchSetup[],
             rowCommands: [new AddToFavoritesRowCommand(), new RemoveFavoriteRowCommand()],
             isExportEnabled: true,
+            config: GlobalConfig.loadConfig(),
             i18n,
             GridSelectionMode: GridSelectionMode
         }
@@ -100,6 +101,9 @@ export default {
     methods: {
         formatPitch(v: Pitch) {
             return GcMath.round(v.value, 0.001).toFixed(3) + " " + (v.type == PitchType.Metric ? "mm/rev" : "TPI");
+        },
+        formatGear(g: Gear){
+            return this.isMultiModule ? g.toString() : g.teeth.toFixed(0);
         },
         computeModel() {
             const result: NamedPitchSetup[] = [];
@@ -230,6 +234,9 @@ export default {
         selectedItems: {
             get(): NamedPitchSetup[] { return [this.selectedSetup]; },
             set(v: NamedPitchSetup[]) { this.selectedSetup = v[0]; }
+        },        
+        isMultiModule() {
+            return this.config.isMultiModule; 
         }
     },
     mounted() {

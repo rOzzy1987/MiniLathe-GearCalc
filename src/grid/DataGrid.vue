@@ -584,15 +584,17 @@ export default {
             function format(val: any) {
                 return "\""+((val+"").replace("\"", "\"\""))+"\"";
             }
+            let rowArr = [];
             for (const col of this._columns) {
-                csv += format(col.title) + sep;
+                rowArr.push(format(col.title));
             }
-            csv += "\n";
+            csv += rowArr.join(sep) + "\n";
             for (const row of data) {
+                rowArr = [];
                 for (const i in row) {
-                    csv += format(row[i]) + sep;
+                    rowArr.push(format(row[i]));
                 }
-                csv += "\n";
+                csv += rowArr.join(sep) + "\n";
             }
             this.download(csv, "export.csv");
         },

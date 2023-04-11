@@ -7,6 +7,16 @@ export default class LatheConfig {
     public maxSize: number = 90;
     public gears: Gear[] = Gears.listFromTeeth([20,20,30,35,40,40,45,50,55,57,60,65,80,80], GearModule.fromString("M1")!);
 
+    public get isMultiModule() {
+        return this.gears.length == 0 ? false : !this.gears.every(g => g.module.equals(this.gears[0].module));
+    }
+
+    public get sampleModule() {
+        return this.gears.length == 0
+            ? GearModule.fromString("M1")! 
+            : this.gears[0].module;
+    }
+
     public toString(): string {
         const gears = this.gears.sort();
         let gearsStr = "";

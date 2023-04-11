@@ -26,7 +26,7 @@ export class Gear {
     }
 
     public static fromString(str: string): Gear | undefined {
-        const pattern = /((?:m|M|dp|DP)[1-9](?:[0-9]*)(?:\.(?:[0-9]+))?)(?:\s?)[zZ]([1-9](?:[0-9]*))/g;
+        const pattern = /((?:m|M|dp|DP)[0-9](?:[0-9]*)(?:\.(?:[0-9]+))?)(?:\s?)[zZ]([1-9](?:[0-9]*))/g;
         const m = pattern.exec(str);
         if (m == undefined)
             return undefined;
@@ -81,6 +81,15 @@ export class Gears {
         return teethArray.map(t => new Gear(module, t));
     }
 
+    private static valueForCompare(g: Gear){
+        return g.module.type* 1000000 +
+        g.module.number*10000 +
+        g.teeth;
+    } 
+
+    public static compare(a: Gear, b: Gear) {
+        return this.valueForCompare(a) - this.valueForCompare(b);
+    }
 }
 
 export class GearModule {
@@ -114,11 +123,14 @@ export class GearModule {
     }
 
     public static fromString(str: string): GearModule | undefined {
-        const pattern = /(m|M|dp|DP)([1-9](?:[0-9]*)(?:\.(?:[0-9]+))?)/g;
+        const pattern = /(m|M|dp|DP)([0-9](?:[0-9]*)(?:\.(?:[0-9]+))?)/g;
         const m = pattern.exec(str);
         if(m == undefined)
             return undefined;
-        return new GearModule(Number(m[2]), m[1].toLowerCase() == 'm' ? ModuleType.Metric : ModuleType.DiametralPitch)
+        const n = Number(m[2]);
+        if (n <= 0)
+            return undefined;
+        return new GearModule(n, m[1].toLowerCase() == 'm' ? ModuleType.Metric : ModuleType.DiametralPitch)
     }
 }
 

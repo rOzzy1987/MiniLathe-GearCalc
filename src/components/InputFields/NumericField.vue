@@ -43,7 +43,7 @@ export default {
         placeholder: {type: String, default: ""},
         minValue: {type: Number, default: Number.NEGATIVE_INFINITY},
         maxValue: {type: Number, default: Number.POSITIVE_INFINITY},
-        errorMessage: {type: String},
+        errorMessage: {type: String, default: ""},
         useMouse: {type: Boolean, default: true},
         useTouch: {type: Boolean, default: true},
         disabled: {type: Boolean, default: false},
@@ -64,6 +64,7 @@ export default {
                 i = result.indexOf(',');
             if (i!= -1)
             {
+                result = result.substring(0, i + this.decimals + 1);
                 while(result.substring(result.length-1, result.length) === '0'){
                     result = result.substring(0, result.length-1)
                 }
@@ -199,8 +200,8 @@ export default {
         }
     },
     watch: {
-        modelValue(v){
-            this.strVal = v; 
+        modelValue(v: number){
+            this.strVal = this.displayValue(v); 
         }
     },
     computed: {
