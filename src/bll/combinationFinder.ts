@@ -1,15 +1,16 @@
 import { PitchSetup } from './pitchSetup';
 import type LatheConfig from './latheConfig';
 import type { Pitch } from './pitch';
+import { Gears, type Gear } from './gear';
 
 export default class CombinationFinder {
     public findAllCombinations(config: LatheConfig): PitchSetup[]{
         const gears = config.gears.sort();
 
-        function key(ka: number, kb: number, kc: number, kd: number){
-            if (kb == kc)
-                return "G"+ka+"--G"+kd;
-            return "G"+ka+"G"+kb+"G"+kc+"G"+kd;
+        function key(ka: Gear, kb: Gear, kc: Gear, kd: Gear){
+            if (Gears.equal(kb, kc))
+                return "G"+ka.toString()+"--G"+kd.toString();
+            return "G"+ka.toString()+"G"+kb.toString()+"G"+kc.toString()+"G"+kd.toString();
         }
 
         const comboDict: any = {};
@@ -30,17 +31,21 @@ export default class CombinationFinder {
                         const gb = gears[b];
                         const gc = gears[c];
                         const gd = gears[d];
+                        const pcA = Gears.pitchRadius(ga)!;
+                        const pcB = Gears.pitchRadius(gb)!;
+                        const pcC = Gears.pitchRadius(gc)!;
+                        const pcD = Gears.pitchRadius(gd)!;
 
                         // the banjo can't stretch long enough
-                        if (ga + gb + gc + gd <= config.minTeeth * 2)
+                        if (pcA + pcB + pcC + pcD <= config.minTeeth * 2)
                             continue;
 
                         // gear B interferes with the leadscrew axle
-                        if (gb-gc > gd)
+                        if (pcB - pcC > pcD)
                             continue;
                         
                         // gear C interferes with the driving axle
-                        if (gc-gb > ga)
+                        if (pcC - pcC > pcA)
                             continue;
 
                         const k = key(ga, gb, gc, gd);
@@ -65,10 +70,7 @@ export default class CombinationFinder {
         return allCombos;
     }
 
-    public findMetricPitch(gearA: number, gearB: number, gearC: number, gearD: number, leadscrew: Pitch): PitchSetup {
-        const ratio = gearB == gearC || (Number.isNaN(gearB) || Number.isNaN(gearC))
-        ?   gearD/gearA 
-        :   (gearB * gearD) / (gearA * gearC);
-        return new PitchSetup(gearA, gearB, gearC, gearD, leadscrew.withRatio(ratio).toMetric());
+    public findMetricPitch(gearA: Gear | undefined, gearB: Gear | undefined, gearC: Gear | undefined, gearD: Gear | undefined, leadscrew: Pitch): PitchSetup {
+        return PitchSetup.fromGearsAndLeadscrew(gearA, gearB, gearC, gearD, leadscrew).toMetric()
     }
 }

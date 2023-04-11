@@ -1,7 +1,7 @@
 <template>
     <div>
         <div v-if="isEditMode" class="columns">
-            <NumericEditor class="column is-one-quarter" v-model="newGear" :label="i18n.gearsAddNew" :tip="i18n.gearsAddNewTip" :decimals="0" :min-value="18" :max-value="maxSize" :required="true" 
+            <GearEditor class="column is-one-quarter" v-model="newGear" :label="i18n.gearsAddNew" :tip="i18n.gearsAddNewTip" :required="true" 
             v-model:isValid="newGearValid" @enter="addGear()"/>
             <div class="field column is-one-quarter">
                 <label class="label">&nbsp;</label>
@@ -16,8 +16,8 @@
         <div class="control">
             <div class="tags">
                 <span class="tag is-link" v-for="(item,idx) in gears" :key="idx">
-                    {{ item }}
-                    <button v-if="isEditMode" class="delete is-small" @click.prevent="removeGear(item)"></button>
+                    {{ item.toString() }}
+                    <button v-if="isEditMode" class="delete is-small" @click.prevent="removeGear(item.toString())"></button>
                 </span>
             </div>
         </div>
@@ -33,12 +33,13 @@
 </template>
 <script lang="ts">
 import GlobalConfig from '@/bll/globalConfig';
-import NumericEditor from './NumericEditor.vue';
+import { Gear, GearModule } from '@/bll/gear';
+import GearEditor from './GearEditor.vue';
 
 export default {
     data(props) {
         return {
-            newGear: 20,
+            newGear: Gear.fromString("M1Z20"),
             newGearValid: true,
             isEditMode: props.modelValue?.length == 0,
             gears: props.modelValue.slice(),
@@ -49,10 +50,11 @@ export default {
         addGear() {
             if(!this.newGearValid)
                 return;
-            this.gears = this.gears.concat([this.newGear]).map(x=> Number(x)).sort(); 
+            this.gears.push(new Gear(new GearModule(this.newGear!.module.number, this.newGear!.module.type), this.newGear!.teeth));
+            this.gears.sort((a,b) => a.toString().localeCompare(b.toString())); 
         },
-        removeGear(num: number) {
-            let idx = this.gears.findIndex((v) => v == num);
+        removeGear(str: String) {
+            let idx = this.gears.findIndex((v) => v.toString() == str);
             this.gears = this.gears.slice(0,idx).concat(this.gears.slice(idx+1)).sort();
         },
         saveGears(){
@@ -65,7 +67,7 @@ export default {
     },
     props: {
         modelValue: {
-            type: Array<number>,
+            type: Array<Gear>,
             default: []
         },
         maxSize: { type: Number }
@@ -80,6 +82,6 @@ export default {
             this.gears = n.slice();
         }
     },
-    components: { NumericEditor }
+    components: { GearEditor }
 }
 </script>

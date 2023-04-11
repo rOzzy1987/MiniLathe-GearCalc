@@ -1,23 +1,23 @@
 <template>
     <div class="columns">
         <div class="column">
-            <NumericEditor v-model="ga" label="A" :required="checkRequired" :minValue="18" :maxValue="maxSize" :decimals="0" v-model:isValid="isGearAValid"/>
+            <GearEditor v-model="ga" label="A" :required="checkRequired" v-model:isValid="isGearAValid"/>
         </div>
         <div class="column">
-            <NumericEditor v-model="gb" label="B" :required="false" :minValue="18" :maxValue="maxSize" :decimals="0" v-model:isValid="isGearBValid" :errorMessages="gearBValidationMessage"/>
+            <GearEditor v-model="gb" label="B" :required="false" v-model:isValid="isGearBValid" :errorMessages="gearBValidationMessage"/>
         </div>
         <div class="column">
-            <NumericEditor v-model="gc" label="C" :required="false" :minValue="18" :maxValue="maxSize" :decimals="0" v-model:isValid="isGearCValid" :errorMessages="gearCValidationMessage"/>
+            <GearEditor v-model="gc" label="C" :required="false" v-model:isValid="isGearCValid" :errorMessages="gearCValidationMessage"/>
         </div>
         <div class="column">
-            <NumericEditor v-model="gd" label="D" :required="checkRequired" :minValue="18" :maxValue="maxSize" :decimals="0" v-model:isValid="isGearDValid"/>
+            <GearEditor v-model="gd" label="D" :required="checkRequired" v-model:isValid="isGearDValid"/>
         </div>
     </div>
 </template>
 <script lang="ts">
-import NumericEditor from './NumericEditor.vue';
 import GlobalConfig from '@/bll/globalConfig';
-import LatheConfig from '@/bll/latheConfig';
+import { Gear } from '@/bll/gear';
+import GearEditor from './GearEditor.vue';
 
 export default {
     data() {
@@ -30,10 +30,10 @@ export default {
         }
     },
     props: {
-        gearA: {type: Number, default: 30},
-        gearB: {type: Number, default: NaN},
-        gearC: {type: Number, default: NaN},
-        gearD: {type: Number, default: 60},
+        gearA: {type: Gear},
+        gearB: {type: Gear},
+        gearC: {type: Gear},
+        gearD: {type: Gear},
         checkRequired: {type: Boolean, default: true},
         maxSize: {type:Number, default: 130},
         isValid: {type: Boolean, default: true},
@@ -126,6 +126,6 @@ export default {
         "update:gearC",
         "update:gearD",
     ],
-    components: { NumericEditor }
+    components: { GearEditor }
 }
 </script>

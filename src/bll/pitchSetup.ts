@@ -1,15 +1,15 @@
-import { Gear } from "./gear";
+import { Gear, Gears } from "./gear";
 import { Pitch, PitchType } from "./pitch";
 
 
 export class PitchSetup {
     public pitch: Pitch;
-    public gearA: Gear | null;
-    public gearB: Gear | null;
-    public gearC: Gear | null;
-    public gearD: Gear | null;
+    public gearA: Gear | undefined;
+    public gearB: Gear | undefined;
+    public gearC: Gear | undefined;
+    public gearD: Gear | undefined;
 
-    public constructor(gearA: Gear | null, gearB: Gear | null, gearC: Gear | null, gearD: Gear | null, pitch: number | Pitch, pitchType: PitchType = PitchType.Metric) {
+    public constructor(gearA: Gear | undefined, gearB: Gear | undefined, gearC: Gear | undefined, gearD: Gear | undefined, pitch: number | Pitch, pitchType: PitchType = PitchType.Metric) {
         this.gearA = gearA;
         this.gearB = gearB;
         this.gearC = gearC;
@@ -37,14 +37,14 @@ export class PitchSetup {
     }
 
     public areGearsProvided() : boolean {
-        return (this.gearA != null && this.gearD != null) &&
-            ((this.gearB == null && this.gearC == null) || (this.gearB != null && this.gearC != null));
+        return (this.gearA != undefined && this.gearD != undefined) &&
+            ((this.gearB == undefined && this.gearC == undefined) || (this.gearB != undefined && this.gearC != undefined));
     }
 
     public areModulesMatching(): boolean {
-        if (this.gearB == null && this.gearC == null){
+        if (this.gearB == undefined && this.gearC == undefined){
             return this.gearA!.module.equals(this.gearD!.module);
-        } else if (this.gearB != null && this.gearC != null) {
+        } else if (this.gearB != undefined && this.gearC != undefined) {
             return this.gearA!.module.equals(this.gearB.module) &&
                 this.gearC.module.equals(this.gearD!.module);
         } else return false;
@@ -68,6 +68,18 @@ export class PitchSetup {
         };
     }
 
+    public equals(s: PitchSetup) {
+        return Gears.equal(this.gearA, s.gearA) &&
+            Gears.equal(this.gearB, s.gearB) &&
+            Gears.equal(this.gearC, s.gearC) &&
+            Gears.equal(this.gearD, s.gearD) &&
+            (this.pitch.equals(s.pitch) || this.pitch.convert().equals(s.pitch));
+    }
+
+    public toMetric() {
+        return this.pitch.type == PitchType.Metric ? this : new PitchSetup(this.gearA, this.gearB, this.gearC, this.gearD, this.pitch.toMetric());
+    }
+
     public static fromPlainObject(o: any): PitchSetup {
         return new PitchSetup(
             Gear.fromString(o.gearA)!, 
@@ -77,11 +89,15 @@ export class PitchSetup {
             Pitch.fromPlainObject(o.pitch)!);
     }
 
-    public equals(s: PitchSetup) {
-        return Gear.equals(this.gearA, s.gearA) &&
-            Gear.equals(this.gearB, s.gearB) &&
-            Gear.equals(this.gearC, s.gearC) &&
-            Gear.equals(this.gearD, s.gearD) &&
-            (this.pitch.equals(s.pitch) || this.pitch.convert().equals(s.pitch));
+    public static fromGearsAndLeadscrew(gearA: Gear | undefined, gearB: Gear | undefined, gearC: Gear | undefined, gearD: Gear | undefined, leadscrew: Pitch): PitchSetup {
+        if (gearA == undefined || gearD == undefined){
+            return new PitchSetup(gearA,gearB,gearC,gearD, new Pitch(0, leadscrew.type));
+        }
+        const ratio = gearB == undefined && gearC == undefined
+            ? gearD.teeth / gearA.teeth 
+            : gearB != undefined && gearC != undefined
+                ? (gearB.teeth * gearD.teeth) / (gearA.teeth * gearC.teeth)
+                : 0;
+        return new PitchSetup(gearA, gearB ?? undefined, gearC ?? undefined, gearD, leadscrew.withRatio(ratio));
     }
 }

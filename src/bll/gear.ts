@@ -21,33 +21,66 @@ export class Gear {
         return (this.module.toString()) + (" Z"+this.teeth);
     }
 
-    public toPlainObject():any {
-        return {module: this.module, teeth: this.teeth };
+    public equals(other: Gear){
+        return Gears.equal(this, other);
     }
 
-    public static fromPlainObject(val: any): Gear | null {
-        if (val == null)
-            return null;
-        const module = GearModule.fromPlainObject(val.module);
-        return module == null ? null : new Gear(module, val.teeth);
+    public static fromString(str: string): Gear | undefined {
+        const pattern = /((?:m|M|dp|DP)[1-9](?:[0-9]*)(?:\.(?:[0-9]+))?)(?:\s?)[zZ]([1-9](?:[0-9]*))/g;
+        const m = pattern.exec(str);
+        if (m == undefined)
+            return undefined;
+        return new Gear(GearModule.fromString(m[1])!, Number(m[2]));
+    }
+}
+
+export class Gears {
+
+    public static equal(g1: Gear | undefined, g2: Gear | undefined) {
+        if (g1 == undefined && g2 == undefined) return true;
+        if (g1 == undefined || g2 == undefined) return false;
+        return g1.module.equals(g2.module) &&
+            g1.teeth == g2.teeth;
     }
 
-    public equals(p: Gear) {
-        return this.module.equals(p.module) &&
-            this.teeth == p.teeth;
+    private static diameterWithAddendum(g: Gear | undefined, a: number) {
+        if (g == undefined) return undefined;
+        return (g.teeth + a) * g.module.toMetric().number;
     }
 
-    public static ListFromTeeth(teethArray: number[], module: GearModule){
+    private static radiusWithAddendum(g: Gear | undefined, a: number) {
+        if (g == undefined) return undefined;
+        return this.diameterWithAddendum(g, a)! / 2;
+    }
+
+    public static pitchDiameter(g:Gear | undefined){
+        return this.diameterWithAddendum(g, 0);
+    }
+
+    public static pitchRadius(g: Gear | undefined) {
+        return this.radiusWithAddendum(g, 0);
+    }
+
+    public static rootDiameter(g: Gear | undefined) {
+        return this.diameterWithAddendum(g, -3);
+    }
+
+    public static rootRadius(g: Gear | undefined) {
+        return this.radiusWithAddendum(g, -3);
+    }
+
+    public static outerDiameter(g: Gear | undefined) {
+        return this.diameterWithAddendum(g, 2);
+    }
+
+    public static outerRadius(g: Gear | undefined) {
+        return this.radiusWithAddendum(g, 2);
+    }
+
+    public static listFromTeeth(teethArray: number[], module: GearModule): Gear[] {
         return teethArray.map(t => new Gear(module, t));
     }
 
-    public static fromString(str: string): Gear | null {
-        const pattern = /((?:m|M|dp|DP)[1-9](?:[0-9]*)(?:\.(?:[0-9]+))?)(?:\s?)[zZ]([1-9](?:[0-9]*))/g;
-        const m = pattern.exec(str);
-        if (m == null)
-            return null;
-        return new Gear(GearModule.fromString(m[1]), Number(m[2]));
-    }
 }
 
 export class GearModule {
@@ -75,25 +108,17 @@ export class GearModule {
         return this.type == ModuleType.Metric ? ("M"+this.number) : ("DP"+this.number);
     }
 
-    public toPlainObject():any {
-        return {number: this.number, type: Number(this.type) };
-    }
-
-    public static fromPlainObject(val: any): GearModule | null {
-        return val == null ? null : new GearModule(val.number, val.type);
-    }
-
     public equals(p: GearModule) {
         return this.number == p.number &&
             this.type == p.type;
     }
 
-    public static fromString(str: string): GearModule | null {
+    public static fromString(str: string): GearModule | undefined {
         const pattern = /(m|M|dp|DP)([1-9](?:[0-9]*)(?:\.(?:[0-9]+))?)/g;
         const m = pattern.exec(str);
-        if(str == null)
-            return null;
-        return new GearModule(Number(m[2]), m[1].toLowerCase == 'm' ? ModuleType.Metric : ModuleType.DiametralPitch)
+        if(m == undefined)
+            return undefined;
+        return new GearModule(Number(m[2]), m[1].toLowerCase() == 'm' ? ModuleType.Metric : ModuleType.DiametralPitch)
     }
 }
 

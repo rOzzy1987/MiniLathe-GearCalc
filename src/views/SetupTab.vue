@@ -19,7 +19,7 @@
 <script lang="ts">
 
 import LatheConfig from '@/bll/latheConfig';
-import GearListEditor from '../components/GearListEditor.vue';
+import GearListEditor from '../components/Editors/GearListEditor.vue';
 import LeadscrewWizard from '../components/LeadscrewWizard.vue';
 import OtherParamsEditor from '@/components/OtherParamsEditor.vue';
 import GlobalConfig from '@/bll/globalConfig';

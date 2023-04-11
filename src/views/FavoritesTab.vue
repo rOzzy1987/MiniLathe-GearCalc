@@ -13,7 +13,12 @@
                 :row-commands="rowCommands"/>
         </div>
         <div class="column no-print">
-            <GeartrainImg :gear-a="selectedSetup?.gearA" :gear-b="selectedSetup?.gearB" :gear-c="selectedSetup?.gearC" v-bind:gear-d="selectedSetup?.gearD" :scale="2"/>
+            <GeartrainImg 
+                :gear-a="selectedSetup?.gearA ?? undefined" 
+                :gear-b="selectedSetup?.gearB ?? undefined" 
+                :gear-c="selectedSetup?.gearC ?? undefined" 
+                :gear-d="selectedSetup?.gearD ?? undefined" 
+                :scale="2"/>
         </div>
       </div>
     </div>
@@ -21,15 +26,16 @@
 <script lang="ts">
 import { Pitch, PitchType } from '@/bll/pitch';
 import { PitchSetup } from '@/bll/pitchSetup';
-import GeartrainImg from '@/components/GeartrainImg.vue';
+import GeartrainImg from '@/components/Graphics/GeartrainImg.vue';
 import PitchSetupTable, { AddToFavoritesRowCommand, RemoveFavoriteRowCommand } from '@/components/PitchSetupTable.vue';
 import GlobalConfig from '@/bll/globalConfig';
+import { Gear } from '@/bll/gear';
 
 
 export default {
     data(){
         return {
-            selectedSetup: new PitchSetup(20, null, null, 80, new Pitch(1, PitchType.Metric)),
+            selectedSetup: new PitchSetup(Gear.fromString("M1Z20"), undefined, undefined, Gear.fromString("M1Z80"), new Pitch(1, PitchType.Metric)),
             orderBy: "pm",
             orderAscending: true,
             rowCommands: [new AddToFavoritesRowCommand(), new RemoveFavoriteRowCommand()],

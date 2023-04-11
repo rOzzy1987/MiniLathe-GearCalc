@@ -29,7 +29,12 @@
             </div>
         </div>
         <div class="column no-print">
-            <GeartrainImg :gear-a="selectedSetup?.gearA" :gear-b="selectedSetup?.gearB" :gear-c="selectedSetup?.gearC" v-bind:gear-d="selectedSetup?.gearD" :scale="2"/>
+            <GeartrainImg 
+                :gear-a="selectedSetup?.gearA ?? undefined" 
+                :gear-b="selectedSetup?.gearB ?? undefined" 
+                :gear-c="selectedSetup?.gearC ?? undefined" 
+                :gear-d="selectedSetup?.gearD ?? undefined" 
+                :scale="2"/>
         </div>
       </div>
     </div>
@@ -37,11 +42,12 @@
 <script lang="ts">
 import { Pitch, PitchType } from '@/bll/pitch';
 import { PitchSetup } from '@/bll/pitchSetup';
-import GeartrainImg from '@/components/GeartrainImg.vue';
+import GeartrainImg from '@/components/Graphics/GeartrainImg.vue';
 import GlobalConfig from '@/bll/globalConfig';
 import DataGrid, { GridColumnDefinition, GridSelectionMode } from '@/grid/DataGrid.vue';
 import GcMath from '@/bll/math';
 import { AddToFavoritesRowCommand, RemoveFavoriteRowCommand } from '@/components/PitchSetupTable.vue';
+import { Gear } from '@/bll/gear';
 
 class NamedPitchSetup extends PitchSetup {
     public name: string = null!;
@@ -66,7 +72,7 @@ export default {
     data(){
         const i18n = GlobalConfig.i18n;
         return {
-            selectedSetup: new NamedPitchSetup(20, null, null, 80, new Pitch(1, PitchType.Metric)),
+            selectedSetup: new NamedPitchSetup(Gear.fromString("M1Z20"), undefined, undefined, Gear.fromString("M1Z80"), new Pitch(1, PitchType.Metric)),
             cols: [
                 new GridColumnDefinition("name", i18n.ptName, i => i.name),
                 new GridColumnDefinition("a", "A", i => i.gearA).asNumericColumn().withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),

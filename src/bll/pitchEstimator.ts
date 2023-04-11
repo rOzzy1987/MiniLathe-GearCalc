@@ -1,5 +1,6 @@
-import GcMath from "./math";
-import { INCH, Pitch, PitchType } from "./pitch";
+import type { Gear } from "./gear";
+import GcMath, { INCH } from "./math";
+import { Pitch, PitchType } from "./pitch";
 import type { PitchSetup } from "./pitchSetup";
 
 export default class PitchEstimator {
@@ -15,9 +16,9 @@ export default class PitchEstimator {
         if (sample.pitch == null)
             throw new Error("No pitch provided");
         
-        let div = sample.gearD / sample.gearA;
+        let div = sample.gearD?.teeth! / sample.gearA?.teeth!;
         if (this.isGear(sample.gearB) && this.isGear(sample.gearC))
-            div *= sample.gearB / sample.gearC;
+            div *= sample.gearB?.teeth! / sample.gearC?.teeth!;
         
         const metricPitch = sample.pitch.type == PitchType.Metric
             ? sample.pitch.value
@@ -51,8 +52,8 @@ export default class PitchEstimator {
         return result;
     }
 
-    private isGear(num: number | null | undefined){
-        return num != null && num != undefined && !Number.isNaN(num) && num > 18;
+    private isGear(g: Gear | null | undefined){
+        return g != null && g != undefined && !Number.isNaN(g.teeth) && g.teeth > 18;
     }
 
 }

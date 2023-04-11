@@ -41,7 +41,7 @@
 </template>
 <script lang="ts">
 import GlobalConfig from '@/bll/globalConfig';
-import NumericEditor from './NumericEditor.vue';
+import NumericEditor from './Editors/NumericEditor.vue';
 
 export default {
     data(props) {
