@@ -1,7 +1,7 @@
 <template>
     <div class="field">
         <label v-if="label?.length ?? 0 > 0" class="label">{{ label }}</label>
-        <label class="label is-small">teeth</label>
+        <label class="label is-small" v-if="isMultiModule">teeth</label>
         <numeric-field v-model="teeth" :required="required" :placeholder="placeholder ?? ''" :minValue="8" :maxValue="250" :decimals="0" v-model:isValid="teethValid" @enter="$emit('enter')"/>
         <ul v-if="!teethValid" class="help is-danger">
             <li> {{ teethError }} </li>
@@ -123,7 +123,7 @@ export default {
             set(v: boolean) { this.isModuleValid = v; this.validate(); }
         },
         isMultiModule () {
-            return !this.config.isMultiModule;
+            return this.config.isMultiModule;
         }
     },
 

@@ -1,4 +1,5 @@
 import { Gear, Gears } from "./gear";
+import GlobalConfig from "./globalConfig";
 import { Pitch, PitchType } from "./pitch";
 
 
@@ -33,7 +34,31 @@ export class PitchSetup {
 
     public isValid(): boolean {
         return this.areGearsProvided() &&
-            this.areModulesMatching();
+            this.areModulesMatching() &&
+            this.areGearsClearingAxles();
+    }
+
+    public areGearsClearingAxles(){
+        const config = GlobalConfig.loadConfig();
+        const pcA = Gears.pitchRadius(this.gearA)!;
+        const pcB = Gears.pitchRadius(this.gearB)!;
+        const pcC = Gears.pitchRadius(this.gearC)!;
+        const pcD = Gears.pitchRadius(this.gearD)!;
+        const axleRadius = 8;
+
+        // the banjo can't stretch long enough
+        if (pcA + pcB + pcC + pcD <= config.minTeeth)
+            return false;
+
+        // gear B interferes with the leadscrew axle
+        if (pcB > pcC + pcD - axleRadius)
+            return false;
+        
+        // gear C interferes with the driving axle
+        if (pcC > pcA + pcB - axleRadius)
+            return false;
+            
+        return true;
     }
 
     public areGearsProvided() : boolean {

@@ -142,9 +142,12 @@ export default {
             const leadscrewPos = this.leadscrewPos.sub(this.spindlePos);
             const b = leadscrewPos.length();
             let angle = Math.PI / 6;
-            if (b < a + c) {
+            if (b <= a + c) {
                 const cosA = (c * c + b * b - a * a) / (2 * c * b);
                 angle = Math.acos(cosA);
+            }
+            else {
+                console.log(`Gears too small: distance: ${b} gears a+b: ${a} gears c+d: ${c}`);
             }
             return Vector.fromAngle((Math.PI - angle) + leadscrewPos.angle(), c).add(this.leadscrewPos);
         }

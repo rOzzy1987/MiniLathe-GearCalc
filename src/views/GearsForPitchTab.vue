@@ -20,7 +20,8 @@
                 :gear-b="selectedSetup?.gearB ?? undefined" 
                 :gear-c="selectedSetup?.gearC ?? undefined" 
                 :gear-d="selectedSetup?.gearD ?? undefined" 
-                :scale="2"/>
+                :scale="2"
+                :min-teeth="config.minTeeth"/>
         </div>
       </div>
     </div>
@@ -44,6 +45,7 @@ export default {
             threshold: 1.003,
             isPitchValid: true,
             rowCommands: [new AddToFavoritesRowCommand(), new RemoveFavoriteRowCommand()],
+            config: GlobalConfig.loadConfig(),
             i18n: GlobalConfig.i18n
         }
     },
