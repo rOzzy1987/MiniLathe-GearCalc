@@ -2,8 +2,8 @@
     <div class="field">
       <label v-if="label?.length > 0" class="label" :placeholder="placeholder">{{ label }}</label>
       <div class="control has-icons-right">
-        <input :id="'input'+id" class="input" :class="{'is-danger': !isValid}" type="text" 
-            :value="strVal" @input="strVal = ($event.target as HTMLInputElement).value" 
+        <input ref="inputField" :id="'input'+id" class="input" :class="{'is-danger': !isValid}" type="text" 
+            :value="strVal" @input="inputUpdated($event)" 
             :disabled="disabled"  pattern="[0-9]*" 
             inputmode="decimal" 
             @keydown="handleKey($event)"
@@ -108,6 +108,9 @@ export default {
             if (this.isValid != isValid)
                 this.$emit("update:isValid", isValid);
             return isValid;
+        },
+        inputUpdated(event: InputEvent){
+            this.strVal = (event.target as HTMLInputElement).value;
         },
         setValue(val: number | null) {
             this.strVal = val == null || Number.isNaN(val) 
