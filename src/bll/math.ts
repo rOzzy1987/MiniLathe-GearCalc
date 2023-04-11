@@ -44,3 +44,6 @@ export class Vector {
         return new Vector(Math.cos(angle) * length, Math.sin(angle) * length);
     }
 }
+
+
+export const INCH = 25.4;

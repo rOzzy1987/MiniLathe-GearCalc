@@ -1,4 +1,4 @@
-import GcMath from "./math";
+import GcMath, { INCH } from "./math";
 
 export class Pitch {
     public value: number;
@@ -46,5 +46,3 @@ export class Pitch {
 export enum PitchType {
     Metric, Imperial
 }
-
-export const INCH = 25.4;
