@@ -184,9 +184,12 @@ export default {
       },
       set(v: Pitch | null) {
         this.$emit("update:modelValue", v);
+        if (v != null)
+          this.$emit("saved");
       },
     },
   },
+  emits: ["update:modelValue", "saved"],
   mounted() {
     GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
   },

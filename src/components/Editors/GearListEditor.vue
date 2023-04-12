@@ -59,6 +59,8 @@ export default {
         },
         saveGears(){
             this.$emit("update:modelValue", this.gears);
+            if(this.gears.length > 0)
+                this.$emit("saved");
             this.isEditMode = false;
         },
         editGears() {
@@ -85,6 +87,7 @@ export default {
         },
         maxSize: { type: Number }
     },
+    emits: ["update:modelValue", "saved"],
     mounted() {
       GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
     },

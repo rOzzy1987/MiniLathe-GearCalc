@@ -61,6 +61,7 @@ export default {
                 return;
             this.$emit("update:distance", this.distanceValue);
             this.$emit("update:maxSize", this.maxSizeValue);
+            this.$emit("saved");
             this.isEditMode = false;
         },
         edit(){
@@ -79,6 +80,7 @@ export default {
             default: 130
         }
     },
+    emits: ["update:distance", "update:maxSize", "saved" ],
     mounted() {
       GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
     },

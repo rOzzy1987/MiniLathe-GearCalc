@@ -102,9 +102,9 @@
                 <GearImg class="gear" :cx="spindlePos.x" :cy="spindlePos.y" :gear="ga" :sizeText="true" :textRotation="180"/>
                 <ellipse class="axle" :cx="spindlePos.x " :cy="spindlePos.y " :rx="4 " :ry="4 "/>
                 <GearImg class="gear" :cx="midAxlePos.x" :cy="midAxlePos.y" :gear="gb" :sizeText="true"  :textRotation="90"/>
-                <GearImg class="gear" :cx="midAxlePos.x" :cy="midAxlePos.y" :gear="gc" :class="{trans: gearCTooBig}" :sizeText="true"  :textRotation="90"/>
+                <GearImg class="gear" :cx="midAxlePos.x" :cy="midAxlePos.y" :gear="gc" :class="{trans: gearCLargerThanB}" :sizeText="true"  :textRotation="90"/>
                 <ellipse class="axle" :cx="midAxlePos.x " :cy="midAxlePos.y " :rx="4 " :ry="4 "/>
-                <GearImg class="gear" :cx="leadscrewPos.x" :cy="leadscrewPos.y" :gear="gd" :class="{trans: !gearCTooBig}" :sizeText="true" :textRotation="-90"/>
+                <GearImg class="gear" :cx="leadscrewPos.x" :cy="leadscrewPos.y" :gear="gd" :class="{trans: gearCSmallerThanB}" :sizeText="true" :textRotation="-90"/>
                 <ellipse class="axle" :cx="leadscrewPos.x " :cy="leadscrewPos.y " :rx="4 " :ry="4 "/> 
             </g>
 
@@ -133,7 +133,8 @@ export default {
         gc() { return this.gearC == undefined ? new Gear(this.ga.module, 45) : this.gearC; },
         gd() { return this.gearD == undefined ? Gear.fromString("M1Z80")! : this.gearD; },
         angle() { return this.leadscrewPos.sub(this.midAxlePos).angle(); },
-        gearCTooBig() { return Gears.pitchRadius(this.gc)! > Gears.pitchRadius(this.gb)!; }
+        gearCLargerThanB() { return Gears.pitchRadius(this.gc)! > Gears.pitchRadius(this.gb)!; },
+        gearCSmallerThanB() { return Gears.pitchRadius(this.gc)! < Gears.pitchRadius(this.gb)!; }
     },
     methods: {
         calculateMidAxlePos(): Vector {
