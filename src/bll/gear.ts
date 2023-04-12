@@ -1,4 +1,4 @@
-import { INCH } from "./math";
+import GcMath, { INCH } from "./math";
 
 export class Gear {
     public module: GearModule;
@@ -114,7 +114,8 @@ export class GearModule {
     }
 
     public toString(): string {
-        return this.type == ModuleType.Metric ? ("M"+this.number) : ("DP"+this.number);
+        const n = GcMath.toFixedMax(this.number, 2);
+        return this.type == ModuleType.Metric ? ("M"+n) : ("DP"+n);
     }
 
     public equals(p: GearModule) {

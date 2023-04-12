@@ -1,4 +1,6 @@
 export default class GcMath {
+    private static readonly decimalSymbol = 1.2.toFixed(1).indexOf('.') == -1 ? ',' : '.';
+
     public static round(val: number, roundTo: number) : number {
         return Math.round(val / roundTo) * roundTo;
     }
@@ -10,6 +12,14 @@ export default class GcMath {
 
     public static isNaN(val: any): boolean {
         return val !== 0 && (val == null || val == "" || Number.isNaN(val));
+    }
+
+    public static toFixedMax(n: number, decimals: number = 2){
+        let str = n.toFixed(decimals);
+        while(str.indexOf(this.decimalSymbol) > -1 && (str.charAt(str.length-1)) == '0' || str.charAt(str.length - 1) == this.decimalSymbol){
+            str = str.substring(0, str.length - 1);
+        }
+        return str;
     }
 }
 
