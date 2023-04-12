@@ -41,10 +41,10 @@
             
             <g>
                 <!-- fixed gears -->
-                <GearImg class="gear dark" :cx="spindlePos.x" :cy="spindlePos.y" :size="50"/>
-                <GearImg class="gear dark" :cx="spindlePos.x" :cy="spindlePos.y - 36" :size="22"/>
-                <GearImg class="gear dark" :cx="spindlePos.x + 19.6" :cy="spindlePos.y - 40" :size="18"/>
-                <GearImg class="gear dark" :cx="spindlePos.x" :cy="spindlePos.y -72" :size="50"/>
+                <GearImg class="gear dark" :cx="spindlePos.x" :cy="spindlePos.y" gear="M1Z50"/>
+                <GearImg class="gear dark" :cx="spindlePos.x" :cy="spindlePos.y - 36" gear="M1Z22"/>
+                <GearImg class="gear dark" :cx="spindlePos.x + 19.6" :cy="spindlePos.y - 40" gear="M1Z18"/>
+                <GearImg class="gear dark" :cx="spindlePos.x" :cy="spindlePos.y -72" gear="M1Z50"/>
 
                 <!-- axles -->
                 <ellipse class="axle" :cx="spindlePos.x" :cy="spindlePos.y - 36" rx="4 " ry="4 " />
@@ -99,12 +99,12 @@
 
             <g>
                 <!-- gears -->
-                <GearImg class="gear" :cx="spindlePos.x" :cy="spindlePos.y" :size="ga" :sizeText="true" :textRotation="180"/>
+                <GearImg class="gear" :cx="spindlePos.x" :cy="spindlePos.y" :gear="ga" :sizeText="true" :textRotation="180"/>
                 <ellipse class="axle" :cx="spindlePos.x " :cy="spindlePos.y " :rx="4 " :ry="4 "/>
-                <GearImg class="gear" :cx="midAxlePos.x" :cy="midAxlePos.y" :size="gb" :sizeText="true"  :textRotation="90"/>
-                <GearImg class="gear" :cx="midAxlePos.x" :cy="midAxlePos.y" :size="gc" :class="{trans: gc > gb}" :sizeText="true"  :textRotation="90"/>
+                <GearImg class="gear" :cx="midAxlePos.x" :cy="midAxlePos.y" :gear="gb" :sizeText="true"  :textRotation="90"/>
+                <GearImg class="gear" :cx="midAxlePos.x" :cy="midAxlePos.y" :gear="gc" :class="{trans: gearCLargerThanB}" :sizeText="true"  :textRotation="90"/>
                 <ellipse class="axle" :cx="midAxlePos.x " :cy="midAxlePos.y " :rx="4 " :ry="4 "/>
-                <GearImg class="gear" :cx="leadscrewPos.x" :cy="leadscrewPos.y" :size="gd" :class="{trans: gb > gc}" :sizeText="true" :textRotation="-90"/>
+                <GearImg class="gear" :cx="leadscrewPos.x" :cy="leadscrewPos.y" :gear="gd" :class="{trans: gearCSmallerThanB}" :sizeText="true" :textRotation="-90"/>
                 <ellipse class="axle" :cx="leadscrewPos.x " :cy="leadscrewPos.y " :rx="4 " :ry="4 "/> 
             </g>
 
@@ -113,6 +113,7 @@
 </template>
 <script lang="ts">import { Vector } from '@/bll/math';
 import GearImg from './GearImg.vue';
+import { Gear, Gears } from '@/bll/gear';
 
 export default {
     data(props) {
@@ -127,32 +128,36 @@ export default {
     },
     computed: {
         midAxlePos() { return this.calculateMidAxlePos(); },
-        ga() { return this.gearA; },
-        gb() { return Number.isNaN(this.gearB) ? 60 : this.gearB; },
-        gc() { return Number.isNaN(this.gearC) ? 60 : this.gearC; },
-        gd() { return this.gearD; },
+        ga() { return this.gearA == undefined ? Gear.fromString("M1Z20")! : this.gearA },
+        gb() { return this.gearB == undefined ? new Gear(this.ga.module, 45) : this.gearB; },
+        gc() { return this.gearC == undefined ? new Gear(this.ga.module, 45) : this.gearC; },
+        gd() { return this.gearD == undefined ? Gear.fromString("M1Z80")! : this.gearD; },
         angle() { return this.leadscrewPos.sub(this.midAxlePos).angle(); },
-        gearCTooBig() { return this.gearC > this.gearB; }
+        gearCLargerThanB() { return Gears.pitchRadius(this.gc)! > Gears.pitchRadius(this.gb)!; },
+        gearCSmallerThanB() { return Gears.pitchRadius(this.gc)! < Gears.pitchRadius(this.gb)!; }
     },
     methods: {
         calculateMidAxlePos(): Vector {
-            var a = (this.ga + this.gb) / 2;
-            var c = (this.gc + this.gd) / 2;
+            var a = Gears.pitchRadius(this.ga)! + Gears.pitchRadius(this.gb)!;
+            var c = Gears.pitchRadius(this.gc)! + Gears.pitchRadius(this.gd)!;
             const leadscrewPos = this.leadscrewPos.sub(this.spindlePos);
             const b = leadscrewPos.length();
             let angle = Math.PI / 6;
-            if (b < a + c) {
+            if (b <= a + c) {
                 const cosA = (c * c + b * b - a * a) / (2 * c * b);
                 angle = Math.acos(cosA);
+            }
+            else {
+                console.log(`Gears too small: distance: ${b} gears a+b: ${a} gears c+d: ${c}`);
             }
             return Vector.fromAngle((Math.PI - angle) + leadscrewPos.angle(), c).add(this.leadscrewPos);
         }
     },
     props: {
-        gearA: { type: Number, default: 0 },
-        gearB: { type: Number, default: 0 },
-        gearC: { type: Number, default: 0 },
-        gearD: { type: Number, default: 0 },
+        gearA: { type: Gear },
+        gearB: { type: Gear },
+        gearC: { type: Gear },
+        gearD: { type: Gear },
         scale: { type: Number, default: 2 },
         minTeeth: {type: Number, default: 85}
     },

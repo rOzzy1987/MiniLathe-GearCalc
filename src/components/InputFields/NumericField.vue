@@ -1,24 +1,15 @@
 <template>
-    <div class="field">
-      <label v-if="label?.length > 0" class="label" :placeholder="placeholder">{{ label }}</label>
-      <div class="control has-icons-right">
-        <input ref="inputField" :id="'input'+id" class="input" :class="{'is-danger': !isValid}" type="text" 
+    <div class="control has-icons-right">
+        <input ref="inputField" class="input" :class="{'is-danger': !isValid}" type="text" 
             :value="strVal" @input="inputUpdated($event)" 
             :disabled="disabled"  pattern="[0-9]*" 
             inputmode="decimal" 
             @keydown="handleKey($event)"
             @wheel="handleMouse($event)" 
             @touchstart="handleTouch" @touchmove="handleTouch" @touchend="handleTouch"/>
-        <span :id="'updown'+id" v-if="touchSupported" class="icon is-small is-right">
+        <span ref="updown" v-if="touchSupported" class="icon is-small is-right">
             <i class="fas fa-up-down"></i>
         </span>
-      </div>
-      <div v-if="tip?.length ?? 0 > 0" class="help is-info">
-        {{ tip }}
-      </div>
-      <ul v-if="!isValid" class="help is-danger">
-        <li v-for="item of allMessages" :key="item"> {{ item }} </li>
-      </ul>
     </div>
 </template>
 <script lang="ts">
@@ -27,8 +18,6 @@ import GlobalConfig from '@/bll/globalConfig';
 export default {
     data(props) {
         return {
-            id: Math.round(Math.random() * 1000),
-            validationMessage: "",
             strValField: this.displayValue(props.modelValue),
             touchY: 0,
             touchSensitivity: 10,
@@ -37,28 +26,27 @@ export default {
             i18n: GlobalConfig.i18n,
         }
     },
+    emits: [
+        "update:isValid",
+        "enter",
+        "update:modelValue",
+        "update:errorMessage",
+    ],
     mounted() {
       GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
       this.validate();
     },
-    emits: [
-        "update:isValid",
-        "enter",
-        "update:modelValue"
-    ],
     props: {
         modelValue: {type: Number, default: 0},
         decimals: {type: Number, default: 2},
         required: {type: Boolean, default: false},
-        label: {type: String, default: ""},
         placeholder: {type: String, default: ""},
-        errorMessages: {type: Array<string>, default: []},
         minValue: {type: Number, default: Number.NEGATIVE_INFINITY},
         maxValue: {type: Number, default: Number.POSITIVE_INFINITY},
+        errorMessage: {type: String, default: ""},
         useMouse: {type: Boolean, default: true},
         useTouch: {type: Boolean, default: true},
         disabled: {type: Boolean, default: false},
-        tip: {type: String, deafult: ""},
         isValid: {type: Boolean, deafult: true},
     },
     methods: {
@@ -76,6 +64,7 @@ export default {
                 i = result.indexOf(',');
             if (i!= -1)
             {
+                result = result.substring(0, i + this.decimals + 1);
                 while(result.substring(result.length-1, result.length) === '0'){
                     result = result.substring(0, result.length-1)
                 }
@@ -91,20 +80,20 @@ export default {
             const reconv = this.displayValue(nval);
 
             if (val != reconv)
-                this.validationMessage = this.i18n.numericInvalid;
+                this._errorMessage = this.i18n.numericInvalid;
             else if (val === "" && this.required)
-                this.validationMessage = this.i18n.numericRequired;
+                this._errorMessage = this.i18n.numericRequired;
             else if (!Number.isNaN(nval) && (nval < this.minValue || nval > this.maxValue)){
                 if(this.minValue != Number.NEGATIVE_INFINITY && this.maxValue != Number.POSITIVE_INFINITY)
-                    this.validationMessage = this.i18n.numericShouldBeBetween(this.minValue, this.maxValue);
+                    this._errorMessage = this.i18n.numericShouldBeBetween(this.minValue, this.maxValue);
                 else if(this.minValue != Number.NEGATIVE_INFINITY)
-                    this.validationMessage = this.i18n.numericShouldBeGreaterThan(this.minValue);
+                    this._errorMessage = this.i18n.numericShouldBeGreaterThan(this.minValue);
                 else if(this.maxValue != Number.POSITIVE_INFINITY)
-                    this.validationMessage =  this.i18n.numericShouldBeLessThan(this.maxValue);
+                    this._errorMessage =  this.i18n.numericShouldBeLessThan(this.maxValue);
             } else {
-                this.validationMessage = "";
+                this._errorMessage = "";
             }
-            const isValid = this.validationMessage == "";
+            const isValid = this._errorMessage == "";
             if (this.isValid != isValid)
                 this.$emit("update:isValid", isValid);
             return isValid;
@@ -211,25 +200,20 @@ export default {
         }
     },
     watch: {
-        modelValue(v){
-            this.strVal = v; 
+        modelValue(v: number){
+            this.strVal = this.displayValue(v); 
         }
     },
     computed: {
-        allMessages() {
-            let a: string[] = [];
-            for(let i in this.errorMessages){
-                a.push(this.errorMessages[i]);
-            }
-            if(this.validationMessage.length > 0)
-                a.push(this.validationMessage);
-            return a;
+        _errorMessage: {
+            get(): string | undefined { return this.errorMessage; },
+            set(v: string | undefined) { this.$emit("update:errorMessage", v); }
         },
         inputElement(): HTMLInputElement {
-            return document.getElementById('input'+ this.id) as HTMLInputElement;
+            return this.$refs.inputField as HTMLInputElement;
         },
         iconElement(): HTMLElement {
-            return document.getElementById('updown'+ this.id)!;
+            return this.$refs.updown as HTMLElement;
         },
         roundingMultiplier() {
             let a = 1;

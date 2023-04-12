@@ -26,7 +26,13 @@
             </div>
                 </div>
         <div class="column no-print">
-            <GeartrainImg :gear-a="selectedSetup?.gearA" :gear-b="selectedSetup?.gearB" :gear-c="selectedSetup?.gearC" v-bind:gear-d="selectedSetup?.gearD" :scale="2"/>
+            <GeartrainImg 
+                :gear-a="selectedSetup?.gearA ?? undefined" 
+                :gear-b="selectedSetup?.gearB ?? undefined" 
+                :gear-c="selectedSetup?.gearC ?? undefined" 
+                :gear-d="selectedSetup?.gearD ?? undefined" 
+                :scale="2"
+                :min-teeth="config.minTeeth"/>
         </div>
       </div>
     </div>
@@ -34,45 +40,46 @@
 <script lang="ts">
 import { Pitch, PitchType } from '@/bll/pitch';
 import { PitchSetup } from '@/bll/pitchSetup';
-import GearCombinationEditor from '@/components/GearCombinationEditor.vue';
-import GeartrainImg from '@/components/GeartrainImg.vue';
+import GeartrainImg from '@/components/Graphics/GeartrainImg.vue';
 import PitchSetupTable, { AddToFavoritesRowCommand, RemoveFavoriteRowCommand } from '@/components/PitchSetupTable.vue';
 import GlobalConfig from '@/bll/globalConfig';
 import CombinationFinder from '@/bll/combinationFinder';
+import { Gear, Gears } from '@/bll/gear';
+import GearCombinationEditor from '@/components/Editors/GearCombinationEditor.vue';
 
 
 export default {
     data(){
         return {
-            selectedSetup: new PitchSetup(20, null, null, 80, new Pitch(1, PitchType.Metric)),
+            selectedSetup: new PitchSetup(Gear.fromString("M1Z20"), undefined, undefined, Gear.fromString("M1Z80"), new Pitch(1, PitchType.Metric)),
             orderBy: "pm",
             orderAscending: true,
             isGearComboValid: true,
             rowCommands: [new AddToFavoritesRowCommand(), new RemoveFavoriteRowCommand()],
             comboFinder: new CombinationFinder(),
+            config: GlobalConfig.loadConfig(),
             i18n: GlobalConfig.i18n,
         }
     },
     props: {
         modelValue: { type: Array<PitchSetup>, default: [] },
         leadscrew: {type: Pitch, required: true},
-        gearA: {type: Number, default: NaN},
-        gearB: {type: Number, default: NaN},
-        gearC: {type: Number, default: NaN},
-        gearD: {type: Number, default: NaN}
+        gearA: {type: Gear},
+        gearB: {type: Gear},
+        gearC: {type: Gear},
+        gearD: {type: Gear}
     },
     computed: {
         filter() {
             const t = this;
             return {
                 filter(v: PitchSetup):boolean {
-                    function f(x:number):boolean {return Number.isNaN(x);}
                     return (
-                        ((f(t.ga) || v.gearA == t.ga) && (f(t.gc) || v.gearC == t.gc)) ||
-                        ((f(t.ga) || v.gearC == t.ga) && (f(t.gc) || v.gearA == t.gc))
+                        ((t.ga == undefined || Gears.equal(t.ga, v.gearA)) && (t.gc == undefined || Gears.equal(t.gc, v.gearC))) ||
+                        ((t.ga == undefined || Gears.equal(t.ga, v.gearC)) && (t.gc == undefined || Gears.equal(t.gc, v.gearA)))
                      ) && (
-                        ((f(t.gb) || v.gearB == t.gb) && (f(t.gd) || v.gearD == t.gd)) ||
-                        ((f(t.gb) || v.gearD == t.gb) && (f(t.gd) || v.gearB == t.gd))
+                        ((t.gb == undefined || Gears.equal(t.gb, v.gearB)) && (t.gd == undefined || Gears.equal(t.gd, v.gearD))) ||
+                        ((t.gb == undefined || Gears.equal(t.gb, v.gearD)) && (t.gd == undefined || Gears.equal(t.gd, v.gearB)))
                      );
                 }
             }

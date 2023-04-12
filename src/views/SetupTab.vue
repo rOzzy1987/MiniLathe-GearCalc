@@ -1,13 +1,13 @@
 <template>
     <div>
       <div class="box">
-        <LeadscrewWizard v-model="pitch"/>
+        <LeadscrewWizard v-model="pitch" @saved="saveConfig"/>
       </div>
       <div class="box">
-        <GearListEditor v-model="gears" v-model:maxSize="maxSize" />
+        <GearListEditor v-model="gears" v-model:maxSize="maxSize" @saved="saveConfig" />
       </div>
       <div class="box">
-        <OtherParamsEditor v-model:distance="distance" v-model:maxSize="maxSize" />
+        <OtherParamsEditor v-model:distance="distance" v-model:maxSize="maxSize" @saved="saveConfig" />
       </div>
       <div class="control">
         <div class="buttons">
@@ -19,7 +19,7 @@
 <script lang="ts">
 
 import LatheConfig from '@/bll/latheConfig';
-import GearListEditor from '../components/GearListEditor.vue';
+import GearListEditor from '../components/Editors/GearListEditor.vue';
 import LeadscrewWizard from '../components/LeadscrewWizard.vue';
 import OtherParamsEditor from '@/components/OtherParamsEditor.vue';
 import GlobalConfig from '@/bll/globalConfig';

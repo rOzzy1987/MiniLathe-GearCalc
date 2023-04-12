@@ -1,53 +1,44 @@
 import { PitchSetup } from './pitchSetup';
 import type LatheConfig from './latheConfig';
 import type { Pitch } from './pitch';
+import { Gears, type Gear } from './gear';
 
 export default class CombinationFinder {
     public findAllCombinations(config: LatheConfig): PitchSetup[]{
-        const gears = config.gears.sort();
+        const gears = config.gears.slice().sort((a,b) => Gears.compare(a, b));
 
-        function key(ka: number, kb: number, kc: number, kd: number){
-            if (kb == kc)
-                return "G"+ka+"--G"+kd;
-            return "G"+ka+"G"+kb+"G"+kc+"G"+kd;
+        function key(ka: Gear, kb: Gear, kc: Gear, kd: Gear){
+            if (Gears.equal(kb, kc))
+                return "G"+ka.toString()+"--G"+kd.toString();
+            return "G"+ka.toString()+"G"+kb.toString()+"G"+kc.toString()+"G"+kd.toString();
         }
 
         const comboDict: any = {};
+        const axleRadius = 8;
 
-        // in any combination gears A and C are interchangeable, as well as B and D 
-        // also, we prioritize larger gears on B and D to decrease the risk of gears interfering with the axles
         for (let a = 0; a < gears.length; a++){
             for (let b = 0; b < gears.length; b++) {
                 if (b == a)
                     continue;
-                for (let c = a + 1; c < gears.length; c++) {
-                    if (c == b)
+                for (let c = 0; c < gears.length; c++) {
+                    if (c == a || c == b)
                         continue;
-                    for (let d = b+1; d < gears.length; d++) {
-                        if (d == a || d == c)
+                    for (let d = 0; d < gears.length; d++) {
+                        if (d == a || d == b || d == c)
                             continue;
                         const ga = gears[a];
                         const gb = gears[b];
                         const gc = gears[c];
                         const gd = gears[d];
 
-                        // the banjo can't stretch long enough
-                        if (ga + gb + gc + gd <= config.minTeeth * 2)
-                            continue;
-
-                        // gear B interferes with the leadscrew axle
-                        if (gb-gc > gd)
-                            continue;
-                        
-                        // gear C interferes with the driving axle
-                        if (gc-gb > ga)
-                            continue;
-
                         const k = key(ga, gb, gc, gd);
-                        if(comboDict[k] != null) 
+                        if (comboDict[k] != null) 
                             continue;
 
-                        comboDict[k] = this.findMetricPitch(ga, gb, gc, gd, config.leadscrew);
+                        const ps = this.findMetricPitch(ga, gb, gc, gd, config.leadscrew);
+                        if(!ps.isValid())
+                            continue;
+                        comboDict[k] = ps;
                     }                    
                 }
             }
@@ -56,7 +47,7 @@ export default class CombinationFinder {
         let allCombos: PitchSetup[] = [];
         for(const i in comboDict)
         {
-            allCombos.push(comboDict[i]);
+                allCombos.push(comboDict[i]);
         }
         allCombos = allCombos.sort((a,b) => a.pitch.value - b.pitch.value);
 
@@ -65,10 +56,7 @@ export default class CombinationFinder {
         return allCombos;
     }
 
-    public findMetricPitch(gearA: number, gearB: number, gearC: number, gearD: number, leadscrew: Pitch): PitchSetup {
-        const ratio = gearB == gearC || (Number.isNaN(gearB) || Number.isNaN(gearC))
-        ?   gearD/gearA 
-        :   (gearB * gearD) / (gearA * gearC);
-        return new PitchSetup(gearA, gearB, gearC, gearD, leadscrew.withRatio(ratio).toMetric());
+    public findMetricPitch(gearA: Gear | undefined, gearB: Gear | undefined, gearC: Gear | undefined, gearD: Gear | undefined, leadscrew: Pitch): PitchSetup {
+        return PitchSetup.fromGearsAndLeadscrew(gearA, gearB, gearC, gearD, leadscrew).toMetric()
     }
 }

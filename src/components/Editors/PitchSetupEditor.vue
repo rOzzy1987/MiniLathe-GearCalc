@@ -14,6 +14,7 @@
 import { Pitch, PitchType } from '@/bll/pitch';
 import GearCombinationEditor from './GearCombinationEditor.vue';
 import PitchEditor from './PitchEditor.vue';
+import { Gear } from '@/bll/gear';
 
 export default {
     data() {
@@ -23,10 +24,10 @@ export default {
         }
     },
     props: {
-        gearA: {type: Number, default: 30},
-        gearB: {type: Number, default: NaN},
-        gearC: {type: Number, default: NaN},
-        gearD: {type: Number, default: 60},
+        gearA: {type: Gear},
+        gearB: {type: Gear},
+        gearC: {type: Gear},
+        gearD: {type: Gear},
         pitch: {type: Pitch, default: new Pitch(1.5, PitchType.Metric)},
         isValid: {type: Boolean, default: true}
     },

@@ -29,7 +29,13 @@
             </div>
         </div>
         <div class="column no-print">
-            <GeartrainImg :gear-a="selectedSetup?.gearA" :gear-b="selectedSetup?.gearB" :gear-c="selectedSetup?.gearC" v-bind:gear-d="selectedSetup?.gearD" :scale="2"/>
+            <GeartrainImg 
+                :gear-a="selectedSetup?.gearA ?? undefined" 
+                :gear-b="selectedSetup?.gearB ?? undefined" 
+                :gear-c="selectedSetup?.gearC ?? undefined" 
+                :gear-d="selectedSetup?.gearD ?? undefined" 
+                :scale="2"
+                :min-teeth="config.minTeeth"/>
         </div>
       </div>
     </div>
@@ -37,11 +43,12 @@
 <script lang="ts">
 import { Pitch, PitchType } from '@/bll/pitch';
 import { PitchSetup } from '@/bll/pitchSetup';
-import GeartrainImg from '@/components/GeartrainImg.vue';
+import GeartrainImg from '@/components/Graphics/GeartrainImg.vue';
 import GlobalConfig from '@/bll/globalConfig';
 import DataGrid, { GridColumnDefinition, GridSelectionMode } from '@/grid/DataGrid.vue';
 import GcMath from '@/bll/math';
 import { AddToFavoritesRowCommand, RemoveFavoriteRowCommand } from '@/components/PitchSetupTable.vue';
+import { Gear } from '@/bll/gear';
 
 class NamedPitchSetup extends PitchSetup {
     public name: string = null!;
@@ -66,13 +73,13 @@ export default {
     data(){
         const i18n = GlobalConfig.i18n;
         return {
-            selectedSetup: new NamedPitchSetup(20, null, null, 80, new Pitch(1, PitchType.Metric)),
+            selectedSetup: new NamedPitchSetup(Gear.fromString("M1Z20"), undefined, undefined, Gear.fromString("M1Z80"), new Pitch(1, PitchType.Metric)),
             cols: [
                 new GridColumnDefinition("name", i18n.ptName, i => i.name),
-                new GridColumnDefinition("a", "A", i => i.gearA).asNumericColumn().withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
-                new GridColumnDefinition("b", "B", i => i.gearB).asNumericColumn().withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
-                new GridColumnDefinition("c", "C", i => i.gearC).asNumericColumn().withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
-                new GridColumnDefinition("d", "D", i => i.gearD).asNumericColumn().withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
+                new GridColumnDefinition("a", "A", i => i.gearA).asNumericColumn().withFormat(g => this.formatGear(g)).withExportFn(g => this.formatGear(g)).withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
+                new GridColumnDefinition("b", "B", i => i.gearB).asNumericColumn().withFormat(g => this.formatGear(g)).withExportFn(g => this.formatGear(g)).withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
+                new GridColumnDefinition("c", "C", i => i.gearC).asNumericColumn().withFormat(g => this.formatGear(g)).withExportFn(g => this.formatGear(g)).withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
+                new GridColumnDefinition("d", "D", i => i.gearD).asNumericColumn().withFormat(g => this.formatGear(g)).withExportFn(g => this.formatGear(g)).withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
                 new GridColumnDefinition("p", "P", i => i.pitch, i18n.genericPitch)
                     .withFormat(p => this.formatPitch(p)).withAlignRight().withHeaderCssClasses(['has-text-right']),
             ],
@@ -84,6 +91,7 @@ export default {
             bspModel: [] as NamedPitchSetup[],
             rowCommands: [new AddToFavoritesRowCommand(), new RemoveFavoriteRowCommand()],
             isExportEnabled: true,
+            config: GlobalConfig.loadConfig(),
             i18n,
             GridSelectionMode: GridSelectionMode
         }
@@ -94,6 +102,9 @@ export default {
     methods: {
         formatPitch(v: Pitch) {
             return GcMath.round(v.value, 0.001).toFixed(3) + " " + (v.type == PitchType.Metric ? "mm/rev" : "TPI");
+        },
+        formatGear(g: Gear){
+            return this.isMultiModule ? g.toString() : g.teeth.toFixed(0);
         },
         computeModel() {
             const result: NamedPitchSetup[] = [];
@@ -224,6 +235,9 @@ export default {
         selectedItems: {
             get(): NamedPitchSetup[] { return [this.selectedSetup]; },
             set(v: NamedPitchSetup[]) { this.selectedSetup = v[0]; }
+        },        
+        isMultiModule() {
+            return this.config.isMultiModule; 
         }
     },
     mounted() {

@@ -49,9 +49,9 @@
 
           <div class="column is-one-quarter box">
             <GeartrainImg
-              :gear-a="sampleSetup.gearA"
-              :gear-b="sampleSetup.gearB ?? 0"
-              :gear-c="sampleSetup.gearC ?? 0"
+              v-model:gear-a="sampleSetup.gearA"
+              :gear-b="sampleSetup.gearB"
+              :gear-c="sampleSetup.gearC"
               :gear-d="sampleSetup.gearD"
               :scale="1.5"
             />
@@ -119,17 +119,18 @@ import PitchEstimator, {
   PitchAssumptionResult,
 } from "@/bll/pitchEstimator";
 import { PitchSetup } from "@/bll/pitchSetup";
-import GeartrainImg from "./GeartrainImg.vue";
-import PitchEditor from "./PitchEditor.vue";
-import PitchSetupEditor from "./PitchSetupEditor.vue";
+import GeartrainImg from "./Graphics/GeartrainImg.vue";
+import PitchEditor from "./Editors/PitchEditor.vue";
+import PitchSetupEditor from "./Editors/PitchSetupEditor.vue";
 import GlobalConfig from '@/bll/globalConfig';
+import { Gear } from '@/bll/gear';
 
 export default {
   data() {
     return {
       knowPitch: null as boolean | null,
       pitch: new Pitch(16, PitchType.Imperial),
-      sampleSetup: new PitchSetup(30, null, null, 60, new Pitch(0.75, PitchType.Metric)),
+      sampleSetup: new PitchSetup(Gear.fromString("M1Z30"), undefined, undefined, Gear.fromString("M1Z60"), new Pitch(0.75, PitchType.Metric)),
       sampleSetupValid: true,
       estimator: new PitchEstimator(),
       estimation: null as PitchAssumption | null,
@@ -183,9 +184,12 @@ export default {
       },
       set(v: Pitch | null) {
         this.$emit("update:modelValue", v);
+        if (v != null)
+          this.$emit("saved");
       },
     },
   },
+  emits: ["update:modelValue", "saved"],
   mounted() {
     GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
   },

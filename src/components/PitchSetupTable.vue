@@ -25,6 +25,7 @@ import GcMath from '@/bll/math';
 import { Pitch, PitchType } from '@/bll/pitch';
 import DataGrid, { GridColumnDefinition, GridRowCommandDefinition, GridSelectionMode, type IGridRowCommandDefinition } from '@/grid/DataGrid.vue';
 import { PitchSetup } from '@/bll/pitchSetup';
+import type { Gear } from '@/bll/gear';
 
 export class AddToFavoritesRowCommand extends GridRowCommandDefinition {
     public constructor(){
@@ -50,15 +51,16 @@ export default {
         const i18n = GlobalConfig.i18n;
         return {
             cols: [
-                new GridColumnDefinition("a", "A", i => i.gearA).asNumericColumn().withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
-                new GridColumnDefinition("b", "B", i => i.gearB).asNumericColumn().withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
-                new GridColumnDefinition("c", "C", i => i.gearC).asNumericColumn().withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
-                new GridColumnDefinition("d", "D", i => i.gearD).asNumericColumn().withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
+                new GridColumnDefinition("a", "A", i => i.gearA).asNumericColumn().withFormat(g => this.formatGear(g)).withExportFn(g => this.formatGear(g)).withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
+                new GridColumnDefinition("b", "B", i => i.gearB).asNumericColumn().withFormat(g => this.formatGear(g)).withExportFn(g => this.formatGear(g)).withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
+                new GridColumnDefinition("c", "C", i => i.gearC).asNumericColumn().withFormat(g => this.formatGear(g)).withExportFn(g => this.formatGear(g)).withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
+                new GridColumnDefinition("d", "D", i => i.gearD).asNumericColumn().withFormat(g => this.formatGear(g)).withExportFn(g => this.formatGear(g)).withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
                 new GridColumnDefinition("pm", "Pm", i => i.pitch, i18n.genericPitch+' ('+i18n.genericMetric+')').withSort((a,b) => a.pitch.value - b.pitch.value)
                 .withFormat(p => this.formatPitch(p)).withAlignRight().withStyle("width: 30%").withHeaderCssClasses(['has-text-right']),
                 new GridColumnDefinition("pi", "Pi", i => i.pitch.convert(), i18n.genericPitch+' ('+i18n.genericImperial+')').withSort((a,b) => b.pitch.value - a.pitch.value)
                 .withFormat(p => this.formatPitch(p)).withAlignRight().withStyle("width: 30%").withHeaderCssClasses(['has-text-right']),
             ],
+            config: GlobalConfig.loadConfig(),
             i18n,
             GridSelectionMode: GridSelectionMode
         };
@@ -81,6 +83,9 @@ export default {
         formatPitch(v: Pitch) {
             return GcMath.round(v.value, 0.001).toFixed(3) + " " + (v.type == PitchType.Metric ? "mm/rev" : "TPI");
         },
+        formatGear(g: Gear | undefined){
+            return g == undefined ? "" : this.isMultiModule ? g.toString() : g.teeth.toFixed(0);
+        }
     },
     mounted() {
         GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
@@ -105,6 +110,9 @@ export default {
         selectedItems: {
             get(): Array<any> { return [this.selectedItem]; },
             set(v: Array<any>) { this.$emit("update:selectedItem", v.length > 0 ? v[0] : null); }
+        },        
+        isMultiModule() {
+            return this.config.isMultiModule;
         }
     },
     components: { DataGrid }
