@@ -8,7 +8,7 @@ import { PitchType } from './pitch';
 export default class GlobalConfig {
     public static loadConfig(): LatheConfig {
         try {
-            const a = localStorage.getItem("latheConfig");
+            const a = localStorage.getItem("latheConfig") ?? "null";
             const b = JSON.parse(a!);
             return LatheConfig.fromPlainObject(b);
         }
@@ -23,7 +23,7 @@ export default class GlobalConfig {
 
     public static loadCombos() : PitchSetup[]{
         try {
-            const a = localStorage.getItem("gearCombos");
+            const a = localStorage.getItem("gearCombos")?? "null";
             const b = JSON.parse(a!);
             return (b as Array<any>).map(v => PitchSetup.fromPlainObject(v));
         } catch {
@@ -74,8 +74,12 @@ export default class GlobalConfig {
     }
 
     private static loadFavorites() {
-        this._favorites = (JSON.parse(localStorage.getItem("favorites") ?? "null") ?? [])
-            .map((i: any) => PitchSetup.fromPlainObject(i));
+        try {
+            this._favorites = (JSON.parse(localStorage.getItem("favorites") ?? "null") ?? [])
+                .map((i: any) => PitchSetup.fromPlainObject(i));
+        } catch {
+            this._favorites = [];
+        }
     }
 
     private static indexOfFavorite(s: PitchSetup): number{

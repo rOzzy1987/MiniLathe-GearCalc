@@ -39,7 +39,9 @@ export default class LatheConfig {
 
     public static fromPlainObject(o: any) {
         const result = new LatheConfig();
-        result.gears = o.gears.map((g: string) => Gear.fromString(g));
+        result.gears = (o.gears.length > 0 && typeof(o.gears[0]) == "number") 
+            ? Gears.listFromTeeth(o.gears, GearModule.fromString("M1")!)
+            : o.gears.map((g: string) => Gear.fromString(g));
         result.leadscrew = Pitch.fromPlainObject(o.leadscrew)!;
         result.minTeeth = o.minTeeth;
         result.maxSize = o.maxSize;
