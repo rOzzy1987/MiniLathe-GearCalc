@@ -80,7 +80,7 @@ export default {
     data() {
         const combinator = new CombinationFinder();
         return {
-            activeTab: ActiveTabs.PitchTable,
+            activeTab: GlobalConfig.favorites.length > 0 ? ActiveTabs.Favorites : ActiveTabs.PitchTable,
             combinator,
             gearA: undefined,
             gearB: undefined,

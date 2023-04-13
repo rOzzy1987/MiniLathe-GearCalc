@@ -44,7 +44,7 @@ import GeartrainImg from '@/components/Graphics/GeartrainImg.vue';
 import PitchSetupTable, { AddToFavoritesRowCommand, RemoveFavoriteRowCommand } from '@/components/PitchSetupTable.vue';
 import GlobalConfig from '@/bll/globalConfig';
 import CombinationFinder from '@/bll/combinationFinder';
-import { Gear, GearModule, Gears } from '@/bll/gear';
+import { Gear, GearModule } from '@/bll/gear';
 import GearCombinationEditor from '@/components/Editors/GearCombinationEditor.vue';
 
 
@@ -75,11 +75,11 @@ export default {
             return {
                 filter(v: PitchSetup):boolean {
                     return (
-                        ((t.ga == undefined || Gears.equal(t.ga, v.gearA)) && (t.gc == undefined || Gears.equal(t.gc, v.gearC))) ||
-                        ((t.ga == undefined || Gears.equal(t.ga, v.gearC)) && (t.gc == undefined || Gears.equal(t.gc, v.gearA)))
+                        ((t.ga == undefined || t.ga.teeth == v.gearA!.teeth) && (t.gc == undefined || t.gc.teeth == v.gearC!.teeth)) ||
+                        ((t.ga == undefined || t.ga.teeth == v.gearC!.teeth) && (t.gc == undefined || t.gc.teeth == v.gearA!.teeth))
                      ) && (
-                        ((t.gb == undefined || Gears.equal(t.gb, v.gearB)) && (t.gd == undefined || Gears.equal(t.gd, v.gearD))) ||
-                        ((t.gb == undefined || Gears.equal(t.gb, v.gearD)) && (t.gd == undefined || Gears.equal(t.gd, v.gearB)))
+                        ((t.gb == undefined || t.gb.teeth == v.gearB!.teeth) && (t.gd == undefined || t.gd.teeth == v.gearD!.teeth)) ||
+                        ((t.gb == undefined || t.gb.teeth == v.gearD!.teeth) && (t.gd == undefined || t.gd.teeth == v.gearB!.teeth))
                      );
                 }
             }
