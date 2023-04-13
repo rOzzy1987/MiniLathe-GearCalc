@@ -12,7 +12,7 @@ You can use this tool as-is on the following link:
 ### General
 There are a few features that are important to mention:
 
-- On each page that contains a datagrid with gear setups you'll find an illustration of your mini lathe geartrain. This is not 100% precise, but you can see what the selected setup should look like, if there are any gears colliding with smething.
+- On each page that contains a datagrid with gear setups you'll find an illustration of your mini lathe geartrain displaying the selected gear setup. This is not 100% precise, but you can see what the selected setup should look like, if there are any gears colliding with something. The algorithm is trying to eliminate combinations the wouldn't work, but it may have some edge cases when it doesn't succeed.
 - On each data grid 
 	- you can set a gear setup as favorite so you don't have to find it again each timeyou need it
 	- you can print the data grid as a standalone document
