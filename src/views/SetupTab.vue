@@ -33,25 +33,35 @@ export default {
         var pitch = mv?.leadscrew;
         var distance = mv?.minTeeth;
         var maxSize = mv?.maxSize;
+        var combinator = new CombinationFinder();
+        var worker = combinator.createWorker();
         return {
             gears,
             pitch,
-            distance: distance,
-            maxSize: maxSize,
-            combinator: new CombinationFinder(),
+            distance,
+            maxSize,
+            worker,
+            combinator,
             i18n: GlobalConfig.i18n
         };
     },
+    props: {
+      isBusy: { type: Boolean },
+      progress: { type: Number }
+    },
     methods: {
-        saveConfig(){
+        async saveConfig(){
             var config = new LatheConfig();
             config.gears = this.gears.slice();
             config.leadscrew = this.pitch;
             config.minTeeth = this.distance;
             config.maxSize = this.maxSize;
             GlobalConfig.config = config;
-            GlobalConfig.combos = this.combinator.findAllCombinations(config);
-        }
+
+            this.combinator.runWorker(config.gears, config.leadscrew, this.worker);
+        },
+        setLoading(l: boolean) { this.$emit("update:isBusy", l); },
+        setProgress(p: number) { this.$emit("update:progress", p); }
     },
     components: { GearListEditor, LeadscrewWizard, OtherParamsEditor }
 }

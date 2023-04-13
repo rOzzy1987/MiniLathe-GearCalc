@@ -25,19 +25,19 @@
     </div>
 
     <section v-if="activeTab == ActiveTabs.Configure" class="section" >
-      <SetupTab />
+      <SetupTab v-model:isBusy="isLoading" v-model:progress="loadingProgress" :key="i"/>
     </section>
     <section v-if="activeTab == ActiveTabs.PitchTable" class="section" >
-      <PitchTableTab />
+      <PitchTableTab :key="i" />
     </section>
     <section v-if="activeTab == ActiveTabs.PitchForGears" class="section" >
-      <PitchForGearsTab v-model:gearA="gearA" v-model:gearB="gearB" v-model:gearC="gearC" v-model:gearD="gearD"/>
+      <PitchForGearsTab v-model:gearA="gearA" v-model:gearB="gearB" v-model:gearC="gearC" v-model:gearD="gearD" :key="i"/>
     </section>
     <section v-if="activeTab == ActiveTabs.GearsForPitch" class="section" >
-      <GearsForPitchTab v-model:desiredPitch="pitch"/>
+      <GearsForPitchTab v-model:desiredPitch="pitch" :key="i"/>
     </section>
     <section v-if="activeTab == ActiveTabs.Favorites" class="section" >
-      <FavoritesTab />
+      <FavoritesTab :key="i"/>
     </section>
     <footer class="footer">
       <div class="content has-text-centered">
@@ -59,6 +59,7 @@
         </p>
       </div>
     </footer>
+    <loading-overlay v-if="isLoading" :progress="loadingProgress" />
       
   </main>
 </template>
@@ -70,6 +71,7 @@ import { Pitch, PitchType } from './bll/pitch';
 import LanguageSelector from './components/LanguageSelector.vue';
 import FavoritesTab from './views/FavoritesTab.vue';
 import GearsForPitchTab from './views/GearsForPitchTab.vue';
+import LoadingOverlay from './views/LoadingOverlay.vue';
 import PitchForGearsTab from './views/PitchForGearsTab.vue';
 import PitchTableTab from './views/PitchTableTab.vue';
 import SetupTab from './views/SetupTab.vue';
@@ -86,16 +88,26 @@ export default {
             gearD: undefined,
             pitch: new Pitch(1, PitchType.Metric),
             ActiveTabs: ActiveTabs,
-            i18n: GlobalConfig.i18n
+            i18n: GlobalConfig.i18n,
+            isLoading: false,
+            loadingProgress: (undefined as number | undefined),
+            worker: combinator.createWorker(r => GlobalConfig.combos = r, b => this.setLoading(b), p => this.setProgress(p)),
+            i: 0
         };
+    },
+    methods: {
+      setLoading(l: boolean) { this.isLoading = l; },
+      setProgress(p: number) { this.loadingProgress = p; }
     },
     mounted() {
       if(GlobalConfig.combos.length == 0 && GlobalConfig.config.gears.length > 2)
       {
-        GlobalConfig.combos = this.combinator.findAllCombinations(GlobalConfig.config);
+          this.combinator.runWorker(GlobalConfig.config.gears, GlobalConfig.config.leadscrew, this.worker);
+
+          this.i++;
       }
     },
-    components: { SetupTab, PitchTableTab, PitchForGearsTab, GearsForPitchTab, LanguageSelector, FavoritesTab }
+    components: { SetupTab, PitchTableTab, PitchForGearsTab, GearsForPitchTab, LanguageSelector, FavoritesTab, LoadingOverlay }
 }
 
 enum ActiveTabs {

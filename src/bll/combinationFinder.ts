@@ -3,8 +3,10 @@ import type LatheConfig from './latheConfig';
 import type { Pitch } from './pitch';
 import { Gears, type Gear } from './gear';
 
+
 export default class CombinationFinder {
-    public findAllCombinations(config: LatheConfig): PitchSetup[]{
+    public findAllCombinations(config: LatheConfig, reportProgressFn: ((x: number | undefined) => void) | null = null): PitchSetup[]{
+        const millis = Date.now();
         const gears = config.gears.slice().sort((a,b) => Gears.compare(a, b));
 
         function key(ka: Gear, kb: Gear, kc: Gear, kd: Gear){
@@ -14,7 +16,6 @@ export default class CombinationFinder {
         }
 
         const comboDict: any = {};
-        const axleRadius = 8;
 
         for (let a = 0; a < gears.length; a++){
             for (let b = 0; b < gears.length; b++) {
@@ -42,6 +43,15 @@ export default class CombinationFinder {
                     }                    
                 }
             }
+            if(reportProgressFn != null) {
+                reportProgressFn(a / gears.length);
+            }
+            
+        }
+
+        
+        if(reportProgressFn != null) {
+            reportProgressFn(undefined);
         }
 
         let allCombos: PitchSetup[] = [];
@@ -51,9 +61,42 @@ export default class CombinationFinder {
         }
         allCombos = allCombos.sort((a,b) => a.pitch.value - b.pitch.value);
 
-        console.info("Gear combos found: " + allCombos.length);
+        console.info(`Gear combos found: ${allCombos.length} in ${Date.now()-millis}ms`);
 
         return allCombos;
+    }
+
+    public createWorker(resultHandler: (r: PitchSetup[]) => void, isBusyHandler: (busy: boolean)=> void = ()=>{}, progressHandler: (p: number) => void = ()=>{}): Worker {
+        const w = new Worker('/combinations-worker.js');
+
+        w.onmessage = (ev: MessageEvent) => {
+            if (ev.data.key == "working") {
+              isBusyHandler(ev.data.value);
+            } else if (ev.data.key == "progress") {
+              progressHandler(ev.data.value);
+            } else if (ev.data.key == "combos"){
+              resultHandler(this.processWorkerResult(ev.data.value));
+            } 
+          }
+        return w;
+    }
+
+    public runWorker(gears: Gear[], leadscrew: Pitch, w: Worker) {
+        w.postMessage({
+            gears: gears.map(g => g.toPlainObject()), 
+            leadscrew: leadscrew.toPlainObject()
+        });
+    }
+
+    private processWorkerResult(r: any[]){
+        try {
+            const result = r.map(i => PitchSetup.fromPlainObject(i)).filter(s => s.isValid())
+            console.info(`Valid gear combos found: ${result.length}`);
+            return result;
+        } catch(e) {
+            console.log(e);
+            return [];
+        }
     }
 
     public findMetricPitch(gearA: Gear | undefined, gearB: Gear | undefined, gearC: Gear | undefined, gearD: Gear | undefined, leadscrew: Pitch): PitchSetup {

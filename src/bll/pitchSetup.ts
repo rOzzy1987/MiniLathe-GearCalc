@@ -39,7 +39,7 @@ export class PitchSetup {
     }
 
     public areGearsClearingAxles(){
-        const config = GlobalConfig.loadConfig();
+        const config = GlobalConfig.config;
         const pcA = Gears.pitchRadius(this.gearA)!;
         const pcB = Gears.pitchRadius(this.gearB)!;
         const pcC = Gears.pitchRadius(this.gearC)!;

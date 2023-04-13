@@ -32,6 +32,12 @@ export class Gear {
             return undefined;
         return new Gear(GearModule.fromString(m[1])!, Number(m[2]));
     }
+    public toPlainObject(){
+        return {
+            teeth: this.teeth,
+            module: this.module.toString()
+        }
+    }
 }
 
 export class Gears {
