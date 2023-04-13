@@ -34,7 +34,7 @@ export default {
         var distance = mv?.minTeeth;
         var maxSize = mv?.maxSize;
         var combinator = new CombinationFinder();
-        var worker = combinator.createWorker();
+        var worker = combinator.createWorker(r => GlobalConfig.combos = r, b => this.setLoading(b), p => this.setProgress(p));
         return {
             gears,
             pitch,
