@@ -40,21 +40,13 @@ export default {
             orderBy: "pm",
             orderAscending: true,
             rowCommands: [new AddToFavoritesRowCommand(), new RemoveFavoriteRowCommand()],
-            config: GlobalConfig.loadConfig(),
+            config: GlobalConfig.config,
+            model: GlobalConfig.favorites,
             i18n: GlobalConfig.i18n
         }
     },
     props: {
         desiredPitch: { type: Pitch, default: new Pitch(1, PitchType.Metric) }
-    },
-    computed: {
-        model: {
-            get(): PitchSetup[] { return GlobalConfig.favorites; },
-            set(v: PitchSetup[]) { console.log("set value"); }
-        },
-    },
-    mounted() {
-      GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
     },
     components: { GeartrainImg, PitchSetupTable }
 }

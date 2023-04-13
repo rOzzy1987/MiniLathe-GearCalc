@@ -1,22 +1,22 @@
 <template>
     <div class="columns">
         <div class="column">
-            <GearEditor v-model="ga" label="A" :required="checkRequired" v-model:isValid="isGearAValid"/>
+            <GearEditor v-model="ga" label="A" :required="checkRequired" v-model:isValid="isGearAValid" :forceHideModuleEditor="hideModuleEditors" :defaultModule="defaultModule"/>
         </div>
         <div class="column">
-            <GearEditor v-model="gb" label="B" :required="false" v-model:isValid="isGearBValid" :errorMessages="gearBValidationMessage"/>
+            <GearEditor v-model="gb" label="B" :required="false" v-model:isValid="isGearBValid" :errorMessages="gearBValidationMessage" :forceHideModuleEditor="hideModuleEditors" :defaultModule="defaultModule"/>
         </div>
         <div class="column">
-            <GearEditor v-model="gc" label="C" :required="false" v-model:isValid="isGearCValid" :errorMessages="gearCValidationMessage"/>
+            <GearEditor v-model="gc" label="C" :required="false" v-model:isValid="isGearCValid" :errorMessages="gearCValidationMessage" :forceHideModuleEditor="hideModuleEditors" :defaultModule="defaultModule"/>
         </div>
         <div class="column">
-            <GearEditor v-model="gd" label="D" :required="checkRequired" v-model:isValid="isGearDValid"/>
+            <GearEditor v-model="gd" label="D" :required="checkRequired" v-model:isValid="isGearDValid" :forceHideModuleEditor="hideModuleEditors" :defaultModule="defaultModule"/>
         </div>
     </div>
 </template>
 <script lang="ts">
 import GlobalConfig from '@/bll/globalConfig';
-import { Gear } from '@/bll/gear';
+import { Gear, GearModule } from '@/bll/gear';
 import GearEditor from './GearEditor.vue';
 
 export default {
@@ -38,6 +38,8 @@ export default {
         maxSize: {type:Number, default: 130},
         isValid: {type: Boolean, default: true},
         isComboValid: {type: Boolean, default: true},
+        hideModuleEditors: { type: Boolean, default: false },
+        defaultModule: { type: GearModule },
     },
     computed: {
         ga: {
@@ -115,7 +117,6 @@ export default {
         gd() { this.validate(); },
     },
     mounted() {
-      GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
       this.validate();
     },
     emits: [

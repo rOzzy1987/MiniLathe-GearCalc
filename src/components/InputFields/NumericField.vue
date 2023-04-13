@@ -33,7 +33,6 @@ export default {
         "update:errorMessage",
     ],
     mounted() {
-      GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
       this.validate();
     },
     props: {

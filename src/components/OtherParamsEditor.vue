@@ -81,9 +81,6 @@ export default {
         }
     },
     emits: ["update:distance", "update:maxSize", "saved" ],
-    mounted() {
-      GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
-    },
     watch: {
         modelValue() {
             if(this.isEditMode)

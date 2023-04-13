@@ -49,6 +49,7 @@ import DataGrid, { GridColumnDefinition, GridSelectionMode } from '@/grid/DataGr
 import GcMath from '@/bll/math';
 import { AddToFavoritesRowCommand, RemoveFavoriteRowCommand } from '@/components/PitchSetupTable.vue';
 import { Gear } from '@/bll/gear';
+import { GearHelper, PitchHelper } from '@/components/gridHelpers';
 
 class NamedPitchSetup extends PitchSetup {
     public name: string = null!;
@@ -76,12 +77,29 @@ export default {
             selectedSetup: new NamedPitchSetup(Gear.fromString("M1Z20"), undefined, undefined, Gear.fromString("M1Z80"), new Pitch(1, PitchType.Metric)),
             cols: [
                 new GridColumnDefinition("name", i18n.ptName, i => i.name),
-                new GridColumnDefinition("a", "A", i => i.gearA).asNumericColumn().withFormat(g => this.formatGear(g)).withExportFn(g => this.formatGear(g)).withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
-                new GridColumnDefinition("b", "B", i => i.gearB).asNumericColumn().withFormat(g => this.formatGear(g)).withExportFn(g => this.formatGear(g)).withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
-                new GridColumnDefinition("c", "C", i => i.gearC).asNumericColumn().withFormat(g => this.formatGear(g)).withExportFn(g => this.formatGear(g)).withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
-                new GridColumnDefinition("d", "D", i => i.gearD).asNumericColumn().withFormat(g => this.formatGear(g)).withExportFn(g => this.formatGear(g)).withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
+                new GridColumnDefinition("a", "A", i => i.gearA)
+                    .withFormat(GearHelper.formatFn)
+                    .withExportFn(g => g.toString())
+                    .withSortForValues(GearHelper.sortFn)
+                    .withStyle("width: 10%").withAlignRight().withHeaderAlignRight(),
+                new GridColumnDefinition("b", "B", i => i.gearB)
+                    .withFormat(GearHelper.formatFn)
+                    .withExportFn(g => g.toString())
+                    .withSortForValues(GearHelper.sortFn)
+                    .withStyle("width: 10%").withAlignRight().withHeaderAlignRight(),
+                new GridColumnDefinition("c", "C", i => i.gearC)
+                    .withFormat(GearHelper.formatFn)
+                    .withExportFn(g => g.toString())
+                    .withSortForValues(GearHelper.sortFn)
+                    .withStyle("width: 10%").withAlignRight().withHeaderAlignRight(),
+                new GridColumnDefinition("d", "D", i => i.gearD)
+                    .withFormat(GearHelper.formatFn)
+                    .withExportFn(g => g.toString())
+                    .withSortForValues(GearHelper.sortFn)
+                    .withStyle("width: 10%").withAlignRight().withHeaderAlignRight(),
                 new GridColumnDefinition("p", "P", i => i.pitch, i18n.genericPitch)
-                    .withFormat(p => this.formatPitch(p)).withAlignRight().withHeaderCssClasses(['has-text-right']),
+                    .withFormat(PitchHelper.formatFn)
+                    .withStyle("width: 30%").withAlignRight().withHeaderAlignRight(),
             ],
             metricModel: [] as NamedPitchSetup[],
             metricFineModel: [] as NamedPitchSetup[],
@@ -89,23 +107,18 @@ export default {
             imperialModel: [] as NamedPitchSetup[],
             imperialFineModel: [] as NamedPitchSetup[],
             bspModel: [] as NamedPitchSetup[],
+            combos: GlobalConfig.combos,
             rowCommands: [new AddToFavoritesRowCommand(), new RemoveFavoriteRowCommand()],
             isExportEnabled: true,
-            config: GlobalConfig.loadConfig(),
+            config: GlobalConfig.config,
             i18n,
             GridSelectionMode: GridSelectionMode
         }
     },
-    props: {
-        modelValue: { type: Array<PitchSetup>, default: [] },
+    mounted() {
+        this.computeModel();
     },
     methods: {
-        formatPitch(v: Pitch) {
-            return GcMath.round(v.value, 0.001).toFixed(3) + " " + (v.type == PitchType.Metric ? "mm/rev" : "TPI");
-        },
-        formatGear(g: Gear){
-            return this.isMultiModule ? g.toString() : g.teeth.toFixed(0);
-        },
         computeModel() {
             const result: NamedPitchSetup[] = [];
             const thr = 1.003;
@@ -121,7 +134,7 @@ export default {
             function f(p: Pitch, name: string){
                 let type = p.type;
                 p = p.type == PitchType.Metric ? p : p.convert();
-                let n  = t.modelValue.filter(s => s.pitch.value > p.value / thr && s.pitch.value < p.value * thr);
+                let n  = t.combos.filter(s => s.pitch.value > p.value / thr && s.pitch.value < p.value * thr);
                 
                 n = n.sort((a,b) => Math.abs(p.value - a.pitch.value) - Math.abs(p.value - b.pitch.value));
 
@@ -226,11 +239,6 @@ export default {
             return result;
         },
     },
-    watch: {
-        modelValue(){
-            this.computeModel();
-        }
-    },
     computed: {
         selectedItems: {
             get(): NamedPitchSetup[] { return [this.selectedSetup]; },
@@ -239,10 +247,6 @@ export default {
         isMultiModule() {
             return this.config.isMultiModule; 
         }
-    },
-    mounted() {
-      GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
-      this.computeModel()
     },
     components: { GeartrainImg, DataGrid }
 }

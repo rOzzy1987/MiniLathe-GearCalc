@@ -23,11 +23,12 @@ import GearListEditor from '../components/Editors/GearListEditor.vue';
 import LeadscrewWizard from '../components/LeadscrewWizard.vue';
 import OtherParamsEditor from '@/components/OtherParamsEditor.vue';
 import GlobalConfig from '@/bll/globalConfig';
+import CombinationFinder from '@/bll/combinationFinder';
 
 
 export default {
-    data(props) {
-        var mv = props.modelValue;
+    data() {
+        var mv = GlobalConfig.config;
         var gears = mv?.gears;
         var pitch = mv?.leadscrew;
         var distance = mv?.minTeeth;
@@ -37,11 +38,9 @@ export default {
             pitch,
             distance: distance,
             maxSize: maxSize,
+            combinator: new CombinationFinder(),
             i18n: GlobalConfig.i18n
         };
-    },
-    props: {
-      modelValue: {type: LatheConfig, default: null, required: true }
     },
     methods: {
         saveConfig(){
@@ -50,11 +49,9 @@ export default {
             config.leadscrew = this.pitch;
             config.minTeeth = this.distance;
             config.maxSize = this.maxSize;
-            this.$emit("update:modelValue", config);
+            GlobalConfig.config = config;
+            GlobalConfig.combos = this.combinator.findAllCombinations(config);
         }
-    },
-    mounted() {
-      GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
     },
     components: { GearListEditor, LeadscrewWizard, OtherParamsEditor }
 }

@@ -3,38 +3,64 @@ import LatheConfig from "./latheConfig";
 import type TranslationsBase from '@/i18n/lang';
 import { EnTranslations } from '@/i18n/lang';
 import HuTranslations from '@/i18n/hu';
-import { PitchType } from './pitch';
 
 export default class GlobalConfig {
-    public static loadConfig(): LatheConfig {
+    private static _config: LatheConfig | null = null;
+    
+    public static get config(): LatheConfig {
+        return this._config ?? this.loadConfig();
+    }
+
+    public static set config(v: LatheConfig) {
+        this._config = v;
+        this.saveConfig();
+    }
+
+    private static loadConfig(): LatheConfig {
         try {
             const a = localStorage.getItem("latheConfig") ?? "null";
             const b = JSON.parse(a!);
-            return LatheConfig.fromPlainObject(b);
+            this._config = LatheConfig.fromPlainObject(b);
         }
         catch{
-            return new LatheConfig();
+            this._config = new LatheConfig();
         }
+        return this._config;
     }
 
-    public static saveConfig(c: LatheConfig | null) {
-        localStorage.setItem("latheConfig", JSON.stringify(c?.toPlainObject()));
+    private static saveConfig() {
+        localStorage.setItem("latheConfig", JSON.stringify(this._config?.toPlainObject()));
     }
 
-    public static loadCombos() : PitchSetup[]{
+// Combos
+
+    private static _combos: PitchSetup[] | null = null;
+
+    public static get combos(): PitchSetup[] {
+        return this._combos ?? this.loadCombos();
+    }
+
+    public static set combos(v: PitchSetup[]) {
+        this._combos = v;
+        this.saveCombos();
+    }
+
+    private static loadCombos() : PitchSetup[]{
         try {
             const a = localStorage.getItem("gearCombos")?? "null";
             const b = JSON.parse(a!);
-            return (b as Array<any>).map(v => PitchSetup.fromPlainObject(v));
+            this._combos = (b as Array<any>).map(v => PitchSetup.fromPlainObject(v));
         } catch {
-            return [];
+            this._combos = [];
         }
+        return this._combos;
     }
 
-    public static saveCombos(c: PitchSetup[] | null) {
-        localStorage.setItem("gearCombos", JSON.stringify(c?.map(v => v.toPlainObject())));
+    private static saveCombos() {
+        localStorage.setItem("gearCombos", JSON.stringify(this._combos?.map(v => v.toPlainObject())));
     }
 
+// Favorites
 
     private static _favorites: PitchSetup[];
     public static get favorites(): PitchSetup[] {
@@ -43,8 +69,6 @@ export default class GlobalConfig {
     }
 
     public static addFavorite(s: PitchSetup) {
-        if(s.pitch.type == PitchType.Imperial)
-            s = s.convert();
         if(this.indexOfFavorite(s) == -1){
             this._favorites.push(s);
             this.saveFavorites();
@@ -64,7 +88,7 @@ export default class GlobalConfig {
     }
 
     private static saveFavorites() {
-        localStorage.setItem("favorites", JSON.stringify(this._favorites))
+        localStorage.setItem("favorites", JSON.stringify(this._favorites.map(i => i.toPlainObject())))
     }
 
     private static ensureFavoritesLoaded(){
@@ -96,16 +120,16 @@ export default class GlobalConfig {
 
 // I18N
 
-    private static _i18n: TranslationsBase = new EnTranslations();
+    private static _i18n: TranslationsBase | undefined;
 
     public static get i18n(): TranslationsBase {
-        return this._i18n;
+        return this._i18n == undefined ? this.loadLanguage() : this._i18n;
     };
     public static set i18n(value: TranslationsBase){
         this._i18n = value;
-        for (let i = 0; i < this.listeners.length; i++) {
-            this.listeners[i]();
-        }
+        this.saveLanguage();
+        
+        window.location.reload();
     }
 
     public static readonly availableLanguages: TranslationsBase[] = [
@@ -113,18 +137,14 @@ export default class GlobalConfig {
         new HuTranslations(),
     ]
 
-    public static loadLanguage(){
+    private static loadLanguage() : TranslationsBase{
         const langCode = localStorage.getItem("language");
         const x = this.availableLanguages.find(l => l.langCode == langCode);
-        this.i18n = x ?? this.availableLanguages[0];
+        this._i18n = x ?? this.availableLanguages[0];
+        return this._i18n;
     }
 
-    public static saveLanguage(){
+    private static saveLanguage(){
         localStorage.setItem("language", this.i18n.langCode);
     }
-
-    public static addLanguageChangeListener(f: Function){
-        this.listeners.push(f);
-    }
-    private static listeners: Function[] = [];
 }

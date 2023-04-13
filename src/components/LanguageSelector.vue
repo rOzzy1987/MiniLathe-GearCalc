@@ -31,9 +31,6 @@ export default {
             GlobalConfig.i18n = l;
             this.droppedDown = false;
         }
-    },
-    mounted() {
-        GlobalConfig.addLanguageChangeListener(() => {  this.i18n = GlobalConfig.i18n })
     }
 }
 </script>

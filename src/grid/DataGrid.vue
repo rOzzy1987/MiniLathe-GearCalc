@@ -111,7 +111,7 @@ export interface IGridColumnDefinition {
     readonly tooltip: string | null;
     readonly valueFn: (item: any) => any;
     readonly formatFn: (value: any) => string;
-    readonly sortFn: ((val1:any, val2:any) => number) | null;
+    readonly sortFn: ((val1:any, val2:any, asc?: boolean) => number) | null;
     readonly cssClasses: Array<string>;
     readonly style: string | undefined;
     readonly headerCssClasses: Array<string>;
@@ -272,6 +272,18 @@ export class GridColumnDefinition implements IGridColumnDefinition {
         this._cssClasses.push('has-text-right');
         return this;
     }
+    public withHeaderAlignLeft(){
+        this._headerCssClasses.push('has-text-left');
+        return this;
+    }
+    public withHeaderAlignCenter(){
+        this._headerCssClasses.push('has-text-center');
+        return this;
+    }
+    public withHeaderAlignRight(){
+        this._headerCssClasses.push('has-text-right');
+        return this;
+    }
     public withFormat(formatFn: (v: any) => string){
         this._formatFn = formatFn;
         return this;
@@ -284,8 +296,12 @@ export class GridColumnDefinition implements IGridColumnDefinition {
         this._exportFn = (a) => a;
         return this;
     }
-    public withSort(sortFn: (a: any, b: any) => number) {
+    public withSort(sortFn: (a: any, b: any, asc?:boolean) => number) {
         this._sortFn = sortFn;
+        return this;
+    }
+    public withSortForValues(sortFn: (a: any, b: any, asc?: boolean) => number) {
+        this._sortFn = (a:any, b:any, asc?:boolean) => sortFn(this.valueFn(a), this.valueFn(b), asc);
         return this;
     }
     public withSortForNumerics() {
@@ -493,7 +509,7 @@ export default {
                 return;
             const sortFn = this._sortAscending
                 ? col.sortFn
-                : (a: any, b: any) => -col.sortFn!(a, b);
+                : (a: any, b: any) => -col.sortFn!(a, b, false);
             this._modelValue = this._modelValue.slice().sort(sortFn);
         },
         // Selection

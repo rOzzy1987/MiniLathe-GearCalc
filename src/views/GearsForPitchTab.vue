@@ -5,7 +5,7 @@
         <div class="column">
             <PitchEditor v-model="dp" v-model:isValid="isPitchValid"/>
             <PitchSetupTable 
-                v-model="model" 
+                v-model="combos" 
                 v-model:orderBy="orderBy" 
                 v-model:orderAscending="orderAscending" 
                 v-model:selectedItem="selectedSetup" 
@@ -45,12 +45,12 @@ export default {
             threshold: 1.003,
             isPitchValid: true,
             rowCommands: [new AddToFavoritesRowCommand(), new RemoveFavoriteRowCommand()],
-            config: GlobalConfig.loadConfig(),
+            config: GlobalConfig.config,
+            combos: GlobalConfig.combos,
             i18n: GlobalConfig.i18n
         }
     },
     props: {
-        modelValue: { type: Array<PitchSetup>, default: [] },
         desiredPitch: { type: Pitch, default: new Pitch(1, PitchType.Metric) }
     },
     computed: {
@@ -65,17 +65,10 @@ export default {
                 }
             }
         },
-        model: {
-            get(): PitchSetup[] { return this.modelValue; },
-            set(v: PitchSetup[]) { this.$emit("update:modelValue", v); }
-        },
         dp: {
             get() { return this.desiredPitch; },
             set(v: Pitch) { this.$emit("update:desiredPitch", v); }
         },
-    },
-    mounted() {
-      GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
     },
     components: { GeartrainImg, PitchSetupTable, PitchEditor }
 }

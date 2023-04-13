@@ -65,7 +65,6 @@ export default {
         isPvValid() { this.validate(); }
     },
     mounted() {
-      GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
       this.validate();
     },
     emits: [

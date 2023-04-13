@@ -21,11 +21,9 @@
 </template>
 <script lang="ts">
 import GlobalConfig from '@/bll/globalConfig';
-import GcMath from '@/bll/math';
-import { Pitch, PitchType } from '@/bll/pitch';
 import DataGrid, { GridColumnDefinition, GridRowCommandDefinition, GridSelectionMode, type IGridRowCommandDefinition } from '@/grid/DataGrid.vue';
 import { PitchSetup } from '@/bll/pitchSetup';
-import type { Gear } from '@/bll/gear';
+import { GearHelper, PitchHelper } from './gridHelpers';
 
 export class AddToFavoritesRowCommand extends GridRowCommandDefinition {
     public constructor(){
@@ -51,22 +49,43 @@ export default {
         const i18n = GlobalConfig.i18n;
         return {
             cols: [
-                new GridColumnDefinition("a", "A", i => i.gearA).asNumericColumn().withFormat(g => this.formatGear(g)).withExportFn(g => this.formatGear(g)).withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
-                new GridColumnDefinition("b", "B", i => i.gearB).asNumericColumn().withFormat(g => this.formatGear(g)).withExportFn(g => this.formatGear(g)).withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
-                new GridColumnDefinition("c", "C", i => i.gearC).asNumericColumn().withFormat(g => this.formatGear(g)).withExportFn(g => this.formatGear(g)).withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
-                new GridColumnDefinition("d", "D", i => i.gearD).asNumericColumn().withFormat(g => this.formatGear(g)).withExportFn(g => this.formatGear(g)).withStyle("width: 10%").withHeaderCssClasses(['has-text-right']),
-                new GridColumnDefinition("pm", "Pm", i => i.pitch, i18n.genericPitch+' ('+i18n.genericMetric+')').withSort((a,b) => a.pitch.value - b.pitch.value)
-                .withFormat(p => this.formatPitch(p)).withAlignRight().withStyle("width: 30%").withHeaderCssClasses(['has-text-right']),
-                new GridColumnDefinition("pi", "Pi", i => i.pitch.convert(), i18n.genericPitch+' ('+i18n.genericImperial+')').withSort((a,b) => b.pitch.value - a.pitch.value)
-                .withFormat(p => this.formatPitch(p)).withAlignRight().withStyle("width: 30%").withHeaderCssClasses(['has-text-right']),
+                new GridColumnDefinition("a", "A", i => i.gearA)
+                    .withFormat(g => GearHelper.formatFn(g, () => this.hideModules))
+                    .withExportFn(g => g.toString())
+                    .withSortForValues(GearHelper.sortFn)
+                    .withStyle("width: 10%").withAlignRight().withHeaderAlignRight(),
+                new GridColumnDefinition("b", "B", i => i.gearB)
+                    .withFormat(g => GearHelper.formatFn(g, () => this.hideModules))
+                    .withExportFn(g => g.toString())
+                    .withSortForValues(GearHelper.sortFn)
+                    .withStyle("width: 10%").withAlignRight().withHeaderAlignRight(),
+                new GridColumnDefinition("c", "C", i => i.gearC)
+                    .withFormat(g => GearHelper.formatFn(g, () => this.hideModules))
+                    .withExportFn(g => g.toString())
+                    .withSortForValues(GearHelper.sortFn)
+                    .withStyle("width: 10%").withAlignRight().withHeaderAlignRight(),
+                new GridColumnDefinition("d", "D", i => i.gearD)
+                    .withFormat(g => GearHelper.formatFn(g, () => this.hideModules))
+                    .withExportFn(g => g.toString())
+                    .withSortForValues(GearHelper.sortFn)
+                    .withStyle("width: 10%").withAlignRight().withHeaderAlignRight(),
+                new GridColumnDefinition("pm", "Pm", i => i.pitch, i18n.genericPitch+' ('+i18n.genericMetric+')')
+                    .withFormat(PitchHelper.formatFnShowMetric)
+                    .withSortForValues(PitchHelper.sortFnPreferMetric)
+                    .withStyle("width: 30%").withAlignRight().withHeaderAlignRight(),
+                new GridColumnDefinition("pi", "Pi", i => i.pitch, i18n.genericPitch+' ('+i18n.genericImperial+')')
+                    .withFormat(PitchHelper.formatFnShowImperial)
+                    .withSortForValues(PitchHelper.sortFnPreferImperial)
+                    .withStyle("width: 30%").withAlignRight().withHeaderAlignRight(),
             ],
-            config: GlobalConfig.loadConfig(),
+            config: GlobalConfig.config,
+            favorites: GlobalConfig.favorites,
             i18n,
             GridSelectionMode: GridSelectionMode
         };
     },
     props: {
-        modelValue: { type: Array<PitchSetup>, default: [] },
+        modelValue: { type: Array<PitchSetup>, required: true }, 
         orderBy: { type: String, default: undefined },
         orderAscending: { type: Boolean, default: true },
         filter: { type: Object, default: null },
@@ -77,18 +96,7 @@ export default {
         isPrintEnabled: {type: Boolean, default: false},
         itemsPerPage: {type: Number, default: Number.POSITIVE_INFINITY},
         rowCommands: {type: Array<IGridRowCommandDefinition>, default: [] },
-        favorites: {type: Array<PitchSetup>, default: [] }
-    },
-    methods: {
-        formatPitch(v: Pitch) {
-            return GcMath.round(v.value, 0.001).toFixed(3) + " " + (v.type == PitchType.Metric ? "mm/rev" : "TPI");
-        },
-        formatGear(g: Gear | undefined){
-            return g == undefined ? "" : this.isMultiModule ? g.toString() : g.teeth.toFixed(0);
-        }
-    },
-    mounted() {
-        GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
+        hideModules: {type: Boolean, default: false},
     },
     computed: {
         filteredModel() {

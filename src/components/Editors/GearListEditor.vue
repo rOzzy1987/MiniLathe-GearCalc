@@ -88,9 +88,6 @@ export default {
         maxSize: { type: Number }
     },
     emits: ["update:modelValue", "saved"],
-    mounted() {
-      GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
-    },
     watch: {
         modelValue(n) {
             if(this.isEditMode)

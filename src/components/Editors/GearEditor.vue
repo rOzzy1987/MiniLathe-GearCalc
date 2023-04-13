@@ -7,8 +7,8 @@
             <li> {{ teethError }} </li>
         </ul>
         &nbsp;
-        <label class="label is-small" v-if="isMultiModule || forceModuleEditor">module</label>
-        <div class="columns field" v-if="isMultiModule || forceModuleEditor">
+        <label class="label is-small" v-if="(isMultiModule || forceModuleEditor) && !forceHideModuleEditor">module</label>
+        <div class="columns field" v-if="(isMultiModule || forceModuleEditor) && !forceHideModuleEditor">
             <div class="column">
                 <boolean-switch :title="moduleMetric ? 'Metric' : 'Diametral Pitch'" v-model="moduleMetric" :label1="'M'" :label2="'DP'" :size="60"/>
             </div>
@@ -34,7 +34,7 @@
 </template>
 
 <script lang="ts">
-import { Gear, ModuleType } from '@/bll/gear'
+import { Gear, GearModule, ModuleType } from '@/bll/gear'
 import BooleanSwitch from '../InputFields/BooleanSwitch.vue'
 import NumericField from '../InputFields/NumericField.vue'
 import { INCH } from '@/bll/math'
@@ -46,7 +46,7 @@ export default {
             isModuleValid: true,
             teethError: "",
             moduleError: "",
-            config: GlobalConfig.loadConfig()
+            config: GlobalConfig.config
         }
     },
     emits: [
@@ -63,13 +63,15 @@ export default {
         isValid: { type: Boolean, default: true },
         validationMessages: { type: Array<string> },
         isDeleteButtonVisible: { type: Boolean, default: false },
-        forceModuleEditor: { type: Boolean, default: false }
+        forceModuleEditor: { type: Boolean, default: false },
+        forceHideModuleEditor: { type: Boolean, default: false },
+        defaultModule: { type: GearModule }
     },
     methods: {
         getOrCreateGear() {
             if (this.modelValue != undefined)
                 return this.modelValue;
-            const g = new Gear(this.config.sampleModule, 20)!;
+            const g = new Gear(this.defaultModule == undefined ? this.config.sampleModule : this.defaultModule, 20)!;
             this.$emit("update:modelValue", g);
             return g;
         },

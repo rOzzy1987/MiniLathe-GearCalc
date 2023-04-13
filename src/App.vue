@@ -25,19 +25,19 @@
     </div>
 
     <section v-if="activeTab == ActiveTabs.Configure" class="section" >
-      <SetupTab v-model="config" />
+      <SetupTab />
     </section>
     <section v-if="activeTab == ActiveTabs.PitchTable" class="section" >
-      <PitchTableTab v-model="combos"/>
+      <PitchTableTab />
     </section>
     <section v-if="activeTab == ActiveTabs.PitchForGears" class="section" >
-      <PitchForGearsTab v-model="combos" v-model:gearA="gearA" v-model:gearB="gearB" v-model:gearC="gearC" v-model:gearD="gearD" v-model:leadscrew="config.leadscrew"/>
+      <PitchForGearsTab v-model:gearA="gearA" v-model:gearB="gearB" v-model:gearC="gearC" v-model:gearD="gearD"/>
     </section>
     <section v-if="activeTab == ActiveTabs.GearsForPitch" class="section" >
-      <GearsForPitchTab v-model="combos" v-model:desiredPitch="pitch"/>
+      <GearsForPitchTab v-model:desiredPitch="pitch"/>
     </section>
     <section v-if="activeTab == ActiveTabs.Favorites" class="section" >
-      <FavoritesTab v-model="combos"/>
+      <FavoritesTab />
     </section>
     <footer class="footer">
       <div class="content has-text-centered">
@@ -66,7 +66,6 @@
 <script lang="ts">
 import CombinationFinder from './bll/combinationFinder';
 import GlobalConfig from './bll/globalConfig';
-import LatheConfig from './bll/latheConfig';
 import { Pitch, PitchType } from './bll/pitch';
 import LanguageSelector from './components/LanguageSelector.vue';
 import FavoritesTab from './views/FavoritesTab.vue';
@@ -77,16 +76,9 @@ import SetupTab from './views/SetupTab.vue';
 
 export default {
     data() {
-        const config = new LatheConfig();
-        const activeTab = config == undefined
-          ?ActiveTabs.Configure
-          :ActiveTabs.PitchTable;
         const combinator = new CombinationFinder();
-        const combos = config == undefined ? [] : combinator.findAllCombinations(config);
         return {
-            config,
-            activeTab,
-            combos,
+            activeTab: ActiveTabs.PitchTable,
             combinator,
             gearA: undefined,
             gearB: undefined,
@@ -98,27 +90,11 @@ export default {
         };
     },
     mounted() {
-      GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
-      GlobalConfig.loadLanguage();
-      this.config = GlobalConfig.loadConfig();
-      this.combos = GlobalConfig.loadCombos();
-
-      GlobalConfig.addLanguageChangeListener(() => GlobalConfig.saveLanguage());
-    },
-    methods: {
-
-    },
-    watch: {
-      config(n, o){
-        if (o == undefined && n != undefined){
-          this.activeTab = ActiveTabs.PitchTable;
-        }
-        this.combos = n == undefined ? [] : this.combinator.findAllCombinations(n);
-        GlobalConfig.saveCombos(this.combos);
-        GlobalConfig.saveConfig(n);
+      if(GlobalConfig.combos.length == 0 && GlobalConfig.config.gears.length > 2)
+      {
+        GlobalConfig.combos = this.combinator.findAllCombinations(GlobalConfig.config);
       }
     },
-    computed: {},
     components: { SetupTab, PitchTableTab, PitchForGearsTab, GearsForPitchTab, LanguageSelector, FavoritesTab }
 }
 

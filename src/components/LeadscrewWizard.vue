@@ -190,9 +190,6 @@ export default {
     },
   },
   emits: ["update:modelValue", "saved"],
-  mounted() {
-    GlobalConfig.addLanguageChangeListener(() => this.i18n = GlobalConfig.i18n);
-  },
   components: { PitchEditor, PitchSetupEditor, GeartrainImg },
 };
 </script>
