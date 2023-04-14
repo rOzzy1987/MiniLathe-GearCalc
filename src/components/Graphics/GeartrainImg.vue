@@ -114,6 +114,7 @@
 <script lang="ts">import { Vector } from '@/bll/math';
 import GearImg from './GearImg.vue';
 import { Gear, Gears } from '@/bll/gear';
+import GlobalConfig from '@/bll/globalConfig';
 
 export default {
     data(props) {
@@ -124,6 +125,7 @@ export default {
         return {
             spindlePos,
             leadscrewPos,
+            scale: GlobalConfig.config.geartrainSize
         };
     },
     computed: {
@@ -158,7 +160,6 @@ export default {
         gearB: { type: Gear },
         gearC: { type: Gear },
         gearD: { type: Gear },
-        scale: { type: Number, default: 2 },
         minTeeth: {type: Number, default: 85}
     },
     components: { GearImg }

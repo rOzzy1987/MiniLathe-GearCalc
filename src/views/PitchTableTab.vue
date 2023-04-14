@@ -1,7 +1,9 @@
 <template>
-    <div>
-        <div class="block">{{ i18n.ptTitle }}</div>
-      <div class="box columns column-table">
+    <div class="box">
+        <div class="block">
+            <p>{{ i18n.ptTitle }}</p>
+        </div>
+      <div class="columns column-table">
         <div class="column">
             <div class="block">
                 <div class="title is-3">{{ i18n.ptMetricCoarse }}</div>
@@ -34,7 +36,6 @@
                 :gear-b="selectedSetup?.gearB ?? undefined" 
                 :gear-c="selectedSetup?.gearC ?? undefined" 
                 :gear-d="selectedSetup?.gearD ?? undefined" 
-                :scale="2"
                 :min-teeth="config.minTeeth"/>
         </div>
       </div>
@@ -46,7 +47,6 @@ import { PitchSetup } from '@/bll/pitchSetup';
 import GeartrainImg from '@/components/Graphics/GeartrainImg.vue';
 import GlobalConfig from '@/bll/globalConfig';
 import DataGrid, { GridColumnDefinition, GridSelectionMode } from '@/grid/DataGrid.vue';
-import GcMath from '@/bll/math';
 import { AddToFavoritesRowCommand, RemoveFavoriteRowCommand } from '@/components/PitchSetupTable.vue';
 import { Gear } from '@/bll/gear';
 import { GearHelper, PitchHelper } from '@/components/gridHelpers';

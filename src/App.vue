@@ -1,67 +1,65 @@
 <template>
-  <header>
-    <LanguageSelector />
-    <section class="section">
-      <div class="container">
-        <h1 class="title">
-          <span class="icon">
-            <i class="fas fa-gears"></i>
-          </span>
-          {{ i18n.appTitle }}
-        </h1>
-        <h2 class="subtitle">{{ i18n.appSubtitle }}</h2>
+  <div class="main-container">
+    <header>
+      <LanguageSelector style="float:right" :align-right="true" />
+        <div class="container">
+          <h1 class="title">
+            <span class="icon">
+              <i class="fas fa-gears"></i>
+            </span>
+            {{ i18n.appTitle }}
+          </h1>
+          <h2 class="subtitle">{{ i18n.appSubtitle }}</h2>
+        </div>
+    </header>
+    <main>
+      <div class="tabs no-print">
+        <ul>
+          <li :class="{'is-active': activeTab == ActiveTabs.PitchTable}" @click="activeTab = ActiveTabs.PitchTable"><a><span class="icon"><i class="fas fa-list"></i></span><span class="menuitem">{{ i18n.tabPitchTable }}</span></a></li>
+          <li :class="{'is-active': activeTab == ActiveTabs.GearsForPitch}" @click="activeTab = ActiveTabs.GearsForPitch"><a><span class="icon"><i class="fas fa-gear"></i></span><span class="menuitem">{{ i18n.tabGearsForPitch }}</span></a></li>
+          <li :class="{'is-active': activeTab == ActiveTabs.PitchForGears}" @click="activeTab = ActiveTabs.PitchForGears"><a><span class="icon"><i class="fas fa-arrows-left-right-to-line"></i></span><span class="menuitem">{{ i18n.tabPitchForGears }}</span></a></li>
+          <li :class="{'is-active': activeTab == ActiveTabs.Favorites}" @click="activeTab = ActiveTabs.Favorites"><a><span class="icon"><i class="fas fa-heart"></i></span><span class="menuitem">{{ i18n.tabFavorites }}</span></a></li>
+          <li :class="{'is-active': activeTab == ActiveTabs.Configure}" @click="activeTab = ActiveTabs.Configure"><a><span class="icon"><i class="fas fa-sliders"></i></span><span class="menuitem">{{ i18n.tabSetup }}</span></a></li>
+        </ul>
       </div>
-    </section>
-  </header>
-  <main>
-    <div class="tabs no-print">
-      <ul>
-        <li :class="{'is-active': activeTab == ActiveTabs.PitchTable}" @click="activeTab = ActiveTabs.PitchTable"><a>{{ i18n.tabPitchTable }}</a></li>
-        <li :class="{'is-active': activeTab == ActiveTabs.GearsForPitch}" @click="activeTab = ActiveTabs.GearsForPitch"><a>{{ i18n.tabGearsForPitch }}</a></li>
-        <li :class="{'is-active': activeTab == ActiveTabs.PitchForGears}" @click="activeTab = ActiveTabs.PitchForGears"><a>{{ i18n.tabPitchForGears }}</a></li>
-        <li :class="{'is-active': activeTab == ActiveTabs.Favorites}" @click="activeTab = ActiveTabs.Favorites"><a>{{ i18n.tabFavorites }}</a></li>
-        <li :class="{'is-active': activeTab == ActiveTabs.Configure}" @click="activeTab = ActiveTabs.Configure"><a>{{ i18n.tabSetup }}</a></li>
-      </ul>
-    </div>
 
-    <section v-if="activeTab == ActiveTabs.Configure" class="section" >
-      <SetupTab v-model:isBusy="isLoading" v-model:progress="loadingProgress" :key="i"/>
-    </section>
-    <section v-if="activeTab == ActiveTabs.PitchTable" class="section" >
-      <PitchTableTab :key="i" />
-    </section>
-    <section v-if="activeTab == ActiveTabs.PitchForGears" class="section" >
-      <PitchForGearsTab v-model:gearA="gearA" v-model:gearB="gearB" v-model:gearC="gearC" v-model:gearD="gearD" :key="i"/>
-    </section>
-    <section v-if="activeTab == ActiveTabs.GearsForPitch" class="section" >
-      <GearsForPitchTab v-model:desiredPitch="pitch" :key="i"/>
-    </section>
-    <section v-if="activeTab == ActiveTabs.Favorites" class="section" >
-      <FavoritesTab :key="i"/>
-    </section>
-    <footer class="footer">
-      <div class="content has-text-centered">
-        <p>
-          <strong>Mini lathe change gear claculator</strong><br/> 
-          &copy; 2023 Mihály Rozovits
-        </p>
-        <p>
-          Translation:<br/>
-          &copy; {{i18n.credits}}
-        </p>
-        <p class="no-print">
-          <a href="https://github.com/rOzzy1987/MiniLathe-GearCalc" class="button is-small">
-          <figure clas="image is-16x16">
-            <img src="https://github.com/favicon.ico" style="height: 16px;">
-            Contribute on GitHub
-          </figure>
-          </a>
-        </p>
-      </div>
-    </footer>
-    <loading-overlay v-if="isLoading" :progress="loadingProgress" />
-      
-  </main>
+      <section v-if="activeTab == ActiveTabs.Configure" class="box" >
+        <SetupTab v-model:isBusy="isLoading" v-model:progress="loadingProgress" :key="i"/>
+      </section>
+      <section v-if="activeTab == ActiveTabs.PitchTable" class="" >
+        <PitchTableTab :key="i" />
+      </section>
+      <section v-if="activeTab == ActiveTabs.PitchForGears" class="" >
+        <PitchForGearsTab v-model:gearA="gearA" v-model:gearB="gearB" v-model:gearC="gearC" v-model:gearD="gearD" :key="i"/>
+      </section>
+      <section v-if="activeTab == ActiveTabs.GearsForPitch" class="" >
+        <GearsForPitchTab v-model:desiredPitch="pitch" :key="i"/>
+      </section>
+      <section v-if="activeTab == ActiveTabs.Favorites" class="" >
+        <FavoritesTab :key="i"/>
+      </section>
+      <footer class="footer">
+        <div class="content has-text-centered">
+          <p>
+            <strong>Mini lathe change gear claculator</strong><br/> 
+            &copy; 2023 Mihály Rozovits
+          </p>
+          <p>
+            Translation:<br/>
+            &copy; {{i18n.credits}}
+          </p>
+          <p class="no-print">
+            <a href="https://github.com/rOzzy1987/MiniLathe-GearCalc" class="button is-small has-icon">
+              <span class="icon"><i class="fa-brands fa-github"></i></span>
+              &nbsp;&nbsp;&nbsp;Contribute on GitHub
+            </a>
+          </p>
+        </div>
+      </footer>
+      <loading-overlay v-if="isLoading" :progress="loadingProgress" />
+        
+    </main>
+  </div>
 </template>
 
 <script lang="ts">
@@ -118,4 +116,98 @@ enum ActiveTabs {
   Favorites
 }
 </script>
+
+<style lang="scss">
+
+header, main {
+  position: relative;
+}
+header {
+  z-index: 10;
+}
+main{
+  z-index: 0;
+}
+
+header {
+  .container {
+    padding-left: 30px;
+    padding-bottom: 20px;
+  }
+}
+
+@media screen and (max-width: 1279px){
+
+  header {
+    .container {
+      background: #345;
+      color: #FFF;
+      padding-bottom: 0px;
+      max-width: 100%;
+    }
+
+    .title {
+      font-size: 12pt;
+      color: #FFF;
+    }
+    .subtitle {
+      font-size: 6pt;
+      color: #8AC;
+      padding: 0 40px 5px;
+    }
+
+    .language.dropdown{
+      display: none;
+    }
+  }
+
+  main {
+    .tabs {
+      position: fixed;
+      left: 0px;
+      bottom: 0px;
+      width: 100%;
+      background: #FFF;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+      margin-bottom: 0px !important;
+
+      z-index: 1000;
+      align-items: stretch;
+      white-space: normal;
+
+      ul {
+        justify-content: center;
+        align-items: stretch;
+      }
+      li {
+        flex-grow: 1;
+        flex-shrink: 1;
+        max-width: 120px;
+        text-align: center;
+      }
+      a {
+        flex-direction: column;
+        height: 100%;
+
+        * {
+          text-align: center;
+        }
+
+        *:last-child {
+          flex-grow: 1;
+        }
+      }
+
+      .icon {
+        margin-right: 0px !important;
+        font-size: 24px;
+      }
+      .menuitem {
+        margin-top: .5em;
+        font-size: 8pt;
+      }
+    }
+  }
+}
+</style>
 
