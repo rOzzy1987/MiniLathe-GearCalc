@@ -1,30 +1,19 @@
 
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { Device } from "@capacitor/device"
+import { Share } from "@capacitor/share"
 
-export default class Downloader {
-    public async download(content: string | Blob, fileName: string){
-        const d = await Device.getInfo();
-        if (d.platform == "web") {
-            await this.downloadWeb(content, fileName);
-        } else {
-            await this.downloadCap(content, fileName);
-        }
-    }
 
-    private async downloadCap(content: string | Blob, fileName: string){
-        const newFilename = await this.getActualFilename(fileName);
-        if (newFilename == null)
-            return; 
-        Filesystem.writeFile({
-            path: newFilename,
-            data: await this.getContent(content),
-            directory: Directory.Documents,
-            encoding: Encoding.UTF8,
-            });
-    }
-    
-    private async downloadWeb(content: string | Blob, fileName: string){
+interface IDownloader {
+    download(content: string| Blob, fileName: string): Promise<void>;
+}
+
+interface IDownloaderImpl extends IDownloader {
+
+}
+
+class WebDownloaderImpl implements IDownloaderImpl {
+    public async download(content: string | Blob, fileName: string): Promise<void> {
         const element = document.createElement('a');
         
         const uri = this.getUri(content);
@@ -36,9 +25,34 @@ export default class Downloader {
         document.body.removeChild(element);
     }
 
-    private async getActualFilename(fileName: string) {
+    private getUri(content: string | Blob) {
+        return content.constructor.name == 'Blob'
+            ? window.URL.createObjectURL(content as Blob)
+            : 'data:text/plain;charset=utf-8,' + encodeURIComponent(content as string);
+    }
+}
 
-        return fileName;
+class MobileNativeDownloaderImpl implements IDownloaderImpl {
+    public async download(content: string | Blob, fileName: string){
+        const newFilename = await this.getActualFilename(fileName);
+        if (newFilename == null)
+            return; 
+        const result = await Filesystem.writeFile({
+            path: newFilename,
+            data: await this.getContent(content),
+            directory: Directory.Documents,
+            encoding: Encoding.UTF8,
+            });
+
+        if(result.uri != undefined && await Share.canShare()){
+            const fileInfo = await Filesystem.getUri({path: newFilename, directory: Directory.Documents})
+            
+            const shareResult = await Share.share({files: [fileInfo.uri]});
+            console.info(`shared ${result.uri}`, shareResult);
+        }
+    }
+
+    private async getActualFilename(fileName: string) {
         const dir = await Filesystem.readdir({directory: Directory.Documents, path: "." });
         if(dir.files.every(f => f.name != fileName))
             return fileName;
@@ -58,12 +72,23 @@ export default class Downloader {
     private async getContent(content: string | Blob){
         return content.constructor.name == 'Blob'
             ? (content as Blob).text()
-            : 'data:text/plain;charset=utf-8,' + encodeURIComponent(content as string);
+            : content as string;
+    }
+}
+
+abstract class DownloaderBase {
+    private _impl: IDownloaderImpl | null = null;
+    protected async getImpl(): Promise<IDownloaderImpl> {
+        if (this._impl == null)
+            this._impl = (await Device.getInfo()).platform == "web"
+                ? new WebDownloaderImpl()
+                : new MobileNativeDownloaderImpl();
+        return this._impl;
+    } 
+}
+export default class Downloader extends DownloaderBase {
+    public async download(content: string | Blob, fileName: string){
+        (await this.getImpl()).download(content, fileName);
     }
 
-    private getUri(content: string | Blob) {
-        return content.constructor.name == 'Blob'
-            ? window.URL.createObjectURL(content as Blob)
-            : 'data:text/plain;charset=utf-8,' + encodeURIComponent(content as string);
-    }
 }
