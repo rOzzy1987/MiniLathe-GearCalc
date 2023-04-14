@@ -9,7 +9,7 @@
         :isSortable="isSortable" 
         :selectionMode="GridSelectionMode.One"
         :isExportEnabled="isExportEnabled"
-        :isPrintEnabled="isPrintEnabled"
+        :isPrintEnabled="isPrintEnabled && !isNativeApp"
         :isItemsPerPageEditable="isItemsPerPageEditable"
         :itemsPerPage="itemsPerPage"
         :rowCommands="rowCommands"
@@ -26,6 +26,7 @@ import { PitchSetup } from '@/bll/pitchSetup';
 import { GearHelper, PitchHelper } from './gridHelpers';
 import { GridRowCommandDefinition, type IGridRowCommandDefinition } from '@/grid/GridCommandDefinition';
 import { GridColumnDefinition } from '@/grid/GridColumnDefinition';
+import { DeviceHelper } from '@/bll/device';
 
 export class AddToFavoritesRowCommand extends GridRowCommandDefinition {
     public constructor(){
@@ -80,6 +81,7 @@ export default {
                     .withSortForValues(PitchHelper.sortFnPreferImperial)
                     .withStyle("width: 30%").withAlignRight().withHeaderAlignRight(),
             ],
+            isNativeApp: true,
             config: GlobalConfig.config,
             favorites: GlobalConfig.favorites,
             i18n,
@@ -124,6 +126,9 @@ export default {
         isMultiModule() {
             return this.config.isMultiModule;
         }
+    },
+    async created() {
+        this.isNativeApp = await DeviceHelper.isNativeApp();
     },
     components: { DataGrid }
 }
