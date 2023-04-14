@@ -28,7 +28,7 @@ import { GearHelper, PitchHelper } from './gridHelpers';
 export class AddToFavoritesRowCommand extends GridRowCommandDefinition {
     public constructor(){
         super((item => GlobalConfig.addFavorite(item)));
-        this.withIcon("far fa-square-plus")
+        this.withIcon("far fa-heart")
             .withClass("is-small")
             .withLabel(GlobalConfig.i18n.genericAddToFavorites)
             .withFilter((item) => !GlobalConfig.isFavorite(item));
@@ -37,7 +37,7 @@ export class AddToFavoritesRowCommand extends GridRowCommandDefinition {
 export class RemoveFavoriteRowCommand extends GridRowCommandDefinition {
     public constructor(){
         super((item => GlobalConfig.removeFavorite(item)));
-        this.withIcon("fas fa-square-minus")
+        this.withIcon("fas fa-heart")
             .withClass("is-small")
             .withLabel(GlobalConfig.i18n.genericRemoveFavorite)
             .withFilter((item) => GlobalConfig.isFavorite(item));

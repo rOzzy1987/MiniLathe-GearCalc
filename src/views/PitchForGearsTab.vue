@@ -30,8 +30,7 @@
                 :gear-a="selectedSetup?.gearA ?? undefined" 
                 :gear-b="selectedSetup?.gearB ?? undefined" 
                 :gear-c="selectedSetup?.gearC ?? undefined" 
-                :gear-d="selectedSetup?.gearD ?? undefined" 
-                :scale="2"
+                :gear-d="selectedSetup?.gearD ?? undefined"
                 :min-teeth="config.minTeeth"/>
         </div>
       </div>

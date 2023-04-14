@@ -7,7 +7,15 @@
         <GearListEditor v-model="gears" v-model:maxSize="maxSize" @saved="saveConfig" />
       </div>
       <div class="box">
-        <OtherParamsEditor v-model:distance="distance" v-model:maxSize="maxSize" @saved="saveConfig" />
+        <OtherParamsEditor v-model:distance="distance" v-model:maxSize="maxSize" v-model:geartrain-size="geartrainSize" @saved="saveConfig" />
+      </div>
+      <div class="box">
+        <div class="control">
+          <div class="field">
+            <label class="label">Language</label>
+            <language-selector />
+          </div>  
+        </div>
       </div>
       <div class="control">
         <div class="buttons">
@@ -24,7 +32,7 @@ import LeadscrewWizard from '../components/LeadscrewWizard.vue';
 import OtherParamsEditor from '@/components/OtherParamsEditor.vue';
 import GlobalConfig from '@/bll/globalConfig';
 import CombinationFinder from '@/bll/combinationFinder';
-
+import LanguageSelector from '@/components/LanguageSelector.vue';
 
 export default {
     data() {
@@ -33,6 +41,7 @@ export default {
         var pitch = mv?.leadscrew;
         var distance = mv?.minTeeth;
         var maxSize = mv?.maxSize;
+        var geartrainSize = mv?.geartrainSize;
         var combinator = new CombinationFinder();
         var worker = combinator.createWorker(r => GlobalConfig.combos = r, b => this.setLoading(b), p => this.setProgress(p));
         return {
@@ -40,9 +49,10 @@ export default {
             pitch,
             distance,
             maxSize,
+            geartrainSize,
             worker,
             combinator,
-            i18n: GlobalConfig.i18n
+            i18n: GlobalConfig.i18n,
         };
     },
     props: {
@@ -56,6 +66,7 @@ export default {
             config.leadscrew = this.pitch;
             config.minTeeth = this.distance;
             config.maxSize = this.maxSize;
+            config.geartrainSize = this.geartrainSize;
             GlobalConfig.config = config;
 
             this.combinator.runWorker(config.gears, config.leadscrew, this.worker);
@@ -63,6 +74,6 @@ export default {
         setLoading(l: boolean) { this.$emit("update:isBusy", l); },
         setProgress(p: number) { this.$emit("update:progress", p); }
     },
-    components: { GearListEditor, LeadscrewWizard, OtherParamsEditor }
+    components: { GearListEditor, LeadscrewWizard, OtherParamsEditor, LanguageSelector }
 }
 </script>

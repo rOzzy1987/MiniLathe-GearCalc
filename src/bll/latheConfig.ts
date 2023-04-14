@@ -5,6 +5,7 @@ export default class LatheConfig {
     public leadscrew: Pitch = new Pitch(1.6, PitchType.Metric);
     public minTeeth: number = 82;
     public maxSize: number = 90;
+    public geartrainSize: number = 2;
     public gears: Gear[] = Gears.listFromTeeth([20,20,30,35,40,40,45,50,55,57,60,65,80,80], GearModule.fromString("M1")!);
 
     public get isMultiModule() {
@@ -33,7 +34,8 @@ export default class LatheConfig {
             gears: this.gears.map(g => g.toString()),
             leadscrew: this.leadscrew.toPlainObject(),
             minTeeth: this.minTeeth,
-            maxSize: this.maxSize
+            maxSize: this.maxSize,
+            geartrainSize: this.geartrainSize
         };
     }
 
@@ -45,6 +47,7 @@ export default class LatheConfig {
         result.leadscrew = Pitch.fromPlainObject(o.leadscrew)!;
         result.minTeeth = o.minTeeth;
         result.maxSize = o.maxSize;
+        result.geartrainSize = o.geartrainSize;
         return result;
     }
 }

@@ -5,6 +5,8 @@
             v-model:isValid="isDistanceValid" @enter="save()"/>
             <NumericEditor v-model="maxSizeValue" :label="i18n.otherMaxGearSize" :tip="i18n.otherMaxGearSizeTip" :decimals="0" :min-value="50" :max-value="200" :required="true" 
             v-model:isValid="isMaxSizeValid" @enter="save()"/>
+            <NumericEditor v-model="geartrainSizeValue" label="Geartrain illustration scale" :decimals="1" :min-value=".5" :max-value="2" :required="true" 
+            v-model:isValid="isGeartrainSizeValid" @enter="save()"/>
         </div>
         
         
@@ -29,6 +31,16 @@
                     </div>
                 </div>
             </div>
+            <div class="field">
+                <label class="label">Geartrain illustration scale</label>
+                <div class="control">
+                    <div class="tags">
+                        <span class="tag is-link">
+                            {{ GcMath.toFixedMax(geartrainSize,1) }}
+                        </span>
+                    </div>
+                </div>
+            </div>
         </div>
 &nbsp;
         <div class="field">
@@ -41,6 +53,7 @@
 </template>
 <script lang="ts">
 import GlobalConfig from '@/bll/globalConfig';
+import GcMath from '@/bll/math';
 import NumericEditor from './Editors/NumericEditor.vue';
 
 export default {
@@ -48,11 +61,14 @@ export default {
         return {
             distanceValue: props.distance,
             maxSizeValue: props.maxSize,
+            geartrainSizeValue: props.geartrainSize,
 
             isDistanceValid: true,
             isMaxSizeValid: true,
+            isGeartrainSizeValid: true,
             isEditMode: props.distance == null || props.maxSize == null,
-            i18n: GlobalConfig.i18n
+            i18n: GlobalConfig.i18n,
+            GcMath
         };
     },
     methods: {
@@ -61,6 +77,7 @@ export default {
                 return;
             this.$emit("update:distance", this.distanceValue);
             this.$emit("update:maxSize", this.maxSizeValue);
+            this.$emit("update:geartrainSize", this.geartrainSizeValue);
             this.$emit("saved");
             this.isEditMode = false;
         },
@@ -71,16 +88,11 @@ export default {
         }
     },
     props: {
-        distance: {
-            type: Number,
-            default: 85
-        },
-        maxSize: {
-            type: Number,
-            default: 130
-        }
+        distance: { type: Number, default: 85 },
+        maxSize: { type: Number, default: 130 },
+        geartrainSize: {type: Number, default: 2}
     },
-    emits: ["update:distance", "update:maxSize", "saved" ],
+    emits: ["update:distance", "update:maxSize", "update:geartrainSize", "saved" ],
     watch: {
         modelValue() {
             if(this.isEditMode)

@@ -53,7 +53,6 @@
               :gear-b="sampleSetup.gearB"
               :gear-c="sampleSetup.gearC"
               :gear-d="sampleSetup.gearD"
-              :scale="1.5"
             />
           </div>
         </div>
