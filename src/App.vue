@@ -97,6 +97,9 @@ export default {
       setLoading(l: boolean) { this.isLoading = l; },
       setProgress(p: number) { this.loadingProgress = p; }
     },
+    async created() {
+      await GlobalConfig.loadAll();
+    },
     mounted() {
       if(GlobalConfig.combos.length == 0 && GlobalConfig.config.gears.length > 2)
       {

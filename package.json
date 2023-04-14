@@ -14,7 +14,10 @@
   "dependencies": {
     "@capacitor/android": "^4.7.3",
     "@capacitor/core": "^4.7.3",
+    "@capacitor/device": "^4.1.0",
+    "@capacitor/preferences": "^4.0.2",
     "@fortawesome/fontawesome-free": "^6.3.0",
+    "capacitor-plugin-filedownload": "^1.0.5",
     "sass": "^1.61.0",
     "save-dev": "^0.0.1-security",
     "vue": "^3.2.47"

@@ -103,248 +103,13 @@
     </div>
 </template>
 <script lang="ts">
+import { Device } from '@capacitor/device';
 import CommandButton from './CommandButton.vue';
+import Downloader from './Downloader';
+import type { IGridColumnDefinition } from './GridColumnDefinition';
+import { GridCommandDefinition, type IGridCommandDefinition, type IGridRowCommandDefinition } from './GridCommandDefinition';
 import RowCommandButton from './RowCommandButton.vue';
-export interface IGridColumnDefinition {
-    readonly id: string;
-    readonly title: string;
-    readonly tooltip: string | null;
-    readonly valueFn: (item: any) => any;
-    readonly formatFn: (value: any) => string;
-    readonly sortFn: ((val1:any, val2:any, asc?: boolean) => number) | null;
-    readonly cssClasses: Array<string>;
-    readonly style: string | undefined;
-    readonly headerCssClasses: Array<string>;
-    readonly headerStyle: string | undefined;
-    readonly exportFn: (value: any) => any;
-    readonly isOptional: boolean;
-    isHidden: boolean;
-    readonly isHtml: boolean;
-    getHtml(item: any): string;
-}
-export interface IGridCommandDefinition {
-    label: string | undefined;
-    iconClass: string | undefined;
-    cssClass: string | undefined;
-    command: (selectedItems: any[]) => any;
-    filter: (selectedItems: any[]) => boolean;
-}
-export interface IGridRowCommandDefinition {
-    label: string | undefined;
-    iconClass: string | undefined;
-    cssClass: string | undefined;
-    command: (item: any) => any;
-    filter: (item: any) => boolean;
-}
-class __BaseCommandDefinition {
-    protected _label: string | undefined = undefined;
-    protected _iconClass: string | undefined = undefined;
-    protected _cssClass: string | undefined = undefined;
-    public get label() { return this._label; }
-    public get iconClass() { return this._iconClass; }
-    public get cssClass() { return this._cssClass; }
-}
-class BaseCommandDefinition<TDef extends __BaseCommandDefinition> extends __BaseCommandDefinition {
-    public withLabel(label: string): TDef {
-        this._label = label;
-        return this as unknown as TDef;
-    }
-    
-    public withIcon(iconClass: string): TDef {
-        this._iconClass = iconClass;
-        return this as unknown as TDef;
-    }
-    
-    public withClass(cssClass: string): TDef {
-        this._cssClass = cssClass;
-        return this as unknown as TDef;
-    }
-}
-export class GridCommandDefinition extends BaseCommandDefinition<GridCommandDefinition> implements IGridCommandDefinition{
-    private _command: (selectedItems: any[]) => any;
-    private _filter: (selectedItems: any[]) => boolean = _ => _==_;
-    public get command() { return this._command; }
-    public get filter() { return this._filter; }
-    public constructor(command: (selectedItems: any[]) => any){
-        super();
-        this._command = command;
-    }
-    public withFilter(filterFn: (selectedItems: any[]) => boolean) : GridCommandDefinition {
-        this._filter = filterFn;
-        return this;
-    }
-}
-export class GridRowCommandDefinition extends BaseCommandDefinition<GridRowCommandDefinition> implements IGridRowCommandDefinition {
-    private _command: (item: any) => any;
-    private _filter: (item: any) => boolean = _ => _==_;
-    public get command() { return this._command; }
-    public get filter() { return this._filter; }
-    public constructor(command: (item: any) => any){
-        super();
-        this._command = command;
-    }
-    public withFilter(filterFn: (item: any) => boolean) : GridRowCommandDefinition {
-        this._filter = filterFn;
-        return this;
-    }
-}
-export class GridColumnDefinition implements IGridColumnDefinition {
-    private _id: string;
-    private _title: string;
-    private _tooltip: string | null = null;
-    private _valueFn: (item: any) => any;
-    private _formatFn: (value: any) => string = v=> v;
-    private _sortFn: ((val1:any, val2:any) => number) | null = null;
-    private _cssClasses: Array<string> = [];
-    private _style: string | undefined = undefined;
-    private _headerCssClasses: Array<string> = [];
-    private _headerStyle: string | undefined = undefined;
-    private _exportFn: (value: any) => any = this.formatFn;
-    private _isHtml = false;
-    private _isOptional = false;
-    public isHidden = false;
 
-    public get id() {
-        return this._id;
-    }
-
-    public get title() {
-        return this._title;
-    }
-    public get valueFn() {
-        return this._valueFn;
-    }
-    public get formatFn() {
-        return this._formatFn;
-    }
-    public get exportFn() {
-        return this._exportFn;
-    }
-    public get cssClasses() {
-        return this._cssClasses;
-    }
-    public get style() {
-        return this._style;
-    }
-    public get sortFn() {
-        return this._sortFn;
-    }
-    public get tooltip() {
-        return this._tooltip;
-    }
-    public get headerCssClasses() {
-        return this._headerCssClasses;
-    }
-    public get headerStyle() {
-        return this._headerStyle;
-    }
-    public get isHtml() {
-        return this._isHtml;
-    }
-    public get isOptional() {
-        return this._isOptional;
-    }
-
-    public constructor(id: string, title: string, valueFn: (item: any) => any, tooltip: string | null = null) {
-        this._id = id;
-        this._title = title;
-        this._valueFn = valueFn;
-        this._tooltip = tooltip;
-    }
-
-    public getHtml(item: any): string {
-        const txt = this.formatFn(this.valueFn(item));
-        return this.isHtml ? txt : txt?.replace("<", "&lt;").replace(">", "&gt;");
-    }
-
-    public asNumericColumn(fractionDigits: number | undefined = undefined) {
-        return this.withSortForNumerics().withAlignRight().withFormatAsNumeric(fractionDigits).withExportAsIs();
-    }
-    public withAlignLeft(){
-        this._cssClasses.push('has-text-left');
-        return this;
-    }
-    public withAlignCenter(){
-        this._cssClasses.push('has-text-center');
-        return this;
-    }
-    public withAlignRight(){
-        this._cssClasses.push('has-text-right');
-        return this;
-    }
-    public withHeaderAlignLeft(){
-        this._headerCssClasses.push('has-text-left');
-        return this;
-    }
-    public withHeaderAlignCenter(){
-        this._headerCssClasses.push('has-text-center');
-        return this;
-    }
-    public withHeaderAlignRight(){
-        this._headerCssClasses.push('has-text-right');
-        return this;
-    }
-    public withFormat(formatFn: (v: any) => string){
-        this._formatFn = formatFn;
-        return this;
-    }
-    public withFormatAsNumeric(fractionDigits: number | undefined = undefined) {
-        this._formatFn = a => Number.isNaN(a) ? '-' : a.toFixed(fractionDigits);
-        return this;
-    }
-    public withExportAsIs(){
-        this._exportFn = (a) => a;
-        return this;
-    }
-    public withSort(sortFn: (a: any, b: any, asc?:boolean) => number) {
-        this._sortFn = sortFn;
-        return this;
-    }
-    public withSortForValues(sortFn: (a: any, b: any, asc?: boolean) => number) {
-        this._sortFn = (a:any, b:any, asc?:boolean) => sortFn(this.valueFn(a), this.valueFn(b), asc);
-        return this;
-    }
-    public withSortForNumerics() {
-        this._sortFn = (a,b) => this.valueFn(a) - this.valueFn(b);
-        return this;
-    }
-    public withSortForStrings() {
-        this._sortFn = (a,b) => (this.valueFn(a)+"").localeCompare(this.valueFn(b)+"");
-        return this;
-    }
-    public withStyle(style: string | undefined) {
-        this._style = style;
-        return this;
-    }
-    public withCssClasses(cssClasses: Array<string>) {
-        this._cssClasses = cssClasses;
-        return this;
-    }
-    public withHeaderStyle(style: string | undefined) {
-        this._headerStyle = style;
-        return this;
-    }
-    public withHeaderCssClasses(cssClasses: Array<string>) {
-        this._headerCssClasses = cssClasses;
-        return this;
-    }
-    public withExportFn(exportFn: (value: any) => any){
-        this._exportFn = exportFn;
-        return this;
-    }
-    public withHtml(isHtml = true){
-        this._isHtml = isHtml;
-        return this;
-    }
-    public withOptional(isOptional = true){
-        this._isOptional = isOptional;
-        return this;
-    }
-    public withHidden(isHidden = true){
-        this.isHidden = isHidden;
-        return this;
-    }
-}
 export enum GridSelectionMode {
     None,
     One,
@@ -368,6 +133,8 @@ export default {
                 origin: null as {x:number, y: number} | null,
                 key: "rndKey"
             }, 
+            downloader: new Downloader(),
+            isWebApp: false,
             GridSelectionMode: GridSelectionMode,
         };
     },
@@ -375,7 +142,7 @@ export default {
         title: { type: String, default: null },
         columns: { type: Array<IGridColumnDefinition>, required: true },
         rowCommands: { type: Array<IGridRowCommandDefinition>, default: [] },
-        gridCommands: { type: Array<IGridRowCommandDefinition>, default: [] },
+        gridCommands: { type: Array<IGridCommandDefinition>, default: [] },
         selectionMode: { type: Number, default: GridSelectionMode.None },
         selectedItems: { type: Array<any>, default: [] },
         modelValue: { type: Array<any>, required: true },
@@ -395,6 +162,7 @@ export default {
         // Internationalization
         emptyText: { type: String, default: "- No data -" },
         exportText: {type: String, default: "Export to CSV"},
+        exportFilenameFn: { type: Function, default: () => "export" },
         printText: { type: String, default: "Print" },
         pagingFooterText: { type: String },
         itemsFooterText: { type: String },
@@ -612,20 +380,7 @@ export default {
                 }
                 csv += rowArr.join(sep) + "\n";
             }
-            this.download(csv, "export.csv");
-        },
-        download(content: string | Blob, filename: string){
-            const element = document.createElement('a');
-            
-            const uri = content.constructor.name == 'Blob'
-                ? window.URL.createObjectURL(content as Blob)
-                : 'data:text/plain;charset=utf-8,' + encodeURIComponent(content as string);
-            element.setAttribute('href', uri);
-            element.setAttribute('download', filename);
-            element.style.display = 'none';
-            document.body.appendChild(element);
-            element.click();
-            document.body.removeChild(element);
+            this.downloader.download(csv, this.exportFilenameFn()+".csv");
         },
         print() {
             const styles = document.head.getElementsByTagName("style");
@@ -764,7 +519,7 @@ export default {
                         .withLabel(this.exportText);
                     r.push(csvCmd);
                 }
-                if(this.isPrintEnabled) {
+                if(this.isPrintEnabled && this.isWebApp) {
                     const printCmd = 
                         new GridCommandDefinition(() => this.print())
                         .withIcon("fas fa-print")
@@ -831,6 +586,9 @@ export default {
             this._itemsPerPage = newVal;
             this._page = 0;
         }
+    },
+    async mounted() {
+        this.isWebApp = (await Device.getInfo()).platform == "web";
     },
     components: { CommandButton, RowCommandButton }
 }

@@ -21,9 +21,11 @@
 </template>
 <script lang="ts">
 import GlobalConfig from '@/bll/globalConfig';
-import DataGrid, { GridColumnDefinition, GridRowCommandDefinition, GridSelectionMode, type IGridRowCommandDefinition } from '@/grid/DataGrid.vue';
+import DataGrid, { GridSelectionMode } from '@/grid/DataGrid.vue';
 import { PitchSetup } from '@/bll/pitchSetup';
 import { GearHelper, PitchHelper } from './gridHelpers';
+import { GridRowCommandDefinition, type IGridRowCommandDefinition } from '@/grid/GridCommandDefinition';
+import { GridColumnDefinition } from '@/grid/GridColumnDefinition';
 
 export class AddToFavoritesRowCommand extends GridRowCommandDefinition {
     public constructor(){

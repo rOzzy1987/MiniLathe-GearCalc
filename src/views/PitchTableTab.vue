@@ -46,10 +46,11 @@ import { Pitch, PitchType } from '@/bll/pitch';
 import { PitchSetup } from '@/bll/pitchSetup';
 import GeartrainImg from '@/components/Graphics/GeartrainImg.vue';
 import GlobalConfig from '@/bll/globalConfig';
-import DataGrid, { GridColumnDefinition, GridSelectionMode } from '@/grid/DataGrid.vue';
+import DataGrid, { GridSelectionMode } from '@/grid/DataGrid.vue';
 import { AddToFavoritesRowCommand, RemoveFavoriteRowCommand } from '@/components/PitchSetupTable.vue';
 import { Gear } from '@/bll/gear';
 import { GearHelper, PitchHelper } from '@/components/gridHelpers';
+import { GridColumnDefinition } from '@/grid/GridColumnDefinition';
 
 class NamedPitchSetup extends PitchSetup {
     public name: string = null!;
