@@ -122,7 +122,7 @@ export default {
         this.computeModel();
     },
     async created() {
-        this.isPrintEnabled = !DeviceHelper.isNativeApp();
+        this.isPrintEnabled = !await DeviceHelper.isNativeApp();
     },
     methods: {
         computeModel() {
