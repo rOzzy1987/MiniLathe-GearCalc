@@ -5,8 +5,14 @@
         <div class="field">
           <label class="label">{{ i18n.leadscrewDoYouKnowPitch }}</label>
           <div class="control buttons">
-            <button class="button is-info" @click.prevent="knowPitch = true">{{ i18n.leadscrewKnowPitch }}</button>
-            <button class="button is-info" @click.prevent="knowPitch = false">{{ i18n.leadscrewDontKnowPitch }}</button>
+            <button class="button is-info" @click.prevent="knowPitch = true">
+                <span class="icon"><i class="fas fa-check"></i></span>
+                <span>{{ i18n.leadscrewKnowPitch }}</span>
+              </button>
+            <button class="button is-info" @click.prevent="knowPitch = false">
+                <span class="icon"><i class="fas fa-question"></i></span>
+                <span>{{ i18n.leadscrewDontKnowPitch }}</span>
+              </button>
           </div>
         </div>
       </div>
@@ -14,8 +20,14 @@
       <div v-if="knowPitch">
         <PitchEditor v-model="pitch" v-model:isValid="directPitchValid" />
         <div class="buttons mt-4">
-          <button class="button" @click.prevent="knowPitch = null">{{ i18n.genericBack }}</button>
-          <button class="button is-primary" @click.prevent="selectedPitch = pitch" :disabled="!directPitchValid">{{ i18n. genericSave }}</button>
+          <button class="button" @click.prevent="knowPitch = null">
+              <span class="icon"><i class="fas fa-caret-left"></i></span>
+              <span>{{ i18n.genericBack }}</span>
+            </button>
+          <button class="button is-primary" @click.prevent="selectedPitch = pitch" :disabled="!directPitchValid">
+              <span class="icon"><i class="fas fa-check"></i></span>
+              <span>{{ i18n.genericSave }}</span>
+            </button>
         </div>
       </div>
 
@@ -38,12 +50,18 @@
             />
 
             <div class="buttons mt-4">
-              <button class="button" @click.prevent="knowPitch = null">{{ i18n.genericBack }}</button>
+              <button class="button" @click.prevent="knowPitch = null">
+                <span class="icon"><i class="fas fa-caret-left"></i></span>
+                <span>{{ i18n.genericBack }}</span>
+              </button>
               <button
                 class="button is-info"
                 @click.prevent="estimate"
                 :disabled="!sampleSetupValid"
-              >{{ i18n.leadscrewFind }}</button>
+              >
+                <span class="icon"><i class="fas fa-crosshairs"></i></span>
+                <span>{{ i18n.leadscrewFind }}</span>
+              </button>
             </div>
           </div>
 
@@ -82,7 +100,10 @@
             </button>
           </div>
           <div class="buttons">
-            <button class="button" @click.prevent="estimation = null">{{ i18n.genericBack }}</button>
+            <button class="button" @click.prevent="estimation = null">
+                <span class="icon"><i class="fas fa-caret-left"></i></span>
+                <span>{{ i18n.genericBack }}</span>
+              </button>
           </div>
         </div>
       </div>
@@ -102,8 +123,9 @@
         <div class="field">
             <div class="control buttons">
                 <button class="button is-danger" @click.prevent="selectedPitch = null">
-                {{ i18n.genericEdit }}
-                </button>
+                <span class="icon"><i class="fas fa-pen"></i></span>
+                <span>{{ i18n.genericEdit }}</span>
+              </button>
             </div>
         </div>
 
