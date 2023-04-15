@@ -45,8 +45,14 @@
 &nbsp;
         <div class="field">
             <div class="control buttons">
-                <button v-if="isEditMode" class="button is-success" @click.prevent="save()" :disabled="!isMaxSizeValid || !isDistanceValid">{{ i18n.genericSave }}</button>
-                <button v-if="!isEditMode" class="button is-danger" @click.prevent="edit()">{{ i18n.genericEdit }}</button>
+                <button v-if="isEditMode" class="button is-success" @click.prevent="save()" :disabled="!isMaxSizeValid || !isDistanceValid">
+                <span class="icon"><i class="fas fa-check"></i></span>
+                <span>{{ i18n.genericSave }}</span>
+              </button>
+                <button v-if="!isEditMode" class="button is-danger" @click.prevent="edit()">
+                <span class="icon"><i class="fas fa-pen"></i></span>
+                <span>{{ i18n.genericEdit }}</span>
+              </button>
             </div>
         </div>
     </div>

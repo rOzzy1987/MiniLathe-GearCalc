@@ -49,9 +49,15 @@
             &copy; {{i18n.credits}}
           </p>
           <p class="no-print">
-            <a href="https://github.com/rOzzy1987/MiniLathe-GearCalc" class="button is-small has-icon">
+            <a href="https://github.com/rOzzy1987/MiniLathe-GearCalc" class="button is-small has-icon" target="_blank">
               <span class="icon"><i class="fa-brands fa-github"></i></span>
               &nbsp;&nbsp;&nbsp;Contribute on GitHub
+            </a>
+          </p>
+          <p class="no-print">
+            <a href="https://revolut.me/mihlywer" class="button is-small has-icon" target="_blank">
+              <span class="icon"><i class="fas fa-credit-card"></i></span>
+              &nbsp;&nbsp;&nbsp;Buy me a drink
             </a>
           </p>
         </div>

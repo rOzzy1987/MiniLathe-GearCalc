@@ -19,7 +19,10 @@
       </div>
       <div class="control">
         <div class="buttons">
-            <button class="button is-primary" @click.prevent="saveConfig">{{ i18n.setupCalculate }}</button>
+            <button class="button is-primary" @click.prevent="saveConfig">
+                <span class="icon"><i class="fas fa-calculator"></i></span>
+                <span>{{ i18n.setupCalculate }}</span>
+              </button>
         </div>
       </div>
     </div>
