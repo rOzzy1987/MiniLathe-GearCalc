@@ -46,10 +46,12 @@ import { Pitch, PitchType } from '@/bll/pitch';
 import { PitchSetup } from '@/bll/pitchSetup';
 import GeartrainImg from '@/components/Graphics/GeartrainImg.vue';
 import GlobalConfig from '@/bll/globalConfig';
-import DataGrid, { GridColumnDefinition, GridSelectionMode } from '@/grid/DataGrid.vue';
+import DataGrid, { GridSelectionMode } from '@rozzy/vue-datagrid/src/DataGrid.vue';
+import { GridColumnDefinition } from '@rozzy/vue-datagrid/src/GridColumnDefinition';
 import { AddToFavoritesRowCommand, RemoveFavoriteRowCommand } from '@/components/PitchSetupTable.vue';
 import { Gear } from '@/bll/gear';
 import { GearHelper, PitchHelper } from '@/components/gridHelpers';
+import type { GridRowCommandDefinition } from '@rozzy/vue-datagrid/src/GridCommandDefinition';
 
 class NamedPitchSetup extends PitchSetup {
     public name: string = null!;
@@ -108,7 +110,7 @@ export default {
             imperialFineModel: [] as NamedPitchSetup[],
             bspModel: [] as NamedPitchSetup[],
             combos: GlobalConfig.combos,
-            rowCommands: [new AddToFavoritesRowCommand(), new RemoveFavoriteRowCommand()],
+            rowCommands: [new AddToFavoritesRowCommand(), new RemoveFavoriteRowCommand()] as GridRowCommandDefinition[],
             isExportEnabled: true,
             config: GlobalConfig.config,
             i18n,

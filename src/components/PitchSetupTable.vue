@@ -21,7 +21,10 @@
 </template>
 <script lang="ts">
 import GlobalConfig from '@/bll/globalConfig';
-import DataGrid, { GridColumnDefinition, GridRowCommandDefinition, GridSelectionMode, type IGridRowCommandDefinition } from '@/grid/DataGrid.vue';
+import DataGrid, { GridSelectionMode } from '@rozzy/vue-datagrid/src/DataGrid.vue';
+import { GridColumnDefinition } from '@rozzy/vue-datagrid/src/GridColumnDefinition';
+import { GridRowCommandDefinition, type IGridRowCommandDefinition } from '@rozzy/vue-datagrid/src/GridCommandDefinition';
+
 import { PitchSetup } from '@/bll/pitchSetup';
 import { GearHelper, PitchHelper } from './gridHelpers';
 
@@ -95,7 +98,7 @@ export default {
         isExportEnabled: {type: Boolean, default: false},
         isPrintEnabled: {type: Boolean, default: false},
         itemsPerPage: {type: Number, default: Number.POSITIVE_INFINITY},
-        rowCommands: {type: Array<IGridRowCommandDefinition>, default: [] },
+        rowCommands: {type: Array<GridRowCommandDefinition>, default: [] },
         hideModules: {type: Boolean, default: false},
     },
     computed: {
