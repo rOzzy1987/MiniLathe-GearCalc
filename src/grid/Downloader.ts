@@ -1,39 +1,11 @@
-
+import { Downloader, type IDownloaderImpl, WebDownloaderImpl } from "@rozzy/vue-datagrid/src/Downloader" 
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
-import { Device } from "@capacitor/device"
 import { Share } from "@capacitor/share"
-
-
-interface IDownloader {
-    download(content: string| Blob, fileName: string): Promise<void>;
-}
-
-interface IDownloaderImpl extends IDownloader {
-
-}
-
-class WebDownloaderImpl implements IDownloaderImpl {
-    public async download(content: string | Blob, fileName: string): Promise<void> {
-        const element = document.createElement('a');
-        
-        const uri = this.getUri(content);
-        element.setAttribute('href', uri);
-        element.setAttribute('download', fileName);
-        element.style.display = 'none';
-        document.body.appendChild(element);
-        element.click();
-        document.body.removeChild(element);
-    }
-
-    private getUri(content: string | Blob) {
-        return content.constructor.name == 'Blob'
-            ? window.URL.createObjectURL(content as Blob)
-            : 'data:text/plain;charset=utf-8,' + encodeURIComponent(content as string);
-    }
-}
+import { DeviceHelper } from "@/bll/device";
 
 class MobileNativeDownloaderImpl implements IDownloaderImpl {
-    public async download(content: string | Blob, fileName: string){
+    public async download(content: string | Blob, fileName: string): Promise<void>{
+        console.log("mobile download");
         const newFilename = await this.getActualFilename(fileName);
         if (newFilename == null)
             return; 
@@ -76,17 +48,17 @@ class MobileNativeDownloaderImpl implements IDownloaderImpl {
     }
 }
 
-abstract class DownloaderBase {
-    private _impl: IDownloaderImpl | null = null;
+abstract class GCDownloaderBase extends Downloader {
     protected async getImpl(): Promise<IDownloaderImpl> {
         if (this._impl == null)
-            this._impl = (await Device.getInfo()).platform == "web"
+            this._impl = !(await DeviceHelper.isNativeApp())
                 ? new WebDownloaderImpl()
                 : new MobileNativeDownloaderImpl();
         return this._impl;
     } 
 }
-export default class Downloader extends DownloaderBase {
+
+export default class GCDownloader extends GCDownloaderBase {
     public async download(content: string | Blob, fileName: string){
         (await this.getImpl()).download(content, fileName);
     }

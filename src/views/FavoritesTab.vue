@@ -30,15 +30,17 @@ import GeartrainImg from '@/components/Graphics/GeartrainImg.vue';
 import PitchSetupTable, { AddToFavoritesRowCommand, RemoveFavoriteRowCommand } from '@/components/PitchSetupTable.vue';
 import GlobalConfig from '@/bll/globalConfig';
 import { Gear } from '@/bll/gear';
+import type { GridRowCommandDefinition } from '@rozzy/vue-datagrid/src/GridCommandDefinition';
 
 
 export default {
     data(){
+        const rowCommands: GridRowCommandDefinition[] = [new AddToFavoritesRowCommand(), new RemoveFavoriteRowCommand()];
         return {
             selectedSetup: new PitchSetup(Gear.fromString("M1Z20"), undefined, undefined, Gear.fromString("M1Z80"), new Pitch(1, PitchType.Metric)),
             orderBy: "pm",
             orderAscending: true,
-            rowCommands: [new AddToFavoritesRowCommand(), new RemoveFavoriteRowCommand()],
+            rowCommands,
             config: GlobalConfig.config,
             model: GlobalConfig.favorites,
             i18n: GlobalConfig.i18n

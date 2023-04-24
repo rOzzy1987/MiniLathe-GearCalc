@@ -7,27 +7,27 @@
         <div class="column">
             <div class="block">
                 <div class="title is-3">{{ i18n.ptMetricCoarse }}</div>
-                <DataGrid v-model="metricModel" v-model:columns="cols" :is-sortable="false" :selection-mode="GridSelectionMode.One" v-model:selectedItems="selectedItems" :isExportEnabled="isExportEnabled" :isPrintEnabled="isPrintEnabled" :row-commands="rowCommands" :exportText="i18n.genericExportCsv" :emptyText="i18n.genericEmpty"/>
+                <DataGrid v-model="metricModel" v-model:columns="cols" :is-sortable="false" :selection-mode="GridSelectionMode.One" v-model:selectedItems="selectedItems" :isExportEnabled="isExportEnabled" :isPrintEnabled="isPrintEnabled" :row-commands="rowCommands" :exportText="i18n.genericExportCsv" :emptyText="i18n.genericEmpty" :downloader="ref(downloader)"/>
             </div>
             <div class="block">
                 <div class="title is-3">{{ i18n.ptMetricFine }}</div>
-                <DataGrid v-model="metricFineModel" v-model:columns="cols" :is-sortable="false" :selection-mode="GridSelectionMode.One" v-model:selectedItems="selectedItems" :isExportEnabled="isExportEnabled" :isPrintEnabled="isPrintEnabled" :row-commands="rowCommands" :exportText="i18n.genericExportCsv" :emptyText="i18n.genericEmpty"/>
+                <DataGrid v-model="metricFineModel" v-model:columns="cols" :is-sortable="false" :selection-mode="GridSelectionMode.One" v-model:selectedItems="selectedItems" :isExportEnabled="isExportEnabled" :isPrintEnabled="isPrintEnabled" :row-commands="rowCommands" :exportText="i18n.genericExportCsv" :emptyText="i18n.genericEmpty" :downloader="ref(downloader)"/>
             </div>
             <div class="block">
                 <div class="title is-3">{{ i18n.ptMetricSuperfine }}</div>
-                <DataGrid v-model="metricSFineModel" v-model:columns="cols" :is-sortable="false" :selection-mode="GridSelectionMode.One" v-model:selectedItems="selectedItems" :isExportEnabled="isExportEnabled" :isPrintEnabled="isPrintEnabled" :row-commands="rowCommands" :exportText="i18n.genericExportCsv" :emptyText="i18n.genericEmpty"/>
+                <DataGrid v-model="metricSFineModel" v-model:columns="cols" :is-sortable="false" :selection-mode="GridSelectionMode.One" v-model:selectedItems="selectedItems" :isExportEnabled="isExportEnabled" :isPrintEnabled="isPrintEnabled" :row-commands="rowCommands" :exportText="i18n.genericExportCsv" :emptyText="i18n.genericEmpty" :downloader="ref(downloader)"/>
             </div>
             <div class="block">
                 <div class="title is-3">{{ i18n.ptImperialCoarse }}</div>
-                <DataGrid v-model="imperialModel" v-model:columns="cols" :is-sortable="false" :selection-mode="GridSelectionMode.One" v-model:selectedItems="selectedItems" :isExportEnabled="isExportEnabled" :isPrintEnabled="isPrintEnabled" :row-commands="rowCommands" :exportText="i18n.genericExportCsv" :emptyText="i18n.genericEmpty"/>
+                <DataGrid v-model="imperialModel" v-model:columns="cols" :is-sortable="false" :selection-mode="GridSelectionMode.One" v-model:selectedItems="selectedItems" :isExportEnabled="isExportEnabled" :isPrintEnabled="isPrintEnabled" :row-commands="rowCommands" :exportText="i18n.genericExportCsv" :emptyText="i18n.genericEmpty" :downloader="ref(downloader)"/>
             </div>
             <div class="block">
                 <div class="title is-3">{{ i18n.ptImperialFine }}</div>
-                <DataGrid v-model="imperialFineModel" v-model:columns="cols" :is-sortable="false" :selection-mode="GridSelectionMode.One" v-model:selectedItems="selectedItems" :isExportEnabled="isExportEnabled" :isPrintEnabled="isPrintEnabled" :row-commands="rowCommands" :exportText="i18n.genericExportCsv" :emptyText="i18n.genericEmpty"/>
+                <DataGrid v-model="imperialFineModel" v-model:columns="cols" :is-sortable="false" :selection-mode="GridSelectionMode.One" v-model:selectedItems="selectedItems" :isExportEnabled="isExportEnabled" :isPrintEnabled="isPrintEnabled" :row-commands="rowCommands" :exportText="i18n.genericExportCsv" :emptyText="i18n.genericEmpty" :downloader="ref(downloader)"/>
             </div>
             <div class="block">
                 <div class="title is-3">{{ i18n.ptBritishPipe }}</div>
-                <DataGrid v-model="bspModel" v-model:columns="cols" :is-sortable="false" :selection-mode="GridSelectionMode.One" v-model:selectedItems="selectedItems" :isExportEnabled="isExportEnabled" :isPrintEnabled="isPrintEnabled" :row-commands="rowCommands" :exportText="i18n.genericExportCsv" :emptyText="i18n.genericEmpty"/>
+                <DataGrid v-model="bspModel" v-model:columns="cols" :is-sortable="false" :selection-mode="GridSelectionMode.One" v-model:selectedItems="selectedItems" :isExportEnabled="isExportEnabled" :isPrintEnabled="isPrintEnabled" :row-commands="rowCommands" :exportText="i18n.genericExportCsv" :emptyText="i18n.genericEmpty" :downloader="ref(downloader)"/>
             </div>
         </div>
         <div class="column no-print">
@@ -46,12 +46,15 @@ import { Pitch, PitchType } from '@/bll/pitch';
 import { PitchSetup } from '@/bll/pitchSetup';
 import GeartrainImg from '@/components/Graphics/GeartrainImg.vue';
 import GlobalConfig from '@/bll/globalConfig';
-import DataGrid, { GridSelectionMode } from '@/grid/DataGrid.vue';
+import DataGrid, { GridSelectionMode } from '@rozzy/vue-datagrid/src/DataGrid.vue';
+import { GridColumnDefinition } from '@rozzy/vue-datagrid/src/GridColumnDefinition';
 import { AddToFavoritesRowCommand, RemoveFavoriteRowCommand } from '@/components/PitchSetupTable.vue';
 import { Gear } from '@/bll/gear';
 import { GearHelper, PitchHelper } from '@/components/gridHelpers';
-import { GridColumnDefinition } from '@/grid/GridColumnDefinition';
 import { DeviceHelper } from '@/bll/device';
+import GCDownloader from '@/grid/Downloader';
+import type { GridRowCommandDefinition } from '@rozzy/vue-datagrid/src/GridCommandDefinition';
+import { ref } from 'vue';
 
 class NamedPitchSetup extends PitchSetup {
     public name: string = null!;
@@ -75,6 +78,7 @@ class NamedPitchSetup extends PitchSetup {
 export default {
     data(){
         const i18n = GlobalConfig.i18n;
+        const downloader = new GCDownloader();
         return {
             selectedSetup: new NamedPitchSetup(Gear.fromString("M1Z20"), undefined, undefined, Gear.fromString("M1Z80"), new Pitch(1, PitchType.Metric)),
             cols: [
@@ -111,10 +115,12 @@ export default {
             imperialFineModel: [] as NamedPitchSetup[],
             bspModel: [] as NamedPitchSetup[],
             combos: GlobalConfig.combos,
-            rowCommands: [new AddToFavoritesRowCommand(), new RemoveFavoriteRowCommand()],
+            rowCommands: [new AddToFavoritesRowCommand(), new RemoveFavoriteRowCommand()] as GridRowCommandDefinition[],
             isExportEnabled: true,
             config: GlobalConfig.config,
+            downloader,
             i18n,
+            ref: ref,
             GridSelectionMode: GridSelectionMode
         }
     },
