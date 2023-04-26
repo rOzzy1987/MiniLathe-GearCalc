@@ -54,16 +54,16 @@ export class WorkerClient<T> {
                 } 
             }
             WorkerClient._workers[module] = w;
+
+            console.log(`[[WorkerClient]] Client created: ${module}`);
         }
         this.worker = WorkerClient._workers[module];
-
-        console.log(`[[WorkerClient]] Client created: ${module}`);
     }
 
     private clearPromiseFns(id: string){
         WorkerClient._requests[id] = undefined;
         
-        console.log(`[[WorkerClient]] Promise functions cleared`);
+        console.log(`[[WorkerClient]] Promise functions cleared ${id}`);
     }
 
     private resolve(id: string, result: T){
@@ -72,6 +72,7 @@ export class WorkerClient<T> {
             console.error("resolveFn null!", WorkerClient._requests, id);
         } else {
             o.resolve(result);
+            console.log(`[[WorkerClient]] Promise resolved: ${id}`);
         }
         this.clearPromiseFns(id);
     }
@@ -85,7 +86,7 @@ export class WorkerClient<T> {
                 return;
         else{
             o.reject(reason);
-            console.log(`[[WorkerClient]] Promise rejected:`, reason);
+            console.log(`[[WorkerClient]] Promise rejected: ${id}`, reason);
         }
         this.clearPromiseFns(id);
     }
