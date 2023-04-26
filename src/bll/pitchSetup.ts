@@ -1,5 +1,6 @@
 import { Gear, Gears } from "./gear";
-import GlobalConfig from "./globalConfig";
+import type LatheConfig from "./latheConfig";
+// import GlobalConfig from "./globalConfig";
 import { Pitch, PitchType } from "./pitch";
 
 
@@ -32,14 +33,13 @@ export class PitchSetup {
         );
     }
 
-    public isValid(): boolean {
+    public isValid(minTeeth: number): boolean {
         return this.areGearsProvided() &&
             this.areModulesMatching() &&
-            this.areGearsClearingAxles();
+            this.areGearsClearingAxles(minTeeth);
     }
 
-    public areGearsClearingAxles(){
-        const config = GlobalConfig.config;
+    public areGearsClearingAxles(minTeeth: number){
         const pcA = Gears.pitchRadius(this.gearA)!;
         const pcB = Gears.pitchRadius(this.gearB)!;
         const pcC = Gears.pitchRadius(this.gearC)!;
@@ -47,7 +47,7 @@ export class PitchSetup {
         const axleRadius = 8;
 
         // the banjo can't stretch long enough
-        if (pcA + pcB + pcC + pcD <= config.minTeeth)
+        if (pcA + pcB + pcC + pcD <= minTeeth)
             return false;
 
         // gear B interferes with the leadscrew axle

@@ -82,7 +82,7 @@ import SetupTab from './views/SetupTab.vue';
 
 export default {
     data() {
-        const combinator = new CombinationFinder();
+        const combinator = new CombinationFinder((b, p) => this.setProgress(b, p));
         return {
             activeTab: GlobalConfig.favorites.length > 0 ? ActiveTabs.Favorites : ActiveTabs.PitchTable,
             combinator,
@@ -95,20 +95,19 @@ export default {
             i18n: GlobalConfig.i18n,
             isLoading: false,
             loadingProgress: (undefined as number | undefined),
-            worker: combinator.createWorker(r => GlobalConfig.combos = r, b => this.setLoading(b), p => this.setProgress(p)),
             i: 0
         };
     },
     methods: {
-      setLoading(l: boolean) { this.isLoading = l; },
-      setProgress(p: number) { this.loadingProgress = p; }
+      setProgress(l: boolean, p: number) { this.isLoading = l; this.loadingProgress = p; }
     },
-    mounted() {
+    async mounted() {
       if(GlobalConfig.combos.length == 0 && GlobalConfig.config.gears.length > 2)
       {
-          this.combinator.runWorker(GlobalConfig.config.gears, GlobalConfig.config.leadscrew, this.worker);
-
-          this.i++;
+          (async () => {
+            GlobalConfig.combos = await this.combinator.findAllCombinationsAsync();
+            this.i++;}
+          )()
       }
     },
     components: { SetupTab, PitchTableTab, PitchForGearsTab, GearsForPitchTab, LanguageSelector, FavoritesTab, LoadingOverlay }

@@ -2,10 +2,28 @@ import { PitchSetup } from './pitchSetup';
 import type LatheConfig from './latheConfig';
 import type { Pitch } from './pitch';
 import { Gears, type Gear } from './gear';
+import GlobalConfig from './globalConfig';
+import { WorkerClient } from './backgroundWorker';
 
 
 export default class CombinationFinder {
-    public findAllCombinations(config: LatheConfig, reportProgressFn: ((x: number | undefined) => void) | null = null): PitchSetup[]{
+
+    private workerClient!: WorkerClient<PitchSetup[]>;
+    private progressFn: (b: boolean, p: number | undefined) => void = ()=>{};
+
+    public constructor(progressFn: (b: boolean, p: number | undefined) => void = ()=>{}, isWorker: boolean = false) {
+        this.progressFn = progressFn;
+        if(!isWorker)
+            this.createWorker(progressFn);
+    }
+
+    private createWorker(progressFn: (b: boolean, p: number | undefined) => void = ()=>{}){
+        const c = new WorkerClient<PitchSetup[]>();
+        c.createWorker('/combinations.js', (o) => o?.map((i: any) => PitchSetup.fromPlainObject(i)), progressFn);
+        this.workerClient = c;
+    }
+
+    public findAllCombinations(config: LatheConfig): PitchSetup[]{
         const millis = Date.now();
         const gears = config.gears.slice().sort((a,b) => Gears.compare(a, b));
 
@@ -37,66 +55,31 @@ export default class CombinationFinder {
                             continue;
 
                         const ps = this.findMetricPitch(ga, gb, gc, gd, config.leadscrew);
-                        if(!ps.isValid())
+                        if(!ps.isValid(config.minTeeth))
                             continue;
                         comboDict[k] = ps;
                     }                    
                 }
             }
-            if(reportProgressFn != null) {
-                reportProgressFn(a / gears.length);
-            }
-            
+                this.progressFn(true, a / gears.length);
         }
 
-        
-        if(reportProgressFn != null) {
-            reportProgressFn(undefined);
-        }
+        this.progressFn(true, undefined);
 
         let allCombos: PitchSetup[] = [];
         for(const i in comboDict)
         {
-                allCombos.push(comboDict[i]);
+            allCombos.push(comboDict[i]);
         }
         allCombos = allCombos.sort((a,b) => a.pitch.value - b.pitch.value);
 
-        console.info(`Gear combos found: ${allCombos.length} in ${Date.now()-millis}ms`);
+        console.info(`[[CobinationFinder]] Gear combos found: ${allCombos.length} in ${Date.now()-millis}ms`);
 
         return allCombos;
     }
 
-    public createWorker(resultHandler: (r: PitchSetup[]) => void, isBusyHandler: (busy: boolean)=> void = ()=>{}, progressHandler: (p: number) => void = ()=>{}): Worker {
-        const w = new Worker('/combinations-worker.js');
-
-        w.onmessage = (ev: MessageEvent) => {
-            if (ev.data.key == "working") {
-              isBusyHandler(ev.data.value);
-            } else if (ev.data.key == "progress") {
-              progressHandler(ev.data.value);
-            } else if (ev.data.key == "combos"){
-              resultHandler(this.processWorkerResult(ev.data.value));
-            } 
-          }
-        return w;
-    }
-
-    public runWorker(gears: Gear[], leadscrew: Pitch, w: Worker) {
-        w.postMessage({
-            gears: gears.map(g => g.toPlainObject()), 
-            leadscrew: leadscrew.toPlainObject()
-        });
-    }
-
-    private processWorkerResult(r: any[]){
-        try {
-            const result = r.map(i => PitchSetup.fromPlainObject(i)).filter(s => s.isValid())
-            console.info(`Valid gear combos found: ${result.length}`);
-            return result;
-        } catch(e) {
-            console.log(e);
-            return [];
-        }
+    public async findAllCombinationsAsync(): Promise<PitchSetup[]>{
+        return await this.workerClient.runWorker(GlobalConfig.config.toPlainObject());
     }
 
     public findMetricPitch(gearA: Gear | undefined, gearB: Gear | undefined, gearC: Gear | undefined, gearD: Gear | undefined, leadscrew: Pitch): PitchSetup {
