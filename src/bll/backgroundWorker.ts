@@ -30,28 +30,32 @@ export default class BackgroundWorker {
 }
 
 export class WorkerClient<T> {
+    private static _workers: any = {};
 
     private worker!: Worker;
     private resolveFn: ((o: T) => void) | null = null;
     private rejectFn: ((err: any) => void) | null = null;
 
     public createWorker(module: string, fromPlainObjectFn: (o:any) => T = (o) => o as T, progressHandler: (b: boolean, p: number | undefined) => void = ()=>{}) {
-        const w = new Worker(module, {type: "module"});
+        if (WorkerClient._workers[module] == undefined) {
+            const w = new Worker(module, {type: "module"});
 
-        const _this = this;
+            const _this = this;
 
-        w.onmessage = (ev: MessageEvent) => {
-            if (ev.data.key == "working") {
-            progressHandler(ev.data.value, undefined);
-            } else if (ev.data.key == "progress") {
-            progressHandler(true, ev.data.value);
-            } else if (ev.data.key == "result"){
-                _this.resolve(fromPlainObjectFn(ev.data.value));
-            } else if (ev.data.key == "error"){
-                _this.reject(ev.data.value);
-            } 
+            w.onmessage = (ev: MessageEvent) => {
+                if (ev.data.key == "working") {
+                progressHandler(ev.data.value, undefined);
+                } else if (ev.data.key == "progress") {
+                progressHandler(true, ev.data.value);
+                } else if (ev.data.key == "result"){
+                    _this.resolve(fromPlainObjectFn(ev.data.value));
+                } else if (ev.data.key == "error"){
+                    _this.reject(ev.data.value);
+                } 
+            }
+            WorkerClient._workers[module] = w;
         }
-        this.worker = w;
+        this.worker = WorkerClient._workers[module];
 
         console.log(`[[WorkerClient]] Client created: ${module}`);
     }
