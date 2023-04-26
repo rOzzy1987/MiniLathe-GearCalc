@@ -2,5 +2,8 @@ import { createApp } from 'vue'
 import App from './App.vue'
 
 import './assets/main.css'
+import GlobalConfig from './bll/globalConfig'
 
-createApp(App).mount('#app')
+GlobalConfig.loadAll().then(() => {
+    createApp(App).mount('#app');
+});

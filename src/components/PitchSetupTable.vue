@@ -9,13 +9,14 @@
         :isSortable="isSortable" 
         :selectionMode="GridSelectionMode.One"
         :isExportEnabled="isExportEnabled"
-        :isPrintEnabled="isPrintEnabled"
+        :isPrintEnabled="isPrintEnabled && !isNativeApp"
         :isItemsPerPageEditable="isItemsPerPageEditable"
         :itemsPerPage="itemsPerPage"
         :rowCommands="rowCommands"
         :emptyText="i18n.genericEmpty"
         :exportText="i18n.genericExportCsv"
         :printText="i18n.genericPrint"
+        :downloader="ref(downloader)"
         :pagingFooterText="'{0}/{1}'"/>
     </div>
 </template>
@@ -27,6 +28,9 @@ import { GridRowCommandDefinition, type IGridRowCommandDefinition } from '@rozzy
 
 import { PitchSetup } from '@/bll/pitchSetup';
 import { GearHelper, PitchHelper } from './gridHelpers';
+import { DeviceHelper } from '@/bll/device';
+import GCDownloader from '@/grid/Downloader';
+import { ref } from 'vue';
 
 export class AddToFavoritesRowCommand extends GridRowCommandDefinition {
     public constructor(){
@@ -50,6 +54,7 @@ export class RemoveFavoriteRowCommand extends GridRowCommandDefinition {
 export default {
     data() {
         const i18n = GlobalConfig.i18n;
+        const downloader = new GCDownloader();
         return {
             cols: [
                 new GridColumnDefinition("a", "A", i => i.gearA)
@@ -81,9 +86,12 @@ export default {
                     .withSortForValues(PitchHelper.sortFnPreferImperial)
                     .withStyle("width: 30%").withAlignRight().withHeaderAlignRight(),
             ],
+            isNativeApp: true,
             config: GlobalConfig.config,
             favorites: GlobalConfig.favorites,
+            downloader,
             i18n,
+            ref: ref,
             GridSelectionMode: GridSelectionMode
         };
     },
@@ -98,7 +106,7 @@ export default {
         isExportEnabled: {type: Boolean, default: false},
         isPrintEnabled: {type: Boolean, default: false},
         itemsPerPage: {type: Number, default: Number.POSITIVE_INFINITY},
-        rowCommands: {type: Array<GridRowCommandDefinition>, default: [] },
+        rowCommands: {type: Array<IGridRowCommandDefinition>, default: [] as IGridRowCommandDefinition[] },
         hideModules: {type: Boolean, default: false},
     },
     computed: {
@@ -125,6 +133,9 @@ export default {
         isMultiModule() {
             return this.config.isMultiModule;
         }
+    },
+    async created() {
+        this.isNativeApp = await DeviceHelper.isNativeApp();
     },
     components: { DataGrid }
 }

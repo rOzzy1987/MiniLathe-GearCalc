@@ -45,15 +45,13 @@ export default {
         var distance = mv?.minTeeth;
         var maxSize = mv?.maxSize;
         var geartrainSize = mv?.geartrainSize;
-        var combinator = new CombinationFinder();
-        var worker = combinator.createWorker(r => GlobalConfig.combos = r, b => this.setLoading(b), p => this.setProgress(p));
+        var combinator = new CombinationFinder((b, p) => this.setProgress(b, p));
         return {
             gears,
             pitch,
             distance,
             maxSize,
             geartrainSize,
-            worker,
             combinator,
             i18n: GlobalConfig.i18n,
         };
@@ -71,11 +69,12 @@ export default {
             config.maxSize = this.maxSize;
             config.geartrainSize = this.geartrainSize;
             GlobalConfig.config = config;
-
-            this.combinator.runWorker(config.gears, config.leadscrew, this.worker);
+            GlobalConfig.combos = await this.combinator.findAllCombinationsAsync();
         },
-        setLoading(l: boolean) { this.$emit("update:isBusy", l); },
-        setProgress(p: number) { this.$emit("update:progress", p); }
+        setProgress(b: boolean, p: number) { 
+          this.$emit("update:isBusy", b);
+          this.$emit("update:progress", p); 
+        }
     },
     components: { GearListEditor, LeadscrewWizard, OtherParamsEditor, LanguageSelector }
 }
