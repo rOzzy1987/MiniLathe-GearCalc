@@ -10,31 +10,31 @@ export default class BackgroundWorker {
   
     public initWorker(workFn: (param: any) => Promise<IToPlainObject | IToPlainObject[] | undefined>) {
         self.addEventListener("message", async (event) => {
-            postMessage({ key: "working", value: true });
-            if(event.data) {
-                try {
-                const result = await workFn(event.data);
+            const params = event.data.params;
+            const id = event.data.id;
+            postMessage({ key: "working", id, value: true });
+            try {
+
+                const result = await workFn(params);
                 let data = undefined;
                 if (Array.isArray(result))
                     data = result.map(i => i.toPlainObject());
                 else if(result != undefined)
                     data = result.toPlainObject()
-                postMessage({key: 'result', value: data});
-                } catch (e) {
-                    postMessage({key: 'error', value: e});
-                }
+                postMessage({key: 'result', id, value: data});
+            } catch (e) {
+                postMessage({key: 'error', id, value: e});
             }
-            postMessage({ key: "working", value: false });
+            postMessage({ key: "working", id, value: false });
         });
     }
 }
 
 export class WorkerClient<T> {
     private static _workers: any = {};
+    private static _requests: any = {};
 
     private worker!: Worker;
-    private resolveFn: ((o: T) => void) | null = null;
-    private rejectFn: ((err: any) => void) | null = null;
 
     public createWorker(module: string, fromPlainObjectFn: (o:any) => T = (o) => o as T, progressHandler: (b: boolean, p: number | undefined) => void = ()=>{}) {
         if (WorkerClient._workers[module] == undefined) {
@@ -48,9 +48,9 @@ export class WorkerClient<T> {
                 } else if (ev.data.key == "progress") {
                 progressHandler(true, ev.data.value);
                 } else if (ev.data.key == "result"){
-                    _this.resolve(fromPlainObjectFn(ev.data.value));
+                    _this.resolve(ev.data.id, fromPlainObjectFn(ev.data.value));
                 } else if (ev.data.key == "error"){
-                    _this.reject(ev.data.value);
+                    _this.reject(ev.data.id, ev.data.value);
                 } 
             }
             WorkerClient._workers[module] = w;
@@ -60,49 +60,52 @@ export class WorkerClient<T> {
         console.log(`[[WorkerClient]] Client created: ${module}`);
     }
 
-    private clearPromiseFns(){
-        if(this.resolveFn == null && this.rejectFn == null)
-            return;
-        this.resolveFn = null;
-        this.rejectFn = null;
+    private clearPromiseFns(id: string){
+        WorkerClient._requests[id] = undefined;
         
         console.log(`[[WorkerClient]] Promise functions cleared`);
     }
 
-    private resolve(o: T){
-        if( this.resolveFn == null)
-            console.error("resolveFn null!", this);
-        else {
-            this.resolveFn(o);
-            console.log(`[[WorkerClient]] Promise resolved`);
+    private resolve(id: string, result: T){
+        const o = WorkerClient._requests[id];
+        if (o == undefined) {
+            console.error("resolveFn null!", WorkerClient._requests, id);
+        } else {
+            o.resolve(result);
         }
-        this.clearPromiseFns();
+        this.clearPromiseFns(id);
     }
 
-    private reject(o: any, strict: boolean = true) {
-        if( this.rejectFn == null)
+    private reject(id: string, reason: any, strict: boolean = true) {
+        const o = WorkerClient._requests[id];
+        if (o == undefined)
             if(strict) 
-                console.error("rejectFn null!", this);
+                console.error("rejectFn null!", WorkerClient._requests, id);
             else 
                 return;
         else{
-            this.rejectFn(o);
-            console.log(`[[WorkerClient]] Promise rejected:`, o);
+            o.reject(reason);
+            console.log(`[[WorkerClient]] Promise rejected:`, reason);
         }
-        this.clearPromiseFns();
+        this.clearPromiseFns(id);
     }
 
     public runWorker(params: any): Promise<T> {
         const _this = this;
-        setTimeout(()=> {
-                _this.reject("Timeout", false);
-        }, 5000);
-        const p = new Promise<T>((res, rej) => {
-            console.log("[[WorkerClient]] New promise");
+        let id: string;
+        do {
+            id = `req-id-${Math.round(Math.random()*100000)}`;
+        } while (id in WorkerClient._requests);
 
-            _this.resolveFn = res;
-            _this.rejectFn = rej;
-            _this.worker.postMessage(params);
+        setTimeout(()=> {
+                _this.reject(id, "Timeout", false);
+        }, 5000);
+        const p = new Promise<T>((resolve, reject) => {
+
+            WorkerClient._requests[id] = {resolve, reject}
+            console.log(`[[WorkerClient]] New promise: ${id}`);
+
+            _this.worker.postMessage({id, params});
         });
         
         return p;
