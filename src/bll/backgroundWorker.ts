@@ -42,6 +42,22 @@ export class WorkerClient<T> {
 
             const _this = this;
 
+            w.onerror = (ev: ErrorEvent): any => {
+                console.error("[[WorkerClient]] Worker error: ", ev);
+
+                const msg = "Worker creation failed!\n\nIf you're using Firefox or other firefox based browsers, you should switch to Chrome, Edge, Vivaldi, "+
+                "or any other Chromium based browser.\n\n"+
+                "Until Mozilla decides to properly support module typed workers, you're out of luck.";
+                alert(msg);
+
+                _this.worker.terminate();
+                const blob = new Blob([`self.addEventListener("message", () => postMessage({}))`], {type: "application/javascript"});
+                const ew = new Worker(URL.createObjectURL(blob));
+                ew.onmessage = () => alert(msg);
+                WorkerClient._workers[module] = ew;
+                _this.worker = ew;
+            }
+
             w.onmessage = (ev: MessageEvent) => {
                 if (ev.data.key == "working") {
                 progressHandler(ev.data.value, undefined);
@@ -51,7 +67,7 @@ export class WorkerClient<T> {
                     _this.resolve(ev.data.id, fromPlainObjectFn(ev.data.value));
                 } else if (ev.data.key == "error"){
                     _this.reject(ev.data.id, ev.data.value);
-                } 
+                }
             }
             WorkerClient._workers[module] = w;
 
@@ -91,7 +107,7 @@ export class WorkerClient<T> {
         this.clearPromiseFns(id);
     }
 
-    public runWorker(params: any): Promise<T> {
+    public runWorker(params: any, timeoutMs: number = 5000): Promise<T> {
         const _this = this;
         let id: string;
         do {
@@ -99,12 +115,12 @@ export class WorkerClient<T> {
         } while (id in WorkerClient._requests);
 
         setTimeout(()=> {
-                _this.reject(id, "Timeout", false);
-        }, 5000);
+            _this.reject(id, "Timeout", false);
+        }, timeoutMs);
         const p = new Promise<T>((resolve, reject) => {
 
             WorkerClient._requests[id] = {resolve, reject}
-            console.log(`[[WorkerClient]] New promise: ${id}`);
+            console.log(`[[WorkerClient]] New promise: ${id}`, _this.worker);
 
             _this.worker.postMessage({id, params});
         });
